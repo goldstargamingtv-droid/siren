@@ -14,8 +14,8 @@
         }
 
         :root {
-            --bg-primary: #000000;
-            --bg-secondary: #0a0a0f;
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
             --accent-primary: #ef4444;
             --accent-secondary: #f97316;
             --accent-tertiary: #dc2626;
@@ -152,7 +152,7 @@
             flex-direction: column;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.5s ease;
+            transition: all 0.3s ease;
         }
         
         .site-loader.active {
@@ -554,56 +554,6 @@
             border-color: rgba(255, 255, 255, 0.5);
         }
 
-        /* Background with animated gradient */
-        .app-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .bg-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.6;
-            animation: orbFloat 25s ease-in-out infinite;
-        }
-
-        .bg-orb-1 {
-            width: 700px;
-            height: 700px;
-            background: rgba(239, 68, 68, 0.45);
-            top: -200px;
-            left: -200px;
-        }
-
-        .bg-orb-2 {
-            width: 600px;
-            height: 600px;
-            background: rgba(249, 115, 22, 0.4);
-            bottom: -150px;
-            right: -150px;
-            animation-delay: -8s;
-        }
-
-        .bg-orb-3 {
-            width: 500px;
-            height: 500px;
-            background: rgba(249, 115, 22, 0.3);
-            top: 40%;
-            left: 30%;
-            animation-delay: -16s;
-        }
-
-        @keyframes orbFloat {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(60px, -40px) scale(1.1); }
-            50% { transform: translate(-40px, 60px) scale(0.95); }
-            75% { transform: translate(-60px, -30px) scale(1.05); }
-        }
-
         /* App Container */
         .app-container {
             display: flex;
@@ -627,7 +577,7 @@
             display: flex;
             flex-direction: column;
             z-index: 100;
-            overflow: visible;
+            overflow: hidden;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             max-height: 70px;
             transform-origin: top center;
@@ -636,6 +586,7 @@
         .sidebar.expanded {
             max-height: 700px;
             padding-bottom: 2.5rem;
+            overflow: visible;
         }
         
         /* Outer glow aura - extends beyond bubble */
@@ -683,8 +634,13 @@
             justify-content: center;
             cursor: pointer;
             z-index: 200;
+            outline: none;
             box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3), 0 4px 30px rgba(249, 115, 22, 0.2), inset 0 0 20px rgba(239, 68, 68, 0.1);
             transition: all 0.3s ease;
+        }
+        
+        .sidebar-toggle:focus {
+            outline: none;
         }
         
         .sidebar-toggle:hover {
@@ -720,9 +676,139 @@
         .sidebar-header {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            justify-content: center;
             min-height: 42px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-right: 50px; /* Room for toggle button */
+            position: relative;
+            z-index: 5;
+        }
+        
+        /* In collapsed state, logo on left */
+        .sidebar:not(.expanded) .sidebar-header {
+            justify-content: flex-start;
+        }
+        
+        /* Sidebar Logo */
+        .sidebar-logo {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            position: relative;
+            text-decoration: none;
+            text-transform: uppercase;
+            white-space: nowrap;
+            outline: none;
+            border-bottom: 1px solid transparent;
+            
+            /* Base gradient */
+            background: linear-gradient(
+                180deg, 
+                #fcd7a0 0%,
+                #f97316 25%,
+                #ef4444 50%,
+                #dc2626 75%,
+                #991b1b 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            
+            /* Embossed depth */
+            filter: drop-shadow(0 1px 0 rgba(255, 200, 150, 0.3))
+                    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))
+                    drop-shadow(0 4px 8px rgba(239, 68, 68, 0.15));
+            
+            transition: filter 0.3s ease, font-size 0.15s ease, letter-spacing 0.15s ease, padding 0.15s ease, border-color 0.15s ease, text-align 0.15s ease;
+        }
+        
+        .sidebar-logo:focus {
+            outline: none;
+        }
+        
+        /* Warm glow behind */
+        .sidebar-logo::before {
+            content: 'SIREN';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: blur(10px);
+            opacity: 0.4;
+            z-index: -1;
+        }
+        
+        /* Shine sweep effect */
+        .sidebar-logo::after {
+            content: 'SIREN';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                120deg, 
+                transparent 0%,
+                transparent 30%,
+                rgba(255, 255, 255, 0.7) 48%,
+                rgba(255, 220, 180, 0.8) 50%,
+                rgba(255, 255, 255, 0.7) 52%,
+                transparent 70%,
+                transparent 100%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: sidebarLogoShine 5s ease-in-out infinite;
+            z-index: 1;
+        }
+        
+        @keyframes sidebarLogoShine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .sidebar-logo:hover {
+            filter: drop-shadow(0 1px 0 rgba(255, 200, 150, 0.4))
+                    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5))
+                    drop-shadow(0 6px 12px rgba(239, 68, 68, 0.25));
+        }
+        
+        /* When sidebar is expanded, center logo */
+        .sidebar.expanded .sidebar-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+            padding-right: 0;
+            min-height: auto;
+        }
+        
+        .sidebar.expanded .sidebar-logo {
+            font-size: 1.4rem;
+            letter-spacing: 0.3em;
+            text-align: center;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .sidebar.expanded .header-user {
+            display: flex;
+            visibility: visible;
+            padding-top: 0.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 0.25rem;
+            pointer-events: auto;
+        }
+        
+        .header-user {
+            display: none;
+            visibility: hidden;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            position: relative;
+            opacity: 0;
+            pointer-events: none;
         }
 
         .user-avatar {
@@ -741,6 +827,7 @@
             box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3), inset 0 0 20px rgba(239, 68, 68, 0.15);
             transition: all 0.3s ease;
             position: relative;
+            cursor: pointer;
         }
         
         .user-avatar::before {
@@ -773,7 +860,6 @@
             border: 1px solid rgba(239, 68, 68, 0.15);
         }
         
-        /* Second border arc */
         .avatar-border-arc {
             position: absolute;
             inset: -2px;
@@ -794,13 +880,11 @@
             pointer-events: none;
         }
         
-        /* Arc 1 spins clockwise */
         @keyframes avatarBorderBounce1 {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
         
-        /* Arc 2 spins counter-clockwise */
         @keyframes avatarBorderBounce2 {
             0% { transform: rotate(180deg); }
             100% { transform: rotate(-180deg); }
@@ -830,19 +914,9 @@
             transform: scale(1.1);
         }
 
-        .user-info {
-            display: block;
-            white-space: nowrap;
-        }
-
-        .user-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #ffffff;
-            line-height: 1.2;
-        }
-
         .user-time {
+            position: absolute;
+            right: 0;
             font-size: 0.75rem;
             color: #71717a;
         }
@@ -851,7 +925,7 @@
         /* Search Container */
         .sidebar-search-container {
             position: relative;
-            margin-top: 1.25rem;
+            margin-top: 0.5rem;
             margin-bottom: 1rem;
             opacity: 0;
             pointer-events: none;
@@ -859,6 +933,7 @@
         
         .sidebar.expanded .sidebar-search-container {
             pointer-events: auto;
+            margin-top: 0.25rem;
         }
         
         .sidebar:not(.expanded) .sidebar-search-container {
@@ -941,47 +1016,48 @@
         
         /* Search Dropdown */
         .search-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            left: 0;
-            width: calc(100% + 80px);
-            max-height: 400px;
+            position: fixed;
+            left: calc(1.5rem + 280px + 4px);
+            top: 1.5rem;
+            width: 320px;
+            max-height: 500px;
             overflow-y: auto;
-            background: rgba(15, 15, 20, 0.85);
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            background: rgba(15, 15, 20, 0.6);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 16px;
-            padding: 0.75rem;
+            border-radius: 20px;
+            padding: 1.25rem;
             opacity: 0;
             visibility: hidden;
-            transform: translateY(-10px) scale(0.98);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            z-index: 200;
+            pointer-events: none;
+            scrollbar-width: none;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
         
-        .search-dropdown.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0) scale(1);
-        }
-        
-        .search-dropdown::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .search-dropdown::-webkit-scrollbar-track {
+        /* Invisible hover bridge */
+        .search-dropdown::before {
+            content: '';
+            position: absolute;
+            left: -30px;
+            top: -10px;
+            width: 40px;
+            height: calc(100% + 20px);
             background: transparent;
         }
         
-        .search-dropdown::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
+        .search-dropdown.active {
+            visibility: visible;
+            pointer-events: auto;
+        }
+        
+        .search-dropdown::-webkit-scrollbar {
+            display: none;
         }
         
         .search-dropdown-section {
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
         }
         
         .search-dropdown-section:last-child {
@@ -989,12 +1065,13 @@
         }
         
         .search-dropdown-title {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             color: #71717a;
-            padding: 0.5rem 0.75rem 0.4rem;
+            padding: 0 0.25rem 0.5rem;
+            margin-bottom: 0.25rem;
         }
         
         .search-dropdown-items {
@@ -1007,7 +1084,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            padding: 0.6rem 0.75rem;
+            padding: 0.6rem 0.5rem;
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -1291,6 +1368,15 @@
             stroke: #ef4444;
             transform: translateX(3px) scale(1.1);
         }
+        
+        .nav-item-with-submenu.locked {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .nav-item-with-submenu.locked .nav-arrow {
+            stroke: #f97316;
+        }
 
         .submenu-panel {
             position: fixed;
@@ -1320,9 +1406,9 @@
         .submenu-panel::before {
             content: '';
             position: absolute;
-            left: -50px;
+            left: -30px;
             top: -10px;
-            width: 60px;
+            width: 40px;
             height: calc(100% + 20px);
             background: transparent;
         }
@@ -1689,6 +1775,8 @@
             flex: 1;
             margin-left: 0;
             min-height: 100vh;
+            overflow-x: hidden;
+            max-width: 100vw;
         }
 
         /* Featured Hero */
@@ -1720,23 +1808,41 @@
 
         .featured-slide:nth-child(1) .featured-bg {
             background: 
-                radial-gradient(ellipse at 70% 30%, rgba(239, 68, 68, 0.2) 0%, transparent 50%),
-                radial-gradient(ellipse at 30% 70%, rgba(249, 115, 22, 0.15) 0%, transparent 50%),
-                linear-gradient(135deg, #1a0505 0%, #251010 30%, #0f0505 100%);
+                url('../images/1.jpg') center/cover no-repeat;
+        }
+        
+        .featured-slide:nth-child(1) .featured-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 70% 30%, rgba(239, 68, 68, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 30% 70%, rgba(249, 115, 22, 0.15) 0%, transparent 50%);
         }
 
         .featured-slide:nth-child(2) .featured-bg {
             background: 
-                radial-gradient(ellipse at 60% 40%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
-                radial-gradient(ellipse at 40% 60%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
-                linear-gradient(135deg, #0a0805 0%, #151008 30%, #050505 100%);
+                url('../images/4.jpg') center/cover no-repeat;
+        }
+        
+        .featured-slide:nth-child(2) .featured-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 60% 40%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 60%, rgba(234, 179, 8, 0.1) 0%, transparent 50%);
         }
 
         .featured-slide:nth-child(3) .featured-bg {
             background: 
-                radial-gradient(ellipse at 65% 35%, rgba(220, 38, 38, 0.2) 0%, transparent 50%),
-                radial-gradient(ellipse at 35% 65%, rgba(239, 68, 68, 0.15) 0%, transparent 50%),
-                linear-gradient(135deg, #0a0505 0%, #180808 30%, #080303 100%);
+                url('../images/11.jpg') center/cover no-repeat;
+        }
+        
+        .featured-slide:nth-child(3) .featured-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 65% 35%, rgba(220, 38, 38, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 35% 65%, rgba(239, 68, 68, 0.15) 0%, transparent 50%);
         }
 
         .featured-bg::after {
@@ -1901,9 +2007,9 @@
         /* Carousel Dots */
         .carousel-dots {
             position: absolute;
-            bottom: 10%;
-            left: 0;
-            right: 0;
+            bottom: 2rem;
+            left: calc(50% + 160px);
+            transform: translateX(-50%);
             display: flex;
             justify-content: center;
             gap: 0.6rem;
@@ -1933,18 +2039,75 @@
 
         /* Content Area */
         .content-area {
-            padding: 2.5rem 3.5rem 5rem;
+            padding: 1.5rem 3.5rem 3rem;
+            overflow: visible;
+            max-width: 100%;
         }
 
         .content-section {
-            margin-bottom: 3rem;
+            margin-bottom: 1.5rem;
+            overflow: visible;
+            max-width: 100%;
         }
 
         .section-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .section-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .section-header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        /* Top 10 Section Styling */
+        .top10-section {
+            margin-top: 0;
+        }
+        
+        .top10-section .content-row {
+            padding-left: 20px;
+        }
+        
+        .top10-title {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+        
+        .top10-label {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.02em;
+        }
+        
+        .top10-number-title {
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            letter-spacing: -0.05em;
+        }
+        
+        .top10-subtitle {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #a1a1aa;
+            letter-spacing: 0.15em;
+            margin-left: 0.25rem;
         }
 
         .section-title {
@@ -1980,110 +2143,233 @@
             transform: translateX(4px);
         }
 
-        /* Content Row */
+        /* Content Row - Netflix Style Slider */
+        .content-row-wrapper {
+            position: relative;
+            overflow: visible;
+            width: 100%;
+        }
+        
+        /* Slider mask - extend to screen edge for peek card */
+        .slider-mask {
+            overflow: hidden;
+            position: relative;
+            margin-right: -3.5rem; /* Extend to screen edge */
+            padding-right: 3.5rem; /* Space for the peeking card */
+        }
+        
         .content-row {
             display: flex;
-            gap: 1.25rem;
-            overflow-x: auto;
-            padding-bottom: 1rem;
-            scroll-snap-type: x mandatory;
+            gap: 0.5rem;
+            padding: 0.25rem 0 1rem;
+            transition: transform 0.54s cubic-bezier(0.5, 0, 0.1, 1);
+            will-change: transform;
         }
 
-        .content-row::-webkit-scrollbar {
+        /* Pagination indicator */
+        .pagination-indicator {
+            display: flex;
+            gap: 2px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .pagination-indicator li {
+            width: 12px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            transition: background 0.3s ease;
+        }
+        
+        .pagination-indicator li.active {
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* Scroll Arrow Buttons - Netflix style */
+        .row-scroll-btn {
+            position: absolute;
+            top: 0;
+            bottom: 1rem;
+            width: 4%;
+            min-width: 50px;
+            border: none;
+            background: hsla(0, 0%, 8%, 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            z-index: 20;
+        }
+        
+        .row-scroll-btn.btn-next {
+            right: -3.5rem; /* Break out of content-area padding */
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .row-scroll-btn.btn-prev {
+            left: -3.5rem; /* Break out of content-area padding */
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .row-scroll-btn:hover {
+            background: hsla(0, 0%, 8%, 0.5);
+        }
+        
+        .row-scroll-btn svg {
+            width: 36px;
+            height: 36px;
+            stroke: #fff;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        
+        .row-scroll-btn.btn-prev svg {
+            transform: rotate(180deg);
+        }
+        
+        /* Show arrow when hovering anywhere on the section */
+        .content-section:hover .row-scroll-btn:not(.hidden) svg {
+            opacity: 1;
+        }
+        
+        .row-scroll-btn:hover svg {
+            transform: scale(1.25);
+        }
+        
+        .row-scroll-btn.btn-prev:hover svg {
+            transform: rotate(180deg) scale(1.25);
+        }
+        
+        .row-scroll-btn.hidden {
             display: none;
         }
 
-        /* Content Cards */
+        /* Content Cards - Netflix Style Expand */
         .content-card {
             flex-shrink: 0;
-            width: 300px;
-            scroll-snap-align: start;
+            width: 280px;
             cursor: pointer;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
 
         .content-card:hover {
-            transform: scale(1.05) translateY(-8px);
-            z-index: 10;
+            z-index: 100;
         }
 
         .card-thumbnail {
             position: relative;
             aspect-ratio: 16/9;
-            border-radius: 14px;
+            border-radius: 8px;
             overflow: hidden;
-            margin-bottom: 0.875rem;
             background: #18181b;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
         }
-
-        .content-card:hover .card-thumbnail {
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(249, 115, 22, 0.4), 0 0 40px rgba(239, 68, 68, 0.12), 0 0 60px rgba(249, 115, 22, 0.08);
+        
+        .content-card:not(.performer-card):hover .card-thumbnail {
+            transform: scale(1.05);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
-
-        .card-thumbnail::before {
-            content: '';
+        
+        /* Portrait Cards (HBO Max style) */
+        .content-card.portrait-card {
+            width: 180px;
+        }
+        
+        .content-card.portrait-card .card-thumbnail {
+            aspect-ratio: 2/3;
+            border-radius: 6px;
+        }
+        
+        .content-card.portrait-card:hover .card-thumbnail {
+            transform: scale(1.08);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+        }
+        
+        /* Large Featured Cards */
+        .content-card.large-card {
+            width: 420px;
+        }
+        
+        .content-card.large-card .card-thumbnail {
+            aspect-ratio: 16/9;
+            border-radius: 10px;
+        }
+        
+        .content-card.large-card:hover .card-thumbnail {
+            transform: scale(1.03);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+        
+        /* Top 10 Cards */
+        .content-card.top10-card {
+            width: 140px;
+            position: relative;
+            margin-left: 45px;
+            margin-right: 30px;
+        }
+        
+        .content-card.top10-card .card-thumbnail {
+            aspect-ratio: 2/3;
+            border-radius: 6px;
+        }
+        
+        .top10-number {
+            position: absolute;
+            left: -55px;
+            bottom: 0;
+            font-size: 9rem;
+            font-weight: 900;
+            font-style: italic;
+            line-height: 0.75;
+            color: transparent;
+            -webkit-text-stroke: 4px #3f3f46;
+            z-index: -1;
+            font-family: 'Inter', sans-serif;
+            pointer-events: none;
+        }
+        
+        .content-card.top10-card:hover .top10-number {
+            -webkit-text-stroke-color: #ef4444;
+            transition: all 0.3s ease;
+        }
+        
+        /* Inner image container */
+        .card-thumbnail-inner {
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(249, 115, 22, 0.06) 100%);
-            z-index: 1;
-        }
-        
-        .card-thumbnail::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            z-index: 3;
-            transition: left 0.6s ease;
-        }
-        
-        .content-card:hover .card-thumbnail::after {
-            left: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(30, 30, 35, 1) 0%, rgba(20, 20, 25, 1) 100%);
         }
 
         .card-gradient {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
             z-index: 2;
         }
 
         .card-3d-badge {
             position: absolute;
-            top: 0.875rem;
-            left: 0.875rem;
-            padding: 0.3rem 0.6rem;
+            top: 0.6rem;
+            left: 0.6rem;
+            padding: 0.25rem 0.5rem;
             background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid transparent;
-            border-radius: 6px;
-            font-size: 0.65rem;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 4px;
+            font-size: 0.6rem;
             font-weight: 700;
-            z-index: 5;
+            z-index: 15;
             display: flex;
             align-items: center;
-            gap: 0.3rem;
-            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3), inset 0 0 10px rgba(239, 68, 68, 0.1);
-            animation: badgePulse 3s ease-in-out infinite;
-        }
-        
-        .card-3d-badge::before {
-            content: '';
-            position: absolute;
-            inset: -1px;
-            border-radius: 7px;
-            padding: 1px;
-            background: linear-gradient(135deg, #ef4444, #f97316);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
+            gap: 0.25rem;
         }
         
         .card-3d-badge span {
@@ -2091,11 +2377,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-        }
-        
-        @keyframes badgePulse {
-            0%, 100% { box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3), inset 0 0 10px rgba(239, 68, 68, 0.1); }
-            50% { box-shadow: 0 2px 16px rgba(249, 115, 22, 0.5), inset 0 0 15px rgba(239, 68, 68, 0.2); }
         }
 
         .card-3d-badge svg {
@@ -2107,43 +2388,7 @@
         }
 
         .card-play {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            width: 56px;
-            height: 56px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 10;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 255, 255, 0.3);
-        }
-
-        .card-play svg {
-            width: 24px;
-            height: 24px;
-            fill: #000000;
-            margin-left: 4px;
-            transition: transform 0.2s ease;
-        }
-
-        .content-card:hover .card-play {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
-        
-        .content-card:hover .card-play:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 255, 255, 0.4);
-        }
-        
-        .content-card:hover .card-play:hover svg {
-            transform: scale(1.1);
+            display: none;
         }
 
         .card-progress {
@@ -2151,21 +2396,24 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 4px;
+            height: 3px;
             background: rgba(255, 255, 255, 0.2);
-            z-index: 5;
+            z-index: 15;
         }
 
         .card-progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #ef4444, #f97316);
-            border-radius: 0 2px 2px 0;
         }
 
+        .card-info {
+            padding: 0 0.25rem;
+        }
+        
         .card-info h3 {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.25rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -2174,25 +2422,261 @@
 
         .card-info p {
             color: #71717a;
+            font-size: 0.8rem;
+        }
+
+        /* ========== NETFLIX STYLE EXPANDED CARD ========== */
+        .card-expanded {
+            position: fixed;
+            width: 350px;
+            background: #181818;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            overflow: hidden;
+            pointer-events: none;
+            transform: scale(0.9);
+            transform-origin: center center;
+            transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+                        visibility 0.15s;
+        }
+        
+        .card-expanded.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        
+        .card-expanded.scrolling {
+            transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+                        visibility 0.15s;
+        }
+        
+        .card-expanded-preview {
+            position: relative;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, #1a0808 0%, #2d1010 100%);
+            overflow: hidden;
+        }
+        
+        .card-expanded-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .card-expanded-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to top, #181818 0%, transparent 100%);
+        }
+        
+        /* SIREN Mini Logo */
+        .card-expanded-logo {
+            position: absolute;
+            top: 0.75rem;
+            left: 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            background: linear-gradient(135deg, #ef4444, #f97316, #ef4444);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: logoShimmer 4s ease-in-out infinite;
+            opacity: 0;
+            filter: blur(8px);
+            transition: opacity 0.4s ease 0.25s, filter 0.4s ease 0.25s;
+        }
+        
+        .card-expanded-mute {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .card-expanded-mute:hover {
+            border-color: #fff;
+        }
+        
+        .card-expanded-mute svg {
+            width: 18px;
+            height: 18px;
+            stroke: #fff;
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        .card-expanded-content {
+            padding: 1rem 1.25rem 1.25rem;
+        }
+        
+        .card-expanded-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-expanded-btn {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            min-height: 42px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+        
+        .card-expanded-btn:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-expanded-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: #fff;
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        .card-expanded-btn.btn-play {
+            width: 46px;
+            height: 46px;
+            min-width: 46px;
+            min-height: 46px;
+            background: #fff;
+            border-color: #fff;
+        }
+        
+        .card-expanded-btn.btn-play:hover {
+            background: #e5e5e5;
+        }
+        
+        .card-expanded-btn.btn-play svg {
+            width: 22px;
+            height: 22px;
+            stroke: none;
+            fill: #000;
+            margin-left: 3px;
+        }
+        
+        .card-expanded-btn.btn-more {
+            margin-left: auto;
+        }
+        
+        .card-expanded-btn.btn-more svg {
+            stroke: #fff;
+            stroke-width: 2.5;
+            fill: none;
+        }
+        
+        .card-expanded-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .meta-match {
+            color: #46d369;
+            font-weight: 600;
             font-size: 0.85rem;
+        }
+        
+        .meta-rating {
+            padding: 0.15rem 0.4rem;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .meta-duration {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+        }
+        
+        .meta-quality {
+            padding: 0.1rem 0.4rem;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .card-expanded-tags {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .card-expanded-tags span {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+        
+        .card-expanded-tags span:not(:last-child)::after {
+            content: '•';
+            margin-left: 0.5rem;
+            color: rgba(255, 255, 255, 0.3);
         }
 
         /* Performer Cards */
         .performer-card {
-            width: 180px;
+            width: 160px;
+            text-align: center;
         }
-
+        
         .performer-card .card-thumbnail {
             aspect-ratio: 1;
             border-radius: 50%;
+            margin-bottom: 0.75rem;
         }
-
+        
+        .performer-card .card-thumbnail-inner {
+            border-radius: 50%;
+        }
+        
         .performer-card:hover .card-thumbnail {
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 3px rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5);
         }
 
         .performer-card .card-info {
             text-align: center;
+        }
+        
+        .performer-card .card-info h3 {
+            font-size: 0.9rem;
         }
 
         .performer-card .card-3d-badge,
@@ -2204,11 +2688,15 @@
         /* Responsive */
         @media (max-width: 1200px) {
             .content-card {
-                width: 260px;
+                width: 220px;
             }
 
             .performer-card {
-                width: 160px;
+                width: 140px;
+            }
+            
+            .card-expanded {
+                width: 300px;
             }
         }
 
@@ -2217,6 +2705,16 @@
                 left: 1rem;
                 top: 1rem;
                 width: 260px;
+            }
+            
+            .submenu-panel {
+                left: calc(1rem + 260px + 4px);
+                top: 1rem;
+            }
+            
+            .search-dropdown {
+                left: calc(1rem + 260px + 4px);
+                top: 1rem;
             }
 
             .featured-content {
@@ -2244,6 +2742,11 @@
                 top: 0.75rem;
                 width: calc(100% - 1.5rem);
                 max-width: 300px;
+            }
+            
+            .submenu-panel,
+            .search-dropdown {
+                display: none;
             }
         }
     </style>
@@ -2290,13 +2793,6 @@
         </div>
     </div>
 
-    <!-- Background Orbs -->
-    <div class="app-bg">
-        <div class="bg-orb bg-orb-1"></div>
-        <div class="bg-orb bg-orb-2"></div>
-        <div class="bg-orb bg-orb-3"></div>
-    </div>
-
     <!-- App Container -->
     <div class="app-container" id="appContainer">
         <!-- Sidebar -->
@@ -2311,14 +2807,16 @@
             </button>
 
             <div class="sidebar-header">
-                <div class="user-avatar">
-                    <span class="avatar-border-arc"></span>
-                    <svg class="avatar-icon" viewBox="0 0 24 24">
-                        <path d="M12 21C12 21 4 15 4 9.5C4 6.5 6.5 4 9.5 4C11 4 12 5 12 5C12 5 13 4 14.5 4C17.5 4 20 6.5 20 9.5C20 15 12 21 12 21Z" fill="#0a0a0a" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
-                    </svg>
-                </div>
-                <div class="user-info">
-                    <div class="user-name">James</div>
+                <!-- SIREN Logo -->
+                <a href="../home/" class="sidebar-logo">SIREN</a>
+                
+                <div class="header-user">
+                    <div class="user-avatar">
+                        <span class="avatar-border-arc"></span>
+                        <svg class="avatar-icon" viewBox="0 0 24 24">
+                            <path d="M12 21C12 21 4 15 4 9.5C4 6.5 6.5 4 9.5 4C11 4 12 5 12 5C12 5 13 4 14.5 4C17.5 4 20 6.5 20 9.5C20 15 12 21 12 21Z" fill="#0a0a0a" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+                        </svg>
+                    </div>
                     <div class="user-time" id="currentTime">9:41 PM</div>
                 </div>
             </div>
@@ -2331,28 +2829,6 @@
                     </svg>
                     <input type="text" class="search-input" id="searchInput" placeholder="Search..." autocomplete="off">
                     <kbd class="search-kbd">⌘K</kbd>
-                </div>
-                
-                <div class="search-dropdown" id="searchDropdown">
-                    <div class="search-dropdown-section" id="searchRecommended">
-                        <div class="search-dropdown-title">Recommended For You</div>
-                        <div class="search-dropdown-items" id="recommendedItems"></div>
-                    </div>
-                    <div class="search-dropdown-section" id="searchResults" style="display: none;">
-                        <div class="search-dropdown-title">Results</div>
-                        <div class="search-dropdown-items" id="resultItems"></div>
-                    </div>
-                    <div class="search-dropdown-section" id="searchTrending">
-                        <div class="search-dropdown-title">Trending Now</div>
-                        <div class="search-dropdown-items" id="trendingItems"></div>
-                    </div>
-                    <div class="search-dropdown-empty" id="searchEmpty" style="display: none;">
-                        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none">
-                            <circle cx="11" cy="11" r="8"/>
-                            <path d="m21 21-4.3-4.3"/>
-                        </svg>
-                        <span>No results found</span>
-                    </div>
                 </div>
             </div>
 
@@ -2438,6 +2914,29 @@
                 </div>
             </nav>
         </aside>
+
+        <!-- Search dropdown OUTSIDE sidebar for proper positioning -->
+        <div class="search-dropdown" id="searchDropdown">
+            <div class="search-dropdown-section" id="searchRecommended">
+                <div class="search-dropdown-title">Recommended For You</div>
+                <div class="search-dropdown-items" id="recommendedItems"></div>
+            </div>
+            <div class="search-dropdown-section" id="searchResults" style="display: none;">
+                <div class="search-dropdown-title">Results</div>
+                <div class="search-dropdown-items" id="resultItems"></div>
+            </div>
+            <div class="search-dropdown-section" id="searchTrending">
+                <div class="search-dropdown-title">Trending Now</div>
+                <div class="search-dropdown-items" id="trendingItems"></div>
+            </div>
+            <div class="search-dropdown-empty" id="searchEmpty" style="display: none;">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.3-4.3"/>
+                </svg>
+                <span>No results found</span>
+            </div>
+        </div>
 
         <!-- Submenus OUTSIDE sidebar for real glassmorphism -->
         <div class="submenu-panel" id="browseSubmenu">
@@ -2586,51 +3085,218 @@
             <!-- Content Area -->
             <div class="content-area">
                 <!-- Continue Watching -->
-                <section class="content-section">
+                <section class="content-section" data-slider="continueRow">
                     <div class="section-header">
                         <h2 class="section-title">Continue Watching</h2>
-                        <a href="#" class="section-link">See All →</a>
+                        <div class="section-header-right">
+                            <ul class="pagination-indicator" id="continueRow-pagination"></ul>
+                            <a href="#" class="section-link">See All</a>
+                        </div>
                     </div>
-                    <div class="content-row" id="continueRow"></div>
+                    <div class="content-row-wrapper">
+                        <button class="row-scroll-btn btn-prev hidden" data-row="continueRow" data-dir="prev">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <div class="slider-mask">
+                            <div class="content-row" id="continueRow"></div>
+                        </div>
+                        <button class="row-scroll-btn btn-next" data-row="continueRow" data-dir="next">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Top 10 Today -->
+                <section class="content-section top10-section" data-slider="top10Row">
+                    <div class="section-header">
+                        <h2 class="section-title top10-title">
+                            <span class="top10-label">TOP</span>
+                            <span class="top10-number-title">10</span>
+                            <span class="top10-subtitle">TODAY</span>
+                        </h2>
+                        <div class="section-header-right">
+                            <ul class="pagination-indicator" id="top10Row-pagination"></ul>
+                        </div>
+                    </div>
+                    <div class="content-row-wrapper">
+                        <button class="row-scroll-btn btn-prev hidden" data-row="top10Row" data-dir="prev">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <div class="slider-mask">
+                            <div class="content-row" id="top10Row"></div>
+                        </div>
+                        <button class="row-scroll-btn btn-next" data-row="top10Row" data-dir="next">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
                 </section>
 
                 <!-- Trending -->
-                <section class="content-section">
+                <section class="content-section" data-slider="trendingRow">
                     <div class="section-header">
                         <h2 class="section-title">Trending Now</h2>
-                        <a href="#" class="section-link">See All →</a>
+                        <div class="section-header-right">
+                            <ul class="pagination-indicator" id="trendingRow-pagination"></ul>
+                            <a href="#" class="section-link">See All</a>
+                        </div>
                     </div>
-                    <div class="content-row" id="trendingRow"></div>
+                    <div class="content-row-wrapper">
+                        <button class="row-scroll-btn btn-prev hidden" data-row="trendingRow" data-dir="prev">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <div class="slider-mask">
+                            <div class="content-row" id="trendingRow"></div>
+                        </div>
+                        <button class="row-scroll-btn btn-next" data-row="trendingRow" data-dir="next">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Featured Collection -->
+                <section class="content-section" data-slider="featuredRow">
+                    <div class="section-header">
+                        <h2 class="section-title">Featured Collections</h2>
+                        <div class="section-header-right">
+                            <ul class="pagination-indicator" id="featuredRow-pagination"></ul>
+                            <a href="#" class="section-link">See All</a>
+                        </div>
+                    </div>
+                    <div class="content-row-wrapper">
+                        <button class="row-scroll-btn btn-prev hidden" data-row="featuredRow" data-dir="prev">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <div class="slider-mask">
+                            <div class="content-row" id="featuredRow"></div>
+                        </div>
+                        <button class="row-scroll-btn btn-next" data-row="featuredRow" data-dir="next">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
                 </section>
 
                 <!-- Top Performers -->
-                <section class="content-section">
+                <section class="content-section" data-slider="performersRow">
                     <div class="section-header">
                         <h2 class="section-title">Top Performers</h2>
-                        <a href="#" class="section-link">See All →</a>
+                        <div class="section-header-right">
+                            <ul class="pagination-indicator" id="performersRow-pagination"></ul>
+                            <a href="#" class="section-link">See All</a>
+                        </div>
                     </div>
-                    <div class="content-row" id="performersRow"></div>
+                    <div class="content-row-wrapper">
+                        <button class="row-scroll-btn btn-prev hidden" data-row="performersRow" data-dir="prev">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <div class="slider-mask">
+                            <div class="content-row" id="performersRow"></div>
+                        </div>
+                        <button class="row-scroll-btn btn-next" data-row="performersRow" data-dir="next">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
                 </section>
 
                 <!-- New Releases -->
-                <section class="content-section">
+                <section class="content-section" data-slider="newRow">
                     <div class="section-header">
                         <h2 class="section-title">New Releases</h2>
-                        <a href="#" class="section-link">See All →</a>
+                        <div class="section-header-right">
+                            <ul class="pagination-indicator" id="newRow-pagination"></ul>
+                            <a href="#" class="section-link">See All</a>
+                        </div>
                     </div>
-                    <div class="content-row" id="newRow"></div>
+                    <div class="content-row-wrapper">
+                        <button class="row-scroll-btn btn-prev hidden" data-row="newRow" data-dir="prev">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <div class="slider-mask">
+                            <div class="content-row" id="newRow"></div>
+                        </div>
+                        <button class="row-scroll-btn btn-next" data-row="newRow" data-dir="next">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
                 </section>
 
                 <!-- VR Exclusives -->
-                <section class="content-section">
+                <section class="content-section" data-slider="vrRow">
                     <div class="section-header">
                         <h2 class="section-title">VR Exclusives</h2>
-                        <a href="#" class="section-link">See All →</a>
+                        <div class="section-header-right">
+                            <ul class="pagination-indicator" id="vrRow-pagination"></ul>
+                            <a href="#" class="section-link">See All</a>
+                        </div>
                     </div>
-                    <div class="content-row" id="vrRow"></div>
+                    <div class="content-row-wrapper">
+                        <button class="row-scroll-btn btn-prev hidden" data-row="vrRow" data-dir="prev">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <div class="slider-mask">
+                            <div class="content-row" id="vrRow"></div>
+                        </div>
+                        <button class="row-scroll-btn btn-next" data-row="vrRow" data-dir="next">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
                 </section>
             </div>
         </main>
+    </div>
+
+    <!-- Netflix-style Expanded Card Popup (fixed position, outside content flow) -->
+    <div class="card-expanded" id="cardExpanded">
+        <div class="card-expanded-preview">
+            <div class="card-expanded-gradient"></div>
+            <span class="card-expanded-logo">SIREN</span>
+            <button class="card-expanded-mute" id="expandedMute">
+                <svg viewBox="0 0 24 24">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                </svg>
+            </button>
+        </div>
+        <div class="card-expanded-content">
+            <div class="card-expanded-actions">
+                <button class="card-expanded-btn btn-play">
+                    <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </button>
+                <button class="card-expanded-btn btn-add" title="Add to My List">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                </button>
+                <button class="card-expanded-btn btn-like" title="I like this">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+                    </svg>
+                </button>
+                <button class="card-expanded-btn btn-dislike" title="Not for me">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
+                    </svg>
+                </button>
+                <button class="card-expanded-btn btn-more" title="More info">
+                    <svg viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="card-expanded-meta">
+                <span class="meta-match" id="expandedMatch">98% Match</span>
+                <span class="meta-rating" id="expandedRating">18+</span>
+                <span class="meta-duration" id="expandedDuration">45 min</span>
+                <span class="meta-quality">4K</span>
+                <span class="meta-quality">HDR</span>
+            </div>
+            <div class="card-expanded-tags" id="expandedTags">
+                <span>Romantic</span>
+                <span>Sensual</span>
+                <span>Intimate</span>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -2657,48 +3323,97 @@
                 'linear-gradient(135deg, #1a1208 0%, #302510 100%)',
                 'linear-gradient(135deg, #120808 0%, #251010 100%)',
                 'linear-gradient(135deg, #1a0a08 0%, #301510 100%)',
+                'linear-gradient(145deg, #0d0d0d 0%, #1f1a1a 50%, #2a1515 100%)',
+                'linear-gradient(160deg, #1a1010 0%, #251818 100%)',
+                'linear-gradient(135deg, #141414 0%, #1e1412 100%)',
+                'linear-gradient(135deg, #0f0a14 0%, #1a1020 100%)',
             ];
             return gradients[index % gradients.length];
         }
 
-        function createContentCard(index, type = 'default') {
+        function createContentCard(index, type = 'default', rank = null) {
             const name = type === 'performer' ? performerNames[index % performerNames.length] : sceneNames[index % sceneNames.length];
             const duration = durations[index % durations.length];
             const performer = performerNames[index % performerNames.length];
             const progress = type === 'continue' ? Math.floor(Math.random() * 70 + 15) : 0;
 
             const card = document.createElement('div');
-            card.className = type === 'performer' ? 'content-card performer-card' : 'content-card';
             
-            card.innerHTML = `
-                <div class="card-thumbnail" style="background: ${getGradient(index)}">
-                    <div class="card-gradient"></div>
-                    <div class="card-3d-badge">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                        </svg>
-                        <span>3D</span>
+            // Set card class based on type
+            if (type === 'performer') {
+                card.className = 'content-card performer-card';
+            } else if (type === 'portrait') {
+                card.className = 'content-card portrait-card';
+            } else if (type === 'large') {
+                card.className = 'content-card large-card';
+            } else if (type === 'top10') {
+                card.className = 'content-card top10-card';
+            } else {
+                card.className = 'content-card';
+            }
+            
+            // Store data for expanded card to use
+            card.dataset.title = name;
+            card.dataset.performer = performer;
+            
+            if (type === 'performer') {
+                // Performers keep the old layout with name
+                card.innerHTML = `
+                    <div class="card-thumbnail">
+                        <div class="card-thumbnail-inner" style="background: ${getGradient(index)}">
+                            <div class="card-gradient"></div>
+                        </div>
                     </div>
-                    <div class="card-play">
-                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <div class="card-info">
+                        <h3>${name}</h3>
+                        <p>${Math.floor(Math.random() * 25 + 5)} scenes</p>
                     </div>
-                    ${progress ? `<div class="card-progress"><div class="card-progress-bar" style="width: ${progress}%"></div></div>` : ''}
-                </div>
-                <div class="card-info">
-                    <h3>${name}</h3>
-                    <p>${type === 'performer' ? `${Math.floor(Math.random() * 25 + 5)} scenes` : performer}</p>
-                </div>
-            `;
+                `;
+            } else if (type === 'top10') {
+                // Top 10 cards with big numbers
+                card.innerHTML = `
+                    <span class="top10-number">${rank}</span>
+                    <div class="card-thumbnail">
+                        <div class="card-thumbnail-inner" style="background: ${getGradient(index)}">
+                            <div class="card-gradient"></div>
+                            <div class="card-3d-badge">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                                </svg>
+                                <span>3D</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Content cards - just thumbnail, no title
+                card.innerHTML = `
+                    <div class="card-thumbnail">
+                        <div class="card-thumbnail-inner" style="background: ${getGradient(index)}">
+                            <div class="card-gradient"></div>
+                            <div class="card-3d-badge">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                                </svg>
+                                <span>3D</span>
+                            </div>
+                            ${progress ? `<div class="card-progress"><div class="card-progress-bar" style="width: ${progress}%"></div></div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
             return card;
         }
 
         function populateRows() {
             const rows = [
-                { id: 'continueRow', count: 8, type: 'continue' },
-                { id: 'trendingRow', count: 10, type: 'default' },
-                { id: 'performersRow', count: 12, type: 'performer' },
-                { id: 'newRow', count: 10, type: 'default' },
-                { id: 'vrRow', count: 10, type: 'default' }
+                { id: 'continueRow', count: 20, type: 'continue' },
+                { id: 'top10Row', count: 10, type: 'top10' },
+                { id: 'trendingRow', count: 24, type: 'portrait' },
+                { id: 'featuredRow', count: 12, type: 'large' },
+                { id: 'performersRow', count: 30, type: 'performer' },
+                { id: 'newRow', count: 24, type: 'portrait' },
+                { id: 'vrRow', count: 20, type: 'default' }
             ];
 
             rows.forEach(row => {
@@ -2706,7 +3421,11 @@
                 if (container) {
                     container.innerHTML = '';
                     for (let i = 0; i < row.count; i++) {
-                        container.appendChild(createContentCard(i + Math.random() * 10, row.type));
+                        if (row.type === 'top10') {
+                            container.appendChild(createContentCard(i + Math.floor(Math.random() * 10), row.type, i + 1));
+                        } else {
+                            container.appendChild(createContentCard(i + Math.floor(Math.random() * 10), row.type));
+                        }
                     }
                 }
             });
@@ -2779,16 +3498,35 @@
             if (sidebarExpanded) {
                 // OPENING - warm, welcoming feel
                 
-                // Expand smoothly
+                // Add expanded class FIRST for CSS layout changes
+                sidebar.classList.add('expanded');
+                sidebar.style.overflow = 'hidden';
+                
+                // Get header-user element
+                const headerUser = document.querySelector('.header-user');
+                
+                // Expand sidebar smoothly
                 gsap.to(sidebar, {
                     maxHeight: 700,
                     paddingBottom: '2.5rem',
-                    duration: 0.45,
-                    ease: 'power2.out'
+                    duration: 0.4,
+                    ease: 'power2.out',
+                    onComplete: () => {
+                        sidebar.style.overflow = 'visible';
+                    }
                 });
                 
-                // Search just fades in - no transform
-                gsap.to(searchContainer, { opacity: 1, duration: 0.3, delay: 0.15, ease: 'power2.out' });
+                // Fade in header-user
+                gsap.fromTo(headerUser,
+                    { opacity: 0 },
+                    { opacity: 1, duration: 0.3, delay: 0.15, ease: 'power2.out' }
+                );
+                
+                // Search fades in
+                gsap.fromTo(searchContainer, 
+                    { opacity: 0 },
+                    { opacity: 1, duration: 0.3, delay: 0.2, ease: 'power2.out' }
+                );
                 
                 // Nav items cascade in with satisfying stagger
                 navItems.forEach((item, index) => {
@@ -2798,50 +3536,45 @@
                             opacity: 1, 
                             x: 0, 
                             duration: 0.3,
-                            delay: 0.08 + (index * 0.035),
+                            delay: 0.12 + (index * 0.035),
                             ease: 'power2.out'
                         }
                     );
                 });
                 
-                // Add expanded class for CSS states
-                sidebar.classList.add('expanded');
-                
             } else {
-                // CLOSING - quick, snappy feel
+                // CLOSING - smooth and satisfying
                 
                 // Close search dropdown if open
                 const searchDropdown = document.getElementById('searchDropdown');
                 if (searchDropdown && searchDropdown.classList.contains('active')) {
                     searchDropdown.classList.remove('active');
                     document.getElementById('searchBar').classList.remove('active');
+                    gsap.set(searchDropdown, { opacity: 0, clearProps: 'all' });
                 }
                 
-                // Items fade out fast
-                gsap.to(navItems, {
-                    opacity: 0,
-                    x: -8,
-                    duration: 0.12,
-                    stagger: 0.015,
-                    ease: 'power2.in'
-                });
+                // Get header-user element
+                const headerUser = document.querySelector('.header-user');
                 
-                gsap.to(searchContainer, {
-                    opacity: 0,
-                    duration: 0.12,
-                    ease: 'power2.in'
-                });
+                // Kill any running animations and clear inline styles
+                gsap.killTweensOf([headerUser, searchContainer, sidebar]);
+                gsap.killTweensOf(navItems);
                 
-                // Collapse smoothly
+                // Clear all inline styles first, then set opacity 0
+                headerUser.style.cssText = '';
+                searchContainer.style.cssText = '';
+                navItems.forEach(item => item.style.cssText = '');
+                
+                // Remove expanded class
+                sidebar.classList.remove('expanded');
+                sidebar.style.overflow = 'hidden';
+                
+                // Animate collapse
                 gsap.to(sidebar, {
                     maxHeight: 70,
                     paddingBottom: '1rem',
-                    duration: 0.3,
-                    delay: 0.08,
-                    ease: 'power2.inOut',
-                    onComplete: () => {
-                        sidebar.classList.remove('expanded');
-                    }
+                    duration: 0.25,
+                    ease: 'power2.out'
                 });
             }
         }
@@ -2901,6 +3634,344 @@
         // Populate content early so it shows through blur
         populateRows();
 
+        // ========== NETFLIX-STYLE EXPANDED CARD SYSTEM ==========
+        const cardExpanded = document.getElementById('cardExpanded');
+        const expandedMatch = document.getElementById('expandedMatch');
+        const expandedDuration = document.getElementById('expandedDuration');
+        const expandedTags = document.getElementById('expandedTags');
+        
+        let expandTimer = null;
+        let hideTimer = null;
+        let currentCard = null;
+        let isDraggingRow = false;
+        
+        const tagOptions = [
+            ['Romantic', 'Sensual', 'Intimate'],
+            ['Passionate', 'Erotic', 'Artistic'],
+            ['Playful', 'Fun', 'Energetic'],
+            ['Intense', 'Raw', 'Authentic'],
+            ['Tender', 'Loving', 'Beautiful'],
+            ['Bold', 'Adventurous', 'Exciting']
+        ];
+        
+        function positionExpandedCard(card) {
+            const rect = card.getBoundingClientRect();
+            const expandedWidth = 350;
+            const expandedHeight = cardExpanded.offsetHeight || 320;
+            const viewportWidth = window.innerWidth;
+            
+            // Center horizontally over the card
+            let left = rect.left + (rect.width / 2) - (expandedWidth / 2);
+            
+            // Keep within viewport bounds horizontally
+            if (left < 10) left = 10;
+            if (left + expandedWidth > viewportWidth - 10) {
+                left = viewportWidth - expandedWidth - 10;
+            }
+            
+            // Center vertically over the card thumbnail - no constraints, let it go anywhere
+            const cardThumbnail = card.querySelector('.card-thumbnail');
+            const thumbRect = cardThumbnail ? cardThumbnail.getBoundingClientRect() : rect;
+            let top = thumbRect.top + (thumbRect.height / 2) - (expandedHeight / 2);
+            
+            cardExpanded.style.left = left + 'px';
+            cardExpanded.style.top = top + 'px';
+        }
+        
+        function updateExpandedContent(card) {
+            // Get data from card's data attributes or card-info as fallback
+            const title = card.dataset.title || card.querySelector('.card-info h3')?.textContent || 'Untitled';
+            const performer = card.dataset.performer || card.querySelector('.card-info p')?.textContent || '';
+            
+            // Randomize some data
+            expandedMatch.textContent = Math.floor(Math.random() * 15 + 85) + '% Match';
+            expandedDuration.textContent = Math.floor(Math.random() * 40 + 15) + ' min';
+            
+            const randomTags = tagOptions[Math.floor(Math.random() * tagOptions.length)];
+            expandedTags.innerHTML = randomTags.map(tag => `<span>${tag}</span>`).join('');
+        }
+        
+        function showExpandedCard(card) {
+            if (card.classList.contains('performer-card')) return;
+            if (isDraggingRow) return;
+            
+            clearTimeout(hideTimer);
+            currentCard = card;
+            
+            // Reset logo animation by removing and re-adding active class
+            const logo = cardExpanded.querySelector('.card-expanded-logo');
+            if (logo) {
+                logo.style.transition = 'none';
+                logo.style.opacity = '0';
+                logo.style.filter = 'blur(8px)';
+                // Force reflow
+                logo.offsetHeight;
+                logo.style.transition = '';
+            }
+            
+            // Update content and position
+            updateExpandedContent(card);
+            positionExpandedCard(card);
+            
+            // Show with animation
+            cardExpanded.classList.add('active');
+            
+            // Trigger logo animation after a tiny delay
+            if (logo) {
+                setTimeout(() => {
+                    logo.style.opacity = '1';
+                    logo.style.filter = 'blur(0px)';
+                }, 50);
+            }
+        }
+        
+        function hideExpandedCard() {
+            clearTimeout(expandTimer);
+            hideTimer = setTimeout(() => {
+                cardExpanded.classList.remove('active');
+                currentCard = null;
+                
+                // Reset logo for next show
+                const logo = cardExpanded.querySelector('.card-expanded-logo');
+                if (logo) {
+                    logo.style.opacity = '0';
+                    logo.style.filter = 'blur(8px)';
+                }
+            }, 150);
+        }
+        
+        // Update position on scroll to follow the card - immediate, no delay
+        let scrollTimeout = null;
+        function handleScroll() {
+            if (currentCard && cardExpanded.classList.contains('active')) {
+                // Disable transitions during scroll
+                cardExpanded.classList.add('scrolling');
+                positionExpandedCard(currentCard);
+                
+                // Re-enable transitions after scroll ends
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    cardExpanded.classList.remove('scrolling');
+                }, 50);
+            }
+        }
+        
+        // Add scroll listeners to content rows and window
+        window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+        document.querySelectorAll('.content-row').forEach(row => {
+            row.addEventListener('scroll', handleScroll, { passive: true });
+        });
+        
+        // Attach hover events to all content cards
+        function attachCardHoverEvents() {
+            document.querySelectorAll('.content-card:not(.performer-card)').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    if (isDraggingRow) return;
+                    
+                    clearTimeout(hideTimer);
+                    clearTimeout(expandTimer);
+                    
+                    // If already showing a different card, fade out first then show new one
+                    if (cardExpanded.classList.contains('active') && currentCard !== card) {
+                        cardExpanded.classList.remove('active');
+                        // Reset logo immediately
+                        const logo = cardExpanded.querySelector('.card-expanded-logo');
+                        if (logo) {
+                            logo.style.transition = 'none';
+                            logo.style.opacity = '0';
+                            logo.style.filter = 'blur(8px)';
+                        }
+                        expandTimer = setTimeout(() => showExpandedCard(card), 150);
+                    } else if (!cardExpanded.classList.contains('active')) {
+                        // First hover - use normal delay
+                        expandTimer = setTimeout(() => showExpandedCard(card), 500);
+                    }
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    clearTimeout(expandTimer);
+                    hideExpandedCard();
+                });
+            });
+        }
+        
+        // Keep expanded card visible when hovering over it
+        cardExpanded.addEventListener('mouseenter', () => {
+            clearTimeout(hideTimer);
+        });
+        
+        cardExpanded.addEventListener('mouseleave', () => {
+            hideExpandedCard();
+        });
+        
+        // Initialize after rows are populated
+        setTimeout(attachCardHoverEvents, 100);
+
+        // ========== DRAG SCROLL & ROW NAVIGATION ==========
+        
+        // Netflix-style Slider System
+        const sliderState = {};
+        
+        function getCardWidth(rowId) {
+            if (rowId === 'performersRow') return 168; // 160 + 8 gap
+            if (rowId === 'trendingRow' || rowId === 'newRow') return 188; // 180 + 8 gap
+            if (rowId === 'top10Row') return 208; // ~200 + 8 gap
+            if (rowId === 'featuredRow') return 428; // 420 + 8 gap
+            return 288; // 280 + 8 gap
+        }
+        
+        function getVisibleCards(rowId) {
+            const row = document.getElementById(rowId);
+            if (!row) return 5;
+            const mask = row.closest('.slider-mask');
+            if (!mask) return 5;
+            const maskWidth = mask.offsetWidth;
+            const cardWidth = getCardWidth(rowId);
+            return Math.max(1, Math.floor(maskWidth / cardWidth));
+        }
+        
+        function initSlider(rowId) {
+            const row = document.getElementById(rowId);
+            if (!row) return;
+            
+            const totalCards = row.children.length;
+            if (totalCards === 0) return;
+            
+            const visibleCards = getVisibleCards(rowId);
+            const totalPages = Math.max(1, Math.ceil(totalCards / visibleCards));
+            
+            sliderState[rowId] = {
+                currentPage: 0,
+                totalPages: totalPages,
+                visibleCards: visibleCards,
+                totalCards: totalCards,
+                hasLooped: false
+            };
+            
+            // Create pagination dots
+            const pagination = document.getElementById(`${rowId}-pagination`);
+            if (pagination) {
+                pagination.innerHTML = '';
+                for (let i = 0; i < totalPages; i++) {
+                    const dot = document.createElement('li');
+                    if (i === 0) dot.classList.add('active');
+                    pagination.appendChild(dot);
+                }
+            }
+            
+            // Reset transform
+            row.style.transform = 'translateX(0)';
+            
+            // Initial button state
+            updateSliderButtons(rowId);
+        }
+        
+        function updateSliderButtons(rowId) {
+            const state = sliderState[rowId];
+            if (!state) return;
+            
+            const prevBtn = document.querySelector(`.row-scroll-btn.btn-prev[data-row="${rowId}"]`);
+            const nextBtn = document.querySelector(`.row-scroll-btn.btn-next[data-row="${rowId}"]`);
+            
+            // Hide prev on first page (until user has looped)
+            if (prevBtn) {
+                prevBtn.classList.toggle('hidden', state.currentPage === 0 && !state.hasLooped);
+            }
+            
+            // Always show next (infinite loop)
+            if (nextBtn) {
+                nextBtn.classList.remove('hidden');
+            }
+            
+            // Update pagination dots
+            const pagination = document.getElementById(`${rowId}-pagination`);
+            if (pagination) {
+                const dots = pagination.querySelectorAll('li');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === state.currentPage);
+                });
+            }
+        }
+        
+        function slideRow(rowId, direction) {
+            const state = sliderState[rowId];
+            if (!state) return;
+            
+            const row = document.getElementById(rowId);
+            if (!row) return;
+            
+            // Calculate new page with infinite loop
+            let newPage = state.currentPage + (direction === 'next' ? 1 : -1);
+            
+            // Infinite loop
+            if (newPage >= state.totalPages) {
+                newPage = 0;
+                state.hasLooped = true;
+            } else if (newPage < 0) {
+                newPage = state.totalPages - 1;
+                state.hasLooped = true;
+            }
+            
+            state.currentPage = newPage;
+            
+            // Calculate transform
+            const cardWidth = getCardWidth(rowId);
+            let translateX;
+            
+            if (newPage === 0) {
+                // First page - start at 0
+                translateX = 0;
+            } else if (newPage === state.totalPages - 1) {
+                // Last page - align last card to right edge (no gaps)
+                const maxTranslate = (state.totalCards - state.visibleCards) * cardWidth;
+                translateX = -maxTranslate;
+            } else {
+                // Middle pages - normal calculation
+                translateX = -(newPage * state.visibleCards * cardWidth);
+            }
+            
+            row.style.transform = `translateX(${translateX}px)`;
+            
+            updateSliderButtons(rowId);
+        }
+        
+        function initSliderButtons() {
+            document.querySelectorAll('.row-scroll-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const rowId = btn.dataset.row;
+                    const direction = btn.dataset.dir;
+                    slideRow(rowId, direction);
+                });
+            });
+        }
+        
+        // Initialize all sliders
+        function initAllSliders() {
+            const rowIds = ['continueRow', 'top10Row', 'trendingRow', 'featuredRow', 'performersRow', 'newRow', 'vrRow'];
+            rowIds.forEach(id => initSlider(id));
+        }
+        
+        // Initialize after rows are populated
+        setTimeout(() => {
+            document.body.offsetHeight;
+            initSliderButtons();
+            initAllSliders();
+        }, 500);
+        
+        // Reinit on resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                const rowIds = ['continueRow', 'top10Row', 'trendingRow', 'featuredRow', 'performersRow', 'newRow', 'vrRow'];
+                rowIds.forEach(id => {
+                    const row = document.getElementById(id);
+                    if (row) row.style.transform = 'translateX(0)';
+                    initSlider(id);
+                });
+            }, 200);
+        });
 
 
         // Age gate
@@ -2940,12 +4011,12 @@
         
         function runLoadingSequence(progress, status) {
             const stages = [
-                { progress: 15, status: 'Loading assets...', delay: 400 },
-                { progress: 35, status: 'Preparing content...', delay: 500 },
-                { progress: 55, status: 'Initializing 3D engine...', delay: 600 },
-                { progress: 75, status: 'Loading your preferences...', delay: 400 },
-                { progress: 90, status: 'Almost ready...', delay: 300 },
-                { progress: 100, status: 'Welcome to SIREN', delay: 500 },
+                { progress: 20, status: 'Loading assets...', delay: 200 },
+                { progress: 40, status: 'Preparing content...', delay: 250 },
+                { progress: 60, status: 'Initializing 3D engine...', delay: 300 },
+                { progress: 80, status: 'Loading your preferences...', delay: 200 },
+                { progress: 95, status: 'Almost ready...', delay: 150 },
+                { progress: 100, status: 'Welcome to SIREN', delay: 200 },
             ];
             
             let currentStage = 0;
@@ -2990,22 +4061,22 @@
             // Use a timeline for buttery smooth animation
             const tl = gsap.timeline();
             
-            // First fade out the loader content
+            // First fade out the loader content quickly
             tl.to(['.loader-container', '.loader-orb', '.loader-particles'], {
                 opacity: 0,
-                duration: 0.6,
+                duration: 0.3,
                 ease: 'power2.in'
             })
-            // Then very smoothly fade out the overlay
+            // Then quickly fade out the overlay with blur transition
             .to(loader, {
                 opacity: 0,
-                duration: 1.5,
-                ease: 'power1.out',
+                duration: 0.5,
+                ease: 'power2.out',
                 onComplete: () => {
                     loader.classList.remove('active');
                     loader.style.display = 'none';
                 }
-            }, '-=0.3');
+            }, '-=0.1');
         }
 
         function exitSite() {
@@ -3023,9 +4094,9 @@
             
             // Quick loading sequence for returning users
             const stages = [
-                { progress: 40, status: 'Welcome back...', delay: 300 },
-                { progress: 80, status: 'Loading content...', delay: 400 },
-                { progress: 100, status: 'Ready', delay: 300 },
+                { progress: 50, status: 'Welcome back...', delay: 150 },
+                { progress: 85, status: 'Loading content...', delay: 200 },
+                { progress: 100, status: 'Ready', delay: 150 },
             ];
             
             let currentStage = 0;
@@ -3033,16 +4104,16 @@
             function nextStage() {
                 if (currentStage < stages.length) {
                     const stage = stages[currentStage];
-                    gsap.to(progress, { width: stage.progress + '%', duration: 0.3 });
+                    gsap.to(progress, { width: stage.progress + '%', duration: 0.2 });
                     status.textContent = stage.status;
                     currentStage++;
                     setTimeout(nextStage, stage.delay);
                 } else {
-                    setTimeout(revealSite, 200);
+                    setTimeout(revealSite, 100);
                 }
             }
             
-            setTimeout(nextStage, 200);
+            setTimeout(nextStage, 100);
         }
 
         // Show content directly (age verified on entry page)
@@ -3074,6 +4145,10 @@
             panel.style.pointerEvents = 'none';
         });
         
+        // Track which submenu is locked open - GLOBAL for access in openSearch
+        var lockedSubmenu = null;
+        var lockedNavItem = null;
+        
         document.querySelectorAll('.nav-item-with-submenu').forEach(item => {
             const submenuId = item.dataset.submenu;
             const submenu = document.getElementById(submenuId);
@@ -3084,6 +4159,15 @@
             // Force show this submenu
             const forceShow = () => {
                 clearTimeout(hideTimer);
+                
+                // Close search dropdown if open
+                const searchDrop = document.getElementById('searchDropdown');
+                const searchBarEl = document.getElementById('searchBar');
+                if (searchDrop && searchDrop.classList.contains('active')) {
+                    searchDrop.classList.remove('active');
+                    if (searchBarEl) searchBarEl.classList.remove('active');
+                    gsap.to(searchDrop, { opacity: 0, x: -10, duration: 0.15 });
+                }
                 
                 // Hide any other open submenus first
                 document.querySelectorAll('.submenu-panel').forEach(panel => {
@@ -3127,6 +4211,9 @@
             const startHide = () => {
                 clearTimeout(hideTimer);
                 hideTimer = setTimeout(() => {
+                    // Don't hide if this submenu is locked
+                    if (lockedSubmenu === submenu) return;
+                    
                     // Final check - is anything still hovered?
                     if (!item.matches(':hover') && !submenu.matches(':hover')) {
                         hide();
@@ -3134,7 +4221,7 @@
                 }, 120);
             };
             
-            // Events on nav item
+            // Events on nav item - hover
             item.addEventListener('mouseenter', forceShow);
             item.addEventListener('mouseleave', startHide);
             
@@ -3145,35 +4232,45 @@
             });
             submenu.addEventListener('mouseleave', startHide);
             
-            // Click also works
-            item.addEventListener('click', forceShow);
-        });
-
-        // Mouse parallax effect on background orbs
-        const orbs = document.querySelectorAll('.bg-orb');
-        let mouseX = 0, mouseY = 0;
-        let currentX = 0, currentY = 0;
-        
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-        });
-        
-        function animateOrbs() {
-            // Smooth interpolation
-            currentX += (mouseX - currentX) * 0.05;
-            currentY += (mouseY - currentY) * 0.05;
-            
-            orbs.forEach((orb, index) => {
-                const depth = (index + 1) * 15;
-                const rotateX = currentY * 5;
-                const rotateY = currentX * 5;
-                orb.style.transform = `translate(${currentX * depth}px, ${currentY * depth}px)`;
+            // Click to lock/unlock
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // If this submenu is already locked, unlock it
+                if (lockedSubmenu === submenu) {
+                    lockedSubmenu = null;
+                    lockedNavItem = null;
+                    item.classList.remove('locked');
+                    startHide();
+                } else {
+                    // Unlock any previously locked submenu
+                    if (lockedNavItem) {
+                        lockedNavItem.classList.remove('locked');
+                    }
+                    
+                    // Lock this one
+                    lockedSubmenu = submenu;
+                    lockedNavItem = item;
+                    item.classList.add('locked');
+                    forceShow();
+                }
             });
-            
-            requestAnimationFrame(animateOrbs);
-        }
-        animateOrbs();
+        });
+        
+        // Click outside to close locked submenu
+        document.addEventListener('click', (e) => {
+            if (lockedSubmenu && !e.target.closest('.submenu-panel') && !e.target.closest('.nav-item-with-submenu')) {
+                if (lockedNavItem) {
+                    lockedNavItem.classList.remove('locked', 'submenu-open');
+                }
+                lockedSubmenu.classList.remove('active');
+                lockedSubmenu.style.opacity = '0';
+                lockedSubmenu.style.transform = 'translateX(-10px)';
+                lockedSubmenu.style.pointerEvents = 'none';
+                lockedSubmenu = null;
+                lockedNavItem = null;
+            }
+        });
 
         // ==========================================
         // SEARCH FUNCTIONALITY
@@ -3344,41 +4441,73 @@
         }
         
         function openSearch() {
-            searchBar.classList.add('active');
-            searchDropdown.classList.add('active');
+            const searchDrop = document.getElementById('searchDropdown');
+            const searchBarEl = document.getElementById('searchBar');
+            
+            if (!searchDrop || !searchBarEl) return;
+            
+            // Kill any existing animations
+            gsap.killTweensOf(searchDrop);
+            
+            // Close any open submenus first
+            document.querySelectorAll('.submenu-panel').forEach(panel => {
+                panel.classList.remove('active');
+                panel.style.opacity = '0';
+                panel.style.pointerEvents = 'none';
+            });
+            document.querySelectorAll('.nav-item-with-submenu').forEach(item => {
+                item.classList.remove('submenu-open', 'locked');
+            });
+            lockedSubmenu = null;
+            lockedNavItem = null;
+            
+            // Show dropdown
+            searchBarEl.classList.add('active');
+            searchDrop.classList.add('active');
+            
             populateRecommended();
             populateTrending();
             
-            // Animate dropdown
-            gsap.fromTo(searchDropdown,
-                { opacity: 0, y: -10, scale: 0.98 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.25, ease: 'power2.out' }
+            // Animate in
+            gsap.fromTo(searchDrop,
+                { opacity: 0, x: -10 },
+                { opacity: 1, x: 0, duration: 0.2, ease: 'power2.out' }
             );
             
             // Animate items
             setTimeout(() => {
-                const items = searchDropdown.querySelectorAll('.search-item');
+                const items = searchDrop.querySelectorAll('.search-item');
                 gsap.fromTo(items,
                     { opacity: 0, x: -10 },
                     { opacity: 1, x: 0, duration: 0.2, stagger: 0.03, ease: 'power2.out' }
                 );
-            }, 100);
+            }, 50);
         }
         
         function closeSearch() {
-            gsap.to(searchDropdown, {
+            const searchDrop = document.getElementById('searchDropdown');
+            const searchBarEl = document.getElementById('searchBar');
+            
+            if (!searchDrop) return;
+            
+            // Kill any existing animations
+            gsap.killTweensOf(searchDrop);
+            
+            // Remove active classes
+            if (searchBarEl) searchBarEl.classList.remove('active');
+            searchDrop.classList.remove('active');
+            
+            // Animate out
+            gsap.to(searchDrop, {
                 opacity: 0,
-                y: -10,
-                scale: 0.98,
+                x: -10,
                 duration: 0.15,
                 ease: 'power2.in',
                 onComplete: () => {
-                    searchBar.classList.remove('active');
-                    searchDropdown.classList.remove('active');
-                    resultsSection.style.display = 'none';
-                    recommendedSection.style.display = 'block';
-                    trendingSection.style.display = 'block';
-                    emptySection.style.display = 'none';
+                    if (resultsSection) resultsSection.style.display = 'none';
+                    if (recommendedSection) recommendedSection.style.display = 'block';
+                    if (trendingSection) trendingSection.style.display = 'block';
+                    if (emptySection) emptySection.style.display = 'none';
                     selectedIndex = -1;
                 }
             });
@@ -3396,7 +4525,15 @@
         }
         
         // Event listeners
-        searchInput.addEventListener('focus', openSearch);
+        searchBar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openSearch();
+            searchInput.focus();
+        });
+        
+        searchInput.addEventListener('focus', function() {
+            openSearch();
+        });
         
         searchInput.addEventListener('input', (e) => {
             performSearch(e.target.value);
@@ -3436,7 +4573,12 @@
         document.addEventListener('keydown', (e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
-                searchInput.focus();
+                if (searchDropdown.classList.contains('active')) {
+                    closeSearch();
+                    searchInput.blur();
+                } else {
+                    searchInput.focus();
+                }
             }
         });
 
