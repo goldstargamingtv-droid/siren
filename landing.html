@@ -612,60 +612,541 @@
         .features-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
+            gap: 1.5rem;
             max-width: 1400px;
             margin: 0 auto;
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 2.5rem;
-            text-align: center;
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 0;
+            text-align: left;
             transition: all 0.4s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center top;
+            opacity: 0.4;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .feature-card:nth-child(1)::before { background-image: url('images/2.jpg'); }
+        .feature-card:nth-child(2)::before { background-image: url('images/10.jpg'); }
+        .feature-card:nth-child(3)::before { background-image: url('images/9.jpg'); }
+        .feature-card:nth-child(4)::before { background-image: url('images/3.jpg'); }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0.8) 50%, rgba(10,10,10,0.4) 100%);
+            z-index: 1;
+        }
+
+        .feature-card:hover::before {
+            opacity: 0.6;
+            transform: scale(1.05);
         }
 
         .feature-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.4);
             transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(239, 68, 68, 0.15);
+        }
+
+        .feature-card-content {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
         }
 
         .feature-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.1));
-            border-radius: 20px;
+            width: 56px;
+            height: 56px;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(249, 115, 22, 0.2));
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .feature-icon svg {
-            width: 40px;
-            height: 40px;
+            width: 28px;
+            height: 28px;
             stroke: #f97316;
             stroke-width: 1.5;
             fill: none;
         }
 
         .feature-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #fff;
         }
 
         .feature-description {
-            font-size: 0.95rem;
-            color: #71717a;
-            line-height: 1.6;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.5;
         }
 
         /* ==========================================
            IMMERSIVE SECTION
            ========================================== */
+        /* VR Angle Control Demo Section */
+        .angle-demo-section {
+            padding: 120px 4rem;
+            background: linear-gradient(180deg, #0a0a0a 0%, #0f0808 50%, #0a0a0a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .angle-demo-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .angle-demo-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .angle-demo-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        .angle-demo-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .angle-demo-title span {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .angle-demo-description {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+        }
+
+        .angle-demo-description strong {
+            color: #fff;
+        }
+
+        .angle-demo-features {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .angle-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+
+        .angle-feature svg {
+            width: 20px;
+            height: 20px;
+            stroke: #ef4444;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* VR Viewport */
+        .vr-viewport-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .vr-viewport {
+            position: relative;
+            width: 100%;
+            max-width: 580px;
+        }
+
+        .vr-viewport-frame {
+            display: flex;
+            gap: 8px;
+            padding: 20px;
+            background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
+            border-radius: 100px;
+            border: 3px solid #2a2a2a;
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .vr-lens {
+            flex: 1;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #333;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .vr-lens-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vr-preview-image {
+            width: 200%;
+            height: 120%;
+            object-fit: cover;
+            object-position: center;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .vr-lens-left .vr-preview-image {
+            left: 0;
+            animation: subtleZoomLeft 8s ease-in-out infinite alternate;
+        }
+
+        .vr-lens-right .vr-preview-image {
+            right: 0;
+            animation: subtleZoomRight 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes subtleZoomLeft {
+            0% { transform: translateY(-50%) scale(1); }
+            100% { transform: translateY(-50%) scale(1.08); }
+        }
+
+        @keyframes subtleZoomRight {
+            0% { transform: translateY(-50%) scale(1); }
+            100% { transform: translateY(-50%) scale(1.08); }
+        }
+
+        .vr-lens-overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.4) 100%);
+            pointer-events: none;
+        }
+
+        .vr-nose-bridge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 60px;
+            background: #0d0d0d;
+            border-radius: 0 0 15px 15px;
+            z-index: 10;
+        }
+
+        /* Angle Control UI */
+        .angle-control-ui {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .angle-indicator {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .angle-indicator span {
+            display: block;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.65rem;
+            margin-bottom: 2px;
+        }
+
+        .angle-indicator strong {
+            color: #ef4444;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .angle-indicator-top {
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        .angle-indicator-right {
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+        }
+
+        /* Compass */
+        .angle-compass {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+        }
+
+        .compass-ring {
+            position: absolute;
+            inset: 0;
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .compass-needle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(to bottom, #ef4444, transparent);
+            transform-origin: bottom center;
+            transform: translate(-50%, -100%);
+            animation: needleSway 4s ease-in-out infinite;
+        }
+
+        @keyframes needleSway {
+            0%, 100% { transform: translate(-50%, -100%) rotate(-15deg); }
+            50% { transform: translate(-50%, -100%) rotate(15deg); }
+        }
+
+        .compass-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+        }
+
+        /* Angle Slider */
+        .angle-slider {
+            position: absolute;
+            bottom: 30px;
+            right: -30px;
+            width: 120px;
+        }
+
+        .slider-track {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .slider-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 65%;
+            background: linear-gradient(90deg, #ef4444, #f97316);
+            border-radius: 2px;
+            animation: sliderMove 6s ease-in-out infinite;
+        }
+
+        @keyframes sliderMove {
+            0%, 100% { width: 65%; }
+            50% { width: 35%; }
+        }
+
+        .slider-thumb {
+            position: absolute;
+            top: 50%;
+            left: 65%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            animation: thumbMove 6s ease-in-out infinite;
+        }
+
+        @keyframes thumbMove {
+            0%, 100% { left: 65%; }
+            50% { left: 35%; }
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Live Badge */
+        .vr-live-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: livePulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        /* Floating Hints */
+        .vr-hint {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 16px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .vr-hint svg {
+            width: 16px;
+            height: 16px;
+            stroke: #ef4444;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .vr-hint-1 {
+            bottom: -40px;
+            left: 10%;
+            animation: floatHint 3s ease-in-out infinite;
+        }
+
+        .vr-hint-2 {
+            top: 20%;
+            right: -30px;
+            animation: floatHint 3s ease-in-out infinite 1.5s;
+        }
+
+        @keyframes floatHint {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @media (max-width: 1100px) {
+            .angle-demo-container {
+                grid-template-columns: 1fr;
+                gap: 60px;
+                text-align: center;
+            }
+
+            .angle-demo-features {
+                justify-content: center;
+            }
+
+            .angle-demo-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .angle-demo-section {
+                padding: 80px 1.5rem;
+            }
+
+            .angle-demo-features {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .vr-viewport-frame {
+                padding: 12px;
+                border-radius: 60px;
+            }
+
+            .angle-indicator-right,
+            .angle-slider,
+            .vr-hint-2 {
+                display: none;
+            }
+        }
+
         .immersive-section {
             padding: 10rem 3rem;
             position: relative;
@@ -865,6 +1346,167 @@
             font-size: 0.75rem;
             color: #71717a;
             font-weight: 400;
+        }
+
+        /* ==========================================
+           TRENDING SECTION
+           ========================================== */
+        .trending-section {
+            padding: 6rem 3rem;
+            background: linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 50%, #0a0a0a 100%);
+        }
+
+        .trending-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .trending-card {
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .trending-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .trending-card-featured {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+
+        .trending-thumb {
+            position: relative;
+            aspect-ratio: 16/9;
+            overflow: hidden;
+        }
+
+        .trending-card-featured .trending-thumb {
+            aspect-ratio: 16/12;
+        }
+
+        .trending-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .trending-card:hover .trending-thumb img {
+            transform: scale(1.05);
+        }
+
+        .trending-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 50%, transparent 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .trending-card:hover .trending-overlay {
+            opacity: 1;
+        }
+
+        .trending-play {
+            width: 70px;
+            height: 70px;
+            background: rgba(239, 68, 68, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .trending-card:hover .trending-play {
+            transform: scale(1);
+        }
+
+        .trending-play svg {
+            width: 28px;
+            height: 28px;
+            margin-left: 4px;
+            color: white;
+        }
+
+        .trending-duration {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.85);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .trending-quality {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #f97316, #ef4444);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .trending-vr {
+            position: absolute;
+            top: 10px;
+            left: 55px;
+            background: rgba(139, 92, 246, 0.9);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .trending-info {
+            padding: 1rem 1.25rem;
+        }
+
+        .trending-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .trending-card-featured .trending-info h3 {
+            font-size: 1.3rem;
+        }
+
+        .trending-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #71717a;
+        }
+
+        .trending-rating {
+            color: #fbbf24;
+        }
+
+        .trending-cta {
+            text-align: center;
+            margin-top: 3rem;
         }
 
         /* ==========================================
@@ -1278,6 +1920,15 @@
                 grid-template-columns: repeat(2, 1fr);
             }
 
+            .trending-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .trending-card-featured {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+
             .channels-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
@@ -1340,6 +1991,15 @@
                 align-items: center;
             }
 
+            .trending-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .trending-card-featured {
+                grid-column: span 2;
+                grid-row: span 1;
+            }
+
             .testimonials-grid {
                 grid-template-columns: 1fr;
             }
@@ -1376,6 +2036,19 @@
 
             .features-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .trending-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .trending-card-featured {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+
+            .trending-section {
+                padding: 4rem 1.5rem;
             }
 
             .channels-grid {
@@ -1655,59 +2328,243 @@
             </div>
         </section>
 
-    <!-- Features Section -->
-        <section class="section section-dark" id="features" aria-labelledby="features-title">
+    <!-- Trending Now Section -->
+        <section class="trending-section" id="trending">
             <div class="section-header">
-                <span class="section-label">Why SIREN</span>
-                <h2 id="features-title" class="section-title">A New Standard in Premium Adult Entertainment</h2>
+                <span class="section-label">🔥 Hot Right Now</span>
+                <h2 class="section-title">Trending Content</h2>
                 <p class="section-subtitle">
-                    We've rebuilt adult content from the ground up. Every feature designed to deliver unparalleled quality and immersion.
+                    The most-watched scenes this week. Updated daily.
                 </p>
             </div>
 
-            <div class="features-grid" role="list">
-                <article class="feature-card" role="listitem">
-                    <div class="feature-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                        </svg>
+            <div class="trending-grid">
+                <article class="trending-card trending-card-featured">
+                    <div class="trending-thumb">
+                        <img src="images/11.jpg" alt="">
+                        <div class="trending-overlay">
+                            <div class="trending-play">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <div class="trending-duration">32:14</div>
+                        <div class="trending-quality">4K</div>
+                        <div class="trending-vr">VR</div>
                     </div>
-                    <h3 class="feature-title">Immersive 3D VR Porn</h3>
-                    <p class="feature-description">Full spatial audio and stereoscopic visuals that put you in the scene. Compatible with all major VR headsets.</p>
+                    <div class="trending-info">
+                        <h3>Exclusive: After Hours</h3>
+                        <p class="trending-meta">
+                            <span class="trending-views">2.3M views</span>
+                            <span class="trending-rating">⭐ 4.9</span>
+                        </p>
+                    </div>
                 </article>
 
-                <article class="feature-card" role="listitem">
-                    <div class="feature-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                            <line x1="8" y1="21" x2="16" y2="21"/>
-                            <line x1="12" y1="17" x2="12" y2="21"/>
-                        </svg>
+                <article class="trending-card">
+                    <div class="trending-thumb">
+                        <img src="images/1.jpg" alt="">
+                        <div class="trending-overlay">
+                            <div class="trending-play">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <div class="trending-duration">24:08</div>
+                        <div class="trending-quality">4K</div>
                     </div>
-                    <h3 class="feature-title">4K Ultra HD Quality</h3>
-                    <p class="feature-description">Crystal clear resolution with HDR support for stunning visual fidelity. Experience every detail in premium quality.</p>
+                    <div class="trending-info">
+                        <h3>Lingerie Dreams</h3>
+                        <p class="trending-meta">
+                            <span class="trending-views">1.8M views</span>
+                            <span class="trending-rating">⭐ 4.8</span>
+                        </p>
+                    </div>
                 </article>
 
-                <article class="feature-card" role="listitem">
-                    <div class="feature-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
-                        </svg>
+                <article class="trending-card">
+                    <div class="trending-thumb">
+                        <img src="images/4.jpg" alt="">
+                        <div class="trending-overlay">
+                            <div class="trending-play">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <div class="trending-duration">28:45</div>
+                        <div class="trending-quality">4K</div>
+                        <div class="trending-vr">VR</div>
                     </div>
-                    <h3 class="feature-title">New Content Daily</h3>
-                    <p class="feature-description">Fresh exclusive adult videos added every day from our partner studios and independent creators.</p>
+                    <div class="trending-info">
+                        <h3>Red Hot Summer</h3>
+                        <p class="trending-meta">
+                            <span class="trending-views">1.5M views</span>
+                            <span class="trending-rating">⭐ 4.9</span>
+                        </p>
+                    </div>
                 </article>
 
-                <article class="feature-card" role="listitem">
-                    <div class="feature-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        </svg>
+                <article class="trending-card">
+                    <div class="trending-thumb">
+                        <img src="images/12.jpg" alt="">
+                        <div class="trending-overlay">
+                            <div class="trending-play">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <div class="trending-duration">35:22</div>
+                        <div class="trending-quality">4K</div>
                     </div>
-                    <h3 class="feature-title">100% Private & Secure</h3>
-                    <p class="feature-description">Bank-level encryption and anonymous browsing. Your privacy is sacred — discreet billing on all transactions.</p>
+                    <div class="trending-info">
+                        <h3>Midnight Desires</h3>
+                        <p class="trending-meta">
+                            <span class="trending-views">1.2M views</span>
+                            <span class="trending-rating">⭐ 4.7</span>
+                        </p>
+                    </div>
                 </article>
+
+                <article class="trending-card">
+                    <div class="trending-thumb">
+                        <img src="images/6.jpg" alt="">
+                        <div class="trending-overlay">
+                            <div class="trending-play">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <div class="trending-duration">22:16</div>
+                        <div class="trending-quality">4K</div>
+                        <div class="trending-vr">VR</div>
+                    </div>
+                    <div class="trending-info">
+                        <h3>Morning Glow</h3>
+                        <p class="trending-meta">
+                            <span class="trending-views">980K views</span>
+                            <span class="trending-rating">⭐ 4.8</span>
+                        </p>
+                    </div>
+                </article>
+
+                <article class="trending-card">
+                    <div class="trending-thumb">
+                        <img src="images/13.jpg" alt="">
+                        <div class="trending-overlay">
+                            <div class="trending-play">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                        <div class="trending-duration">41:33</div>
+                        <div class="trending-quality">4K</div>
+                    </div>
+                    <div class="trending-info">
+                        <h3>Room Service</h3>
+                        <p class="trending-meta">
+                            <span class="trending-views">875K views</span>
+                            <span class="trending-rating">⭐ 4.9</span>
+                        </p>
+                    </div>
+                </article>
+            </div>
+
+            <div class="trending-cta">
+                <a href="#" class="btn btn-primary btn-large">
+                    Browse All Content
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </section>
+
+    <!-- VR Angle Control Demo Section -->
+        <section class="angle-demo-section" id="angle-demo">
+            <div class="angle-demo-container">
+                <div class="angle-demo-text">
+                    <span class="section-label">Revolutionary Technology</span>
+                    <h2 class="angle-demo-title">Your Angle. <span>Your Rules.</span></h2>
+                    <p class="angle-demo-description">
+                        Traditional porn gives you one perspective. SIREN gives you <strong>every perspective</strong>. 
+                        Our proprietary multi-angle capture technology lets you control exactly what you see, when you see it.
+                    </p>
+                    <div class="angle-demo-features">
+                        <div class="angle-feature">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                            <span>360° Freedom</span>
+                        </div>
+                        <div class="angle-feature">
+                            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <span>Real-time Control</span>
+                        </div>
+                        <div class="angle-feature">
+                            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                            <span>Any Device</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="vr-viewport-wrapper">
+                    <!-- VR Headset Frame -->
+                    <div class="vr-viewport">
+                        <div class="vr-viewport-frame">
+                            <!-- Left lens -->
+                            <div class="vr-lens vr-lens-left">
+                                <div class="vr-lens-content">
+                                    <img src="images/10.jpg" alt="" class="vr-preview-image">
+                                    <div class="vr-lens-overlay"></div>
+                                </div>
+                            </div>
+                            <!-- Right lens -->
+                            <div class="vr-lens vr-lens-right">
+                                <div class="vr-lens-content">
+                                    <img src="images/10.jpg" alt="" class="vr-preview-image">
+                                    <div class="vr-lens-overlay"></div>
+                                </div>
+                            </div>
+                            <!-- Center divider -->
+                            <div class="vr-nose-bridge"></div>
+                        </div>
+                        
+                        <!-- Angle Control UI Overlay -->
+                        <div class="angle-control-ui">
+                            <div class="angle-indicator angle-indicator-top">
+                                <span>ANGLE</span>
+                                <strong>32°</strong>
+                            </div>
+                            <div class="angle-indicator angle-indicator-right">
+                                <span>ZOOM</span>
+                                <strong>1.2x</strong>
+                            </div>
+                            <div class="angle-compass">
+                                <div class="compass-ring"></div>
+                                <div class="compass-needle"></div>
+                                <div class="compass-center"></div>
+                            </div>
+                            <div class="angle-slider">
+                                <div class="slider-track">
+                                    <div class="slider-fill"></div>
+                                    <div class="slider-thumb"></div>
+                                </div>
+                                <div class="slider-labels">
+                                    <span>POV</span>
+                                    <span>WIDE</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Live badge -->
+                        <div class="vr-live-badge">
+                            <span class="live-dot"></span>
+                            LIVE CONTROL
+                        </div>
+                    </div>
+                    
+                    <!-- Floating hints -->
+                    <div class="vr-hint vr-hint-1">
+                        <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                        Drag to adjust angle
+                    </div>
+                    <div class="vr-hint vr-hint-2">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/></svg>
+                        Pinch to zoom
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -1913,6 +2770,70 @@
                         </svg>
                     </div>
                     <h3 class="device-name">Interactive Toys</h3>
+                </article>
+            </div>
+        </section>
+
+    <!-- Features Section -->
+        <section class="section section-dark" id="features" aria-labelledby="features-title">
+            <div class="section-header">
+                <span class="section-label">Why SIREN</span>
+                <h2 id="features-title" class="section-title">A New Standard in Premium Adult Entertainment</h2>
+                <p class="section-subtitle">
+                    We've rebuilt adult content from the ground up. Every feature designed to deliver unparalleled quality and immersion.
+                </p>
+            </div>
+
+            <div class="features-grid" role="list">
+                <article class="feature-card" role="listitem">
+                    <div class="feature-card-content">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">Immersive 3D VR Porn</h3>
+                        <p class="feature-description">Full spatial audio and stereoscopic visuals that put you in the scene. Compatible with all major VR headsets.</p>
+                    </div>
+                </article>
+
+                <article class="feature-card" role="listitem">
+                    <div class="feature-card-content">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                                <line x1="8" y1="21" x2="16" y2="21"/>
+                                <line x1="12" y1="17" x2="12" y2="21"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">4K Ultra HD Quality</h3>
+                        <p class="feature-description">Crystal clear resolution with HDR support. Experience every detail in stunning premium quality.</p>
+                    </div>
+                </article>
+
+                <article class="feature-card" role="listitem">
+                    <div class="feature-card-content">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">New Content Daily</h3>
+                        <p class="feature-description">Fresh exclusive adult videos added every day from our partner studios and independent creators.</p>
+                    </div>
+                </article>
+
+                <article class="feature-card" role="listitem">
+                    <div class="feature-card-content">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                        </div>
+                        <h3 class="feature-title">100% Private & Secure</h3>
+                        <p class="feature-description">Bank-level encryption and anonymous browsing. Your privacy is sacred — discreet billing.</p>
+                    </div>
                 </article>
             </div>
         </section>
