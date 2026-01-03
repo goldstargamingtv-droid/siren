@@ -236,11 +236,11 @@
         }
 
         .nav.scrolled {
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(15, 15, 20, 0.6);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
             padding: 1rem 3rem;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         .nav-logo {
@@ -256,9 +256,233 @@
         }
 
         .nav-links {
+            display: none;
+        }
+
+        .nav-menu-btn {
             display: flex;
             align-items: center;
-            gap: 2.5rem;
+            gap: 0.5rem;
+            padding: 0.6rem 1rem;
+            background: rgba(15, 15, 20, 0.6);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #a1a1aa;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-menu-btn:hover {
+            background: rgba(20, 20, 26, 0.7);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .nav-menu-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .nav-menu-wrapper {
+            position: relative;
+        }
+
+        .mega-dropdown {
+            position: fixed;
+            top: 80px;
+            right: 3rem;
+            transform: translateY(-10px);
+            background: rgba(15, 15, 20, 0.6);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 700px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            z-index: 1001;
+        }
+
+        .mega-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mega-dropdown-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 1.5rem;
+        }
+
+        .mega-dropdown-nav h4 {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #71717a;
+            margin-bottom: 0.75rem;
+            padding-left: 0.5rem;
+        }
+
+        .mega-dropdown-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .mega-dropdown-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 0.75rem;
+            color: #a1a1aa;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .mega-dropdown-link:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .mega-dropdown-link svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 1.5;
+            fill: none;
+            opacity: 0.6;
+        }
+
+        .mega-dropdown-link:hover svg {
+            opacity: 1;
+            stroke: #ef4444;
+        }
+
+        .mega-dropdown-preview h4 {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #71717a;
+            margin-bottom: 0.75rem;
+        }
+
+        .mega-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .mega-preview-card {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 16/10;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .mega-preview-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .mega-preview-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .mega-preview-card:hover {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .mega-preview-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+        }
+
+        .mega-preview-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.6rem;
+            z-index: 1;
+        }
+
+        .mega-preview-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.15rem;
+        }
+
+        .mega-preview-meta {
+            font-size: 0.65rem;
+            color: #a1a1aa;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mega-preview-badge {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            color: #fff;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .mega-dropdown-cta {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mega-cta-text {
+            font-size: 0.8rem;
+            color: #71717a;
+        }
+
+        .mega-cta-text span {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        @media (max-width: 700px) {
+            .mega-dropdown {
+                width: 95%;
+                padding: 1rem;
+            }
+            .mega-dropdown-grid {
+                grid-template-columns: 1fr;
+            }
+            .mega-dropdown-preview {
+                display: none;
+            }
         }
 
         .nav-link {
@@ -2083,18 +2307,98 @@
     <header>
         <nav class="nav" id="nav" role="navigation" aria-label="Main navigation">
             <a href="/" class="nav-logo" aria-label="SIREN - Home">SIREN</a>
-            <div class="nav-links">
-                <a href="#features" class="nav-link">Features</a>
-                <a href="#experience" class="nav-link">Experience</a>
-                <a href="#channels" class="nav-link">Studios</a>
-                <a href="#devices" class="nav-link">Devices</a>
-            </div>
             <div class="nav-buttons">
+                <div class="nav-menu-wrapper">
+                    <button class="nav-menu-btn" id="navMenuBtn">
+                        <svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                        Explore
+                    </button>
+                </div>
                 <a href="../browse/" class="btn btn-ghost">Sign In</a>
                 <a href="../browse/" class="btn btn-primary" id="enterBtn">Get Started</a>
             </div>
         </nav>
     </header>
+        
+    <!-- Mega Dropdown -->
+    <div class="mega-dropdown" id="megaDropdown">
+        <div class="mega-dropdown-grid">
+            <div class="mega-dropdown-nav">
+                <h4>On This Page</h4>
+                <div class="mega-dropdown-links">
+                    <a href="#trending" class="mega-dropdown-link">
+                        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        Trending Now
+                    </a>
+                    <a href="#angle-demo" class="mega-dropdown-link">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        VR Experience
+                    </a>
+                    <a href="#features" class="mega-dropdown-link">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        Why SIREN
+                    </a>
+                    <a href="#channels" class="mega-dropdown-link">
+                        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        Partner Studios
+                    </a>
+                    <a href="#devices" class="mega-dropdown-link">
+                        <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+                        Supported Devices
+                    </a>
+                </div>
+            </div>
+            <div class="mega-dropdown-preview">
+                <h4>Featured Content</h4>
+                <div class="mega-preview-grid">
+                    <a href="../browse/" class="mega-preview-card">
+                        <img src="../images/11.jpg" alt="Featured">
+                        <div class="mega-preview-info">
+                            <div class="mega-preview-title">New This Week</div>
+                            <div class="mega-preview-meta">
+                                <span class="mega-preview-badge">VR</span>
+                                <span>4K Ultra HD</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="../browse/" class="mega-preview-card">
+                        <img src="../images/1.jpg" alt="Featured">
+                        <div class="mega-preview-info">
+                            <div class="mega-preview-title">Top Rated</div>
+                            <div class="mega-preview-meta">
+                                <span>⭐ 4.9</span>
+                                <span>2.1M views</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="../browse/" class="mega-preview-card">
+                        <img src="../images/4.jpg" alt="Featured">
+                        <div class="mega-preview-info">
+                            <div class="mega-preview-title">Interactive</div>
+                            <div class="mega-preview-meta">
+                                <span class="mega-preview-badge">Live</span>
+                                <span>POV Control</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="../browse/" class="mega-preview-card">
+                        <img src="../images/6.jpg" alt="Featured">
+                        <div class="mega-preview-info">
+                            <div class="mega-preview-title">Exclusive</div>
+                            <div class="mega-preview-meta">
+                                <span class="mega-preview-badge">New</span>
+                                <span>Premium</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mega-dropdown-cta">
+            <div class="mega-cta-text">Ready to dive in? <span>4,200+</span> videos waiting</div>
+            <a href="../browse/" class="btn btn-primary" style="padding: 0.6rem 1.25rem; font-size: 0.85rem;">Browse All</a>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <main>
@@ -2939,6 +3243,29 @@
         // Register ScrollTrigger
         gsap.registerPlugin(ScrollTrigger);
 
+        // Nav mega dropdown menu
+        const navMenuBtn = document.getElementById('navMenuBtn');
+        const megaDropdown = document.getElementById('megaDropdown');
+        
+        navMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            megaDropdown.classList.toggle('active');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!megaDropdown.contains(e.target) && !navMenuBtn.contains(e.target)) {
+                megaDropdown.classList.remove('active');
+            }
+        });
+        
+        // Close dropdown when clicking a link
+        megaDropdown.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                megaDropdown.classList.remove('active');
+            });
+        });
+
         // Nav scroll effect
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('nav');
@@ -2947,6 +3274,8 @@
             } else {
                 nav.classList.remove('scrolled');
             }
+            // Close mega dropdown on scroll
+            megaDropdown.classList.remove('active');
         });
 
         // Hero animations - animate from hidden to visible
