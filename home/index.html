@@ -169,6 +169,245 @@
             --text-secondary: #a1a1aa;
         }
 
+        /* ==========================================
+           SITE LOADER
+           ========================================== */
+        .site-loader {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 10, 12, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: all 0.6s ease;
+        }
+        
+        .site-loader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+        }
+        
+        .loader-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+        }
+        
+        /* Animated rings */
+        .loader-rings {
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+        
+        .loader-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid transparent;
+        }
+        
+        .loader-ring-1 {
+            inset: 0;
+            border-top-color: #ef4444;
+            border-right-color: #ef4444;
+            animation: loaderSpin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+        }
+        
+        .loader-ring-2 {
+            inset: 15px;
+            border-bottom-color: #f97316;
+            border-left-color: #f97316;
+            animation: loaderSpin 2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite reverse;
+        }
+        
+        .loader-ring-3 {
+            inset: 30px;
+            border-top-color: #ef4444;
+            border-right-color: #f97316;
+            animation: loaderSpin 2.5s linear infinite;
+        }
+        
+        @keyframes loaderSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Pulsing glow behind rings */
+        .loader-glow {
+            position: absolute;
+            inset: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, transparent 70%);
+            animation: loaderPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes loaderPulse {
+            0%, 100% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        /* Center logo */
+        .loader-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            background: linear-gradient(135deg, #ef4444, #f97316, #ef4444);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: loaderGradient 3s ease infinite;
+        }
+        
+        @keyframes loaderGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        /* Progress section */
+        .loader-progress-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            min-width: 280px;
+        }
+        
+        .loader-status {
+            font-size: 0.85rem;
+            color: #71717a;
+            letter-spacing: 0.05em;
+        }
+        
+        .loader-progress-bar {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .loader-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #f97316);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+        
+        .loader-progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -2px;
+            bottom: -2px;
+            width: 20px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6));
+            filter: blur(2px);
+        }
+        
+        .loader-progress-glow {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.5), transparent);
+            animation: progressShimmer 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes progressShimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Floating particles */
+        .loader-particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .loader-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat 4s ease-in-out infinite;
+        }
+        
+        .loader-particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .loader-particle:nth-child(2) { left: 20%; animation-delay: 0.5s; }
+        .loader-particle:nth-child(3) { left: 30%; animation-delay: 1s; }
+        .loader-particle:nth-child(4) { left: 40%; animation-delay: 1.5s; }
+        .loader-particle:nth-child(5) { left: 50%; animation-delay: 2s; }
+        .loader-particle:nth-child(6) { left: 60%; animation-delay: 0.3s; }
+        .loader-particle:nth-child(7) { left: 70%; animation-delay: 0.8s; }
+        .loader-particle:nth-child(8) { left: 80%; animation-delay: 1.3s; }
+        .loader-particle:nth-child(9) { left: 90%; animation-delay: 1.8s; }
+        
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-20vh) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        /* Ambient orbs for loader */
+        .loader-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.25;
+            animation: loaderOrbFloat 8s ease-in-out infinite;
+        }
+        
+        .loader-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(239, 68, 68, 0.3);
+            top: -100px;
+            left: -100px;
+        }
+        
+        .loader-orb-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(249, 115, 22, 0.25);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: -4s;
+        }
+        
+        @keyframes loaderOrbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 20px) scale(1.1); }
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -2369,6 +2608,46 @@
     </style>
 </head>
 <body>
+    <!-- Site Loader -->
+    <div class="site-loader" id="siteLoader">
+        <!-- Ambient orbs -->
+        <div class="loader-orb loader-orb-1"></div>
+        <div class="loader-orb loader-orb-2"></div>
+        
+        <!-- Floating particles -->
+        <div class="loader-particles">
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+            <div class="loader-particle"></div>
+        </div>
+        
+        <div class="loader-container">
+            <!-- Spinning rings with logo -->
+            <div class="loader-rings">
+                <div class="loader-glow"></div>
+                <div class="loader-ring loader-ring-1"></div>
+                <div class="loader-ring loader-ring-2"></div>
+                <div class="loader-ring loader-ring-3"></div>
+                <div class="loader-logo">S</div>
+            </div>
+            
+            <!-- Progress section -->
+            <div class="loader-progress-container">
+                <div class="loader-status" id="loaderStatus">Entering SIREN...</div>
+                <div class="loader-progress-bar">
+                    <div class="loader-progress-glow"></div>
+                    <div class="loader-progress-fill" id="loaderProgress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <a href="#features" class="skip-link">Skip to main content</a>
     
     <!-- Navigation -->
@@ -3310,6 +3589,70 @@
     <script>
         // Register ScrollTrigger
         gsap.registerPlugin(ScrollTrigger);
+
+        // ==========================================
+        // SITE LOADER
+        // ==========================================
+        (function() {
+            const loader = document.getElementById('siteLoader');
+            const progress = document.getElementById('loaderProgress');
+            const status = document.getElementById('loaderStatus');
+            
+            const stages = [
+                { progress: 20, status: 'Warming up...', delay: 400 },
+                { progress: 45, status: 'Loading experiences...', delay: 500 },
+                { progress: 70, status: 'Preparing your journey...', delay: 450 },
+                { progress: 90, status: 'Almost there...', delay: 350 },
+                { progress: 100, status: 'Welcome', delay: 400 },
+            ];
+            
+            let currentStage = 0;
+            
+            function nextStage() {
+                if (currentStage < stages.length) {
+                    const stage = stages[currentStage];
+                    
+                    gsap.to(progress, {
+                        width: stage.progress + '%',
+                        duration: 0.4,
+                        ease: 'power2.out'
+                    });
+                    
+                    gsap.to(status, {
+                        opacity: 0,
+                        y: -5,
+                        duration: 0.15,
+                        ease: 'power2.in',
+                        onComplete: () => {
+                            status.textContent = stage.status;
+                            gsap.to(status, {
+                                opacity: 1,
+                                y: 0,
+                                duration: 0.15,
+                                ease: 'power2.out'
+                            });
+                        }
+                    });
+                    
+                    currentStage++;
+                    
+                    if (currentStage < stages.length) {
+                        setTimeout(nextStage, stage.delay);
+                    } else {
+                        // Finish loading
+                        setTimeout(() => {
+                            loader.classList.add('fade-out');
+                            setTimeout(() => {
+                                loader.style.display = 'none';
+                            }, 600);
+                        }, stage.delay);
+                    }
+                }
+            }
+            
+            // Start loading sequence
+            setTimeout(nextStage, 300);
+        })();
 
         // Nav mega dropdown menu
         const navMenuBtn = document.getElementById('navMenuBtn');
