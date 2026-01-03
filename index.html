@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIREN</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,18 +15,18 @@
 
         :root {
             --bg-primary: #000000;
-            --bg-secondary: #1c1c1e;
-            --bg-tertiary: #2c2c2e;
-            --sidebar-bg: rgba(30, 30, 32, 0.85);
-            --accent-primary: #d946ef;
-            --accent-secondary: #a855f7;
-            --accent-tertiary: #ec4899;
+            --bg-secondary: #0a0a0f;
+            --accent-primary: #ef4444;
+            --accent-secondary: #f97316;
+            --accent-tertiary: #dc2626;
             --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.6);
-            --text-muted: rgba(255, 255, 255, 0.35);
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
             --border-subtle: rgba(255, 255, 255, 0.1);
-            --card-bg: rgba(255, 255, 255, 0.08);
-            --sidebar-width: 260px;
+            --glass-bg: rgba(18, 18, 24, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --sidebar-expanded: 260px;
+            --sidebar-collapsed: 72px;
         }
 
         html {
@@ -34,14 +34,14 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             overflow-x: hidden;
             line-height: 1.5;
         }
 
-        /* Scrollbar */
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -78,28 +78,31 @@
         }
 
         .age-gate-logo {
-            font-size: 3rem;
-            font-weight: 700;
-            letter-spacing: 0.3em;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: 0.35em;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .age-gate-content {
             text-align: center;
-            max-width: 400px;
+            max-width: 420px;
         }
 
         .age-gate h2 {
             font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 1rem;
+            color: #ffffff;
         }
 
         .age-gate p {
-            color: var(--text-secondary);
+            color: #a1a1aa;
             margin-bottom: 2rem;
+            line-height: 1.7;
         }
 
         .age-buttons {
@@ -109,12 +112,12 @@
         }
 
         .btn {
-            padding: 0.875rem 2rem;
-            border-radius: 12px;
+            padding: 0.9rem 2.25rem;
+            border-radius: 14px;
             font-weight: 600;
             font-size: 0.95rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             border: none;
             display: inline-flex;
@@ -123,133 +126,370 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
+            box-shadow: 0 4px 24px rgba(239, 68, 68, 0.4);
         }
 
         .btn-primary:hover {
-            transform: scale(1.02);
-            filter: brightness(1.1);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.5);
         }
 
         .btn-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.12);
         }
 
-        /* Layout */
+        /* Background with animated gradient */
+        .app-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.5;
+            animation: orbFloat 25s ease-in-out infinite;
+        }
+
+        .bg-orb-1 {
+            width: 700px;
+            height: 700px;
+            background: rgba(239, 68, 68, 0.35);
+            top: -200px;
+            left: -200px;
+        }
+
+        .bg-orb-2 {
+            width: 600px;
+            height: 600px;
+            background: rgba(249, 115, 22, 0.3);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: -8s;
+        }
+
+        .bg-orb-3 {
+            width: 500px;
+            height: 500px;
+            background: rgba(220, 38, 38, 0.25);
+            top: 40%;
+            left: 30%;
+            animation-delay: -16s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(60px, -40px) scale(1.1); }
+            50% { transform: translate(-40px, 60px) scale(0.95); }
+            75% { transform: translate(-60px, -30px) scale(1.05); }
+        }
+
+        /* App Container */
         .app-container {
             display: flex;
             min-height: 100vh;
+            position: relative;
+            z-index: 1;
         }
 
         /* Sidebar */
         .sidebar {
-            width: var(--sidebar-width);
+            width: var(--sidebar-collapsed);
             height: 100vh;
             position: fixed;
             left: 0;
             top: 0;
-            background: var(--sidebar-bg);
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
-            border-right: 1px solid var(--border-subtle);
-            padding: 1.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border-right: 1px solid var(--glass-border);
+            padding: 1.25rem 8px;
             display: flex;
             flex-direction: column;
+            align-items: center;
             z-index: 100;
+            transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), padding 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), align-items 0.4s ease;
+            overflow: visible;
         }
 
+        .sidebar.expanded {
+            width: var(--sidebar-expanded);
+            padding: 1.25rem 1rem;
+            align-items: stretch;
+        }
+        
+        /* Glow edge indicator */
+        .sidebar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -2px;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, transparent 0%, var(--accent-primary) 50%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .sidebar:hover::after {
+            opacity: 0.5;
+        }
+        
+        .sidebar.expanded::after {
+            opacity: 0;
+        }
+        
+        /* Inner scrollable area */
+        .sidebar-inner {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+        }
+
+        /* Collapse Toggle Button - Innovative floating pill */
+        .sidebar-toggle {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%) translateX(50%);
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(249, 115, 22, 0.9));
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 200;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5), 0 0 40px rgba(239, 68, 68, 0.2);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5), 0 0 40px rgba(239, 68, 68, 0.2); }
+            50% { box-shadow: 0 4px 30px rgba(239, 68, 68, 0.7), 0 0 60px rgba(239, 68, 68, 0.4); }
+        }
+
+        .sidebar-toggle:hover {
+            transform: translateY(-50%) translateX(50%) scale(1.15);
+            box-shadow: 0 6px 30px rgba(239, 68, 68, 0.8), 0 0 80px rgba(239, 68, 68, 0.4);
+        }
+        
+        .sidebar-toggle:active {
+            transform: translateY(-50%) translateX(50%) scale(0.95);
+        }
+
+        .sidebar-toggle svg {
+            width: 16px;
+            height: 16px;
+            stroke: white;
+            stroke-width: 2.5;
+            fill: none;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .sidebar.expanded .sidebar-toggle svg {
+            transform: rotate(180deg);
+        }
+
+        /* Sidebar Header */
         .sidebar-header {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-subtle);
-            margin-bottom: 1.5rem;
+            justify-content: center;
+            gap: 0;
+            padding: 0 0 1.25rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 1.25rem;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .sidebar.expanded .sidebar-header {
+            justify-content: flex-start;
+            gap: 0.875rem;
         }
 
         .user-avatar {
             width: 42px;
             height: 42px;
+            min-width: 42px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            background: linear-gradient(135deg, #ef4444, #f97316);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 1rem;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 24px rgba(239, 68, 68, 0.6);
         }
 
         .user-info {
-            flex: 1;
+            display: none;
+            white-space: nowrap;
+        }
+
+        .sidebar.expanded .user-info {
+            display: block;
         }
 
         .user-name {
             font-weight: 600;
             font-size: 0.95rem;
+            color: #ffffff;
         }
 
         .user-time {
             font-size: 0.8rem;
-            color: var(--text-muted);
+            color: #71717a;
         }
 
         /* Search */
         .sidebar-search {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            padding: 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid transparent;
+            border-radius: 12px;
             margin-bottom: 1.5rem;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+        
+        .sidebar.expanded .sidebar-search {
+            width: 100%;
+            height: auto;
+            justify-content: flex-start;
+            padding: 0.7rem 1rem;
+            gap: 0.75rem;
         }
 
         .sidebar-search:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-search svg {
-            color: var(--text-muted);
-            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            min-width: 20px;
+            stroke: #71717a;
+            stroke-width: 2;
+            fill: none;
+            transition: stroke 0.3s ease;
+        }
+
+        .sidebar-search:hover svg {
+            stroke: #a1a1aa;
         }
 
         .sidebar-search span {
-            color: var(--text-muted);
+            color: #71717a;
             font-size: 0.9rem;
+            display: none;
+            white-space: nowrap;
+        }
+        
+        .sidebar.expanded .sidebar-search span {
+            display: block;
         }
 
         /* Nav Items */
         .nav-section {
-            margin-bottom: 2rem;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            visibility: visible !important;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .sidebar.expanded .nav-section {
+            align-items: stretch;
+        }
+        
+        .nav-section:not(:last-child)::after {
+            content: '';
+            display: block;
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            margin-top: 1rem;
+        }
+        
+        .sidebar.expanded .nav-section:not(:last-child)::after {
+            width: 100%;
         }
 
         .nav-section-title {
             font-size: 0.7rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-muted);
+            letter-spacing: 0.12em;
+            color: #71717a;
             margin-bottom: 0.75rem;
             padding-left: 1rem;
+            display: none;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .sidebar.expanded .nav-section-title {
+            display: block;
         }
 
         .nav-item {
-            display: flex;
+            display: flex !important;
+            visibility: visible !important;
             align-items: center;
-            gap: 0.875rem;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            padding: 0;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             margin-bottom: 0.25rem;
+            position: relative;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+        
+        .sidebar.expanded .nav-item {
+            width: 100%;
+            height: auto;
+            justify-content: flex-start;
+            gap: 0.75rem;
+            padding: 0.7rem 1rem;
         }
 
         .nav-item:hover {
@@ -257,71 +497,148 @@
         }
 
         .nav-item.active {
-            background: rgba(255, 255, 255, 0.12);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(249, 115, 22, 0.15));
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
         }
 
-        .nav-item svg {
+        .nav-item svg.nav-icon {
+            display: block !important;
+            visibility: visible !important;
             width: 22px;
             height: 22px;
-            color: var(--text-secondary);
+            min-width: 22px;
+            min-height: 22px;
+            stroke: #a1a1aa;
+            stroke-width: 1.75;
+            fill: none;
+            transition: all 0.3s ease;
             flex-shrink: 0;
         }
 
-        .nav-item.active svg {
-            color: var(--accent-primary);
+        .nav-item:hover svg.nav-icon {
+            stroke: #ffffff;
+            transform: scale(1.1);
         }
 
-        .nav-item span {
+        .nav-item.active svg.nav-icon {
+            stroke: #ef4444 !important;
+            filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
+        }
+
+        .nav-item .nav-text {
             font-size: 0.95rem;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: #a1a1aa;
+            white-space: nowrap;
+            display: none;
+        }
+        
+        .sidebar.expanded .nav-item .nav-text {
+            display: block;
         }
 
-        .nav-item.active span {
-            color: var(--text-primary);
+        .nav-item:hover .nav-text {
+            color: #ffffff;
         }
 
-        .nav-icon-container {
+        .nav-item.active .nav-text {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Collection Icons */
+        .nav-icon-box {
+            display: flex !important;
+            visibility: visible !important;
             width: 28px;
             height: 28px;
-            border-radius: 6px;
-            display: flex;
+            min-width: 28px;
+            min-height: 28px;
+            border-radius: 8px;
             align-items: center;
             justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             flex-shrink: 0;
         }
 
-        .nav-icon-container.pink {
-            background: linear-gradient(135deg, #ec4899, #d946ef);
+        .nav-item:hover .nav-icon-box {
+            transform: scale(1.1);
         }
 
-        .nav-icon-container.purple {
-            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+        .nav-icon-box.pink {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
         }
 
-        .nav-icon-container.blue {
-            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+        .nav-icon-box.purple {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
         }
 
-        .nav-icon-container svg {
-            width: 16px;
-            height: 16px;
-            color: white;
+        .nav-icon-box.blue {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+        }
+
+        .nav-icon-box svg {
+            display: block !important;
+            width: 14px;
+            height: 14px;
+            stroke: #ffffff;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Tooltip for collapsed state */
+        .tooltip {
+            position: absolute;
+            left: calc(100% + 16px);
+            top: 50%;
+            transform: translateY(-50%) translateX(-8px);
+            background: rgba(20, 20, 28, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 0.875rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #ffffff;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar:not(.expanded) .nav-item:hover .tooltip {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+        }
+        
+        .sidebar.expanded .tooltip {
+            display: none;
         }
 
         /* Main Content */
         .main-content {
             flex: 1;
-            margin-left: var(--sidebar-width);
+            margin-left: var(--sidebar-collapsed);
             min-height: 100vh;
+            transition: margin-left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .sidebar.expanded ~ .main-content {
+            margin-left: var(--sidebar-expanded);
         }
 
         /* Featured Hero */
         .featured-hero {
             position: relative;
-            height: 70vh;
-            min-height: 500px;
-            max-height: 700px;
+            height: 75vh;
+            min-height: 550px;
+            max-height: 750px;
             overflow: hidden;
         }
 
@@ -329,7 +646,7 @@
             position: absolute;
             inset: 0;
             opacity: 0;
-            transition: opacity 0.8s ease;
+            transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .featured-slide.active {
@@ -344,24 +661,24 @@
         }
 
         .featured-slide:nth-child(1) .featured-bg {
-            background: linear-gradient(135deg, #1a0520 0%, #2d1040 30%, #1a0a20 100%);
+            background: 
+                radial-gradient(ellipse at 70% 30%, rgba(239, 68, 68, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 30% 70%, rgba(249, 115, 22, 0.15) 0%, transparent 50%),
+                linear-gradient(135deg, #1a0505 0%, #251010 30%, #0f0505 100%);
         }
 
         .featured-slide:nth-child(2) .featured-bg {
-            background: linear-gradient(135deg, #0a1520 0%, #102040 30%, #0a1020 100%);
+            background: 
+                radial-gradient(ellipse at 60% 40%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 60%, rgba(234, 179, 8, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0805 0%, #151008 30%, #050505 100%);
         }
 
         .featured-slide:nth-child(3) .featured-bg {
-            background: linear-gradient(135deg, #150a20 0%, #301050 30%, #150520 100%);
-        }
-
-        .featured-bg::before {
-            content: '';
-            position: absolute;
-            inset: 0;
             background: 
-                radial-gradient(ellipse at 60% 30%, rgba(217, 70, 239, 0.2) 0%, transparent 50%),
-                radial-gradient(ellipse at 40% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+                radial-gradient(ellipse at 65% 35%, rgba(220, 38, 38, 0.2) 0%, transparent 50%),
+                radial-gradient(ellipse at 35% 65%, rgba(239, 68, 68, 0.15) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0505 0%, #180808 30%, #080303 100%);
         }
 
         .featured-bg::after {
@@ -369,105 +686,119 @@
             position: absolute;
             inset: 0;
             background: 
-                linear-gradient(to right, rgba(0,0,0,0.7) 0%, transparent 50%),
-                linear-gradient(to top, var(--bg-primary) 0%, transparent 40%);
+                linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 40%, transparent 60%),
+                linear-gradient(to top, #000000 0%, transparent 50%);
         }
 
         .featured-content {
             position: absolute;
-            bottom: 15%;
-            left: 3rem;
+            bottom: 18%;
+            left: 3.5rem;
             z-index: 10;
-            max-width: 500px;
+            max-width: 520px;
         }
 
         .featured-label {
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--text-secondary);
-            margin-bottom: 0.75rem;
+            letter-spacing: 0.2em;
+            color: #ef4444;
+            margin-bottom: 0.875rem;
         }
 
         .featured-title {
-            font-size: 3rem;
-            font-weight: 700;
+            font-size: 3.25rem;
+            font-weight: 800;
             line-height: 1.1;
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
             letter-spacing: -0.02em;
+            color: #ffffff;
         }
 
         .featured-meta {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
             margin-bottom: 1rem;
             font-size: 0.9rem;
-            color: var(--text-secondary);
+            color: #a1a1aa;
         }
 
         .featured-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
-            padding: 0.3rem 0.6rem;
-            background: rgba(217, 70, 239, 0.3);
-            border: 1px solid var(--accent-primary);
-            border-radius: 4px;
+            gap: 0.4rem;
+            padding: 0.35rem 0.7rem;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            border-radius: 6px;
             font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--accent-primary);
+            font-weight: 700;
+            color: #ef4444;
+        }
+
+        .featured-badge svg {
+            width: 12px;
+            height: 12px;
+            stroke: #ef4444;
+            stroke-width: 2;
+            fill: none;
         }
 
         .featured-description {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            color: #a1a1aa;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 1.75rem;
         }
 
         .featured-actions {
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem;
         }
 
         .btn-play {
-            background: white;
-            color: black;
-            padding: 0.75rem 1.75rem;
-            border-radius: 8px;
-            font-weight: 600;
+            background: #ffffff;
+            color: #000000;
+            padding: 0.875rem 2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
         }
 
         .btn-play:hover {
-            background: rgba(255, 255, 255, 0.9);
-            transform: scale(1.02);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-play svg {
+            width: 18px;
+            height: 18px;
+            fill: #000000;
         }
 
         .btn-more {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            padding: 0.875rem 1.75rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
         }
 
         .btn-more:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.22);
         }
 
         /* Carousel Dots */
         .carousel-dots {
             position: absolute;
-            bottom: 8%;
+            bottom: 10%;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 0.5rem;
+            gap: 0.6rem;
             z-index: 20;
         }
 
@@ -477,45 +808,51 @@
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.3);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .carousel-dot:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .carousel-dot.active {
-            background: white;
-            width: 24px;
+            background: #ffffff;
+            width: 28px;
             border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
         }
 
-        /* Content Sections */
+        /* Content Area */
         .content-area {
-            padding: 2rem 3rem 4rem;
+            padding: 2.5rem 3.5rem 5rem;
         }
 
         .content-section {
-            margin-bottom: 2.5rem;
+            margin-bottom: 3rem;
         }
 
         .section-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
         }
 
         .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #ffffff;
         }
 
         .section-link {
-            color: var(--text-muted);
+            color: #71717a;
             font-size: 0.85rem;
             text-decoration: none;
-            transition: color 0.2s ease;
+            transition: all 0.3s ease;
         }
 
         .section-link:hover {
-            color: var(--accent-primary);
+            color: #ef4444;
         }
 
         /* Content Row */
@@ -531,88 +868,104 @@
             display: none;
         }
 
-        /* Content Cards - Apple TV Style */
+        /* Content Cards */
         .content-card {
             flex-shrink: 0;
-            width: 280px;
+            width: 300px;
             scroll-snap-align: start;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .content-card:hover {
-            transform: scale(1.03);
+            transform: scale(1.04) translateY(-4px);
         }
 
         .card-thumbnail {
             position: relative;
             aspect-ratio: 16/9;
-            border-radius: 12px;
+            border-radius: 14px;
             overflow: hidden;
-            margin-bottom: 0.75rem;
-            background: var(--bg-secondary);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            margin-bottom: 0.875rem;
+            background: #18181b;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transition: box-shadow 0.4s ease;
+        }
+
+        .content-card:hover .card-thumbnail {
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(239, 68, 68, 0.3);
         }
 
         .card-thumbnail::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(217, 70, 239, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(249, 115, 22, 0.06) 100%);
             z-index: 1;
         }
 
         .card-gradient {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
             z-index: 2;
         }
 
         .card-3d-badge {
             position: absolute;
-            top: 0.75rem;
-            left: 0.75rem;
-            padding: 0.25rem 0.5rem;
+            top: 0.875rem;
+            left: 0.875rem;
+            padding: 0.3rem 0.6rem;
             background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--accent-primary);
-            border-radius: 4px;
+            backdrop-filter: blur(12px);
+            border: 1px solid #ef4444;
+            border-radius: 6px;
             font-size: 0.65rem;
             font-weight: 700;
-            color: var(--accent-primary);
+            color: #ef4444;
             z-index: 5;
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.3rem;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        .card-3d-badge svg {
+            width: 10px;
+            height: 10px;
+            stroke: #ef4444;
+            stroke-width: 2;
+            fill: none;
         }
 
         .card-play {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 56px;
+            height: 56px;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 10;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
         .card-play svg {
-            width: 22px;
-            height: 22px;
-            fill: black;
-            margin-left: 3px;
+            width: 24px;
+            height: 24px;
+            fill: #000000;
+            margin-left: 4px;
         }
 
         .content-card:hover .card-play {
             opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
         }
 
         .card-progress {
@@ -620,28 +973,30 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 4px;
             background: rgba(255, 255, 255, 0.2);
             z-index: 5;
         }
 
         .card-progress-bar {
             height: 100%;
-            background: var(--accent-primary);
+            background: linear-gradient(90deg, #ef4444, #f97316);
+            border-radius: 0 2px 2px 0;
         }
 
         .card-info h3 {
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.3rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: #ffffff;
         }
 
         .card-info p {
-            color: var(--text-muted);
-            font-size: 0.8rem;
+            color: #71717a;
+            font-size: 0.85rem;
         }
 
         /* Performer Cards */
@@ -654,58 +1009,51 @@
             border-radius: 50%;
         }
 
-        .performer-card .card-thumbnail::before {
-            border-radius: 50%;
+        .performer-card:hover .card-thumbnail {
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 3px rgba(239, 68, 68, 0.5);
         }
 
         .performer-card .card-info {
             text-align: center;
         }
 
-        .performer-card .card-3d-badge {
+        .performer-card .card-3d-badge,
+        .performer-card .card-gradient,
+        .performer-card .card-play {
             display: none;
-        }
-
-        /* Wide Cards */
-        .wide-card {
-            width: 400px;
-        }
-
-        .wide-card .card-thumbnail {
-            aspect-ratio: 21/9;
         }
 
         /* Responsive */
         @media (max-width: 1200px) {
-            .sidebar {
-                width: 220px;
-            }
-            
-            .main-content {
-                margin-left: 220px;
-            }
-
             .content-card {
-                width: 240px;
+                width: 260px;
             }
 
-            .wide-card {
-                width: 340px;
+            .performer-card {
+                width: 160px;
             }
         }
 
         @media (max-width: 900px) {
             .sidebar {
                 transform: translateX(-100%);
-                transition: transform 0.3s ease;
             }
 
             .sidebar.open {
                 transform: translateX(0);
             }
 
+            .sidebar-toggle {
+                right: 0;
+                transform: translateY(-50%) translateX(100%);
+            }
+
+            .sidebar.open .sidebar-toggle {
+                transform: translateY(-50%) translateX(50%);
+            }
+
             .main-content {
-                margin-left: 0;
+                margin-left: 0 !important;
             }
 
             .featured-content {
@@ -715,7 +1063,7 @@
             }
 
             .featured-title {
-                font-size: 2rem;
+                font-size: 2.25rem;
             }
 
             .content-area {
@@ -723,39 +1071,7 @@
             }
 
             .content-card {
-                width: 200px;
-            }
-
-            .mobile-menu-btn {
-                display: flex;
-            }
-        }
-
-        /* Mobile Menu Button */
-        .mobile-menu-btn {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 200;
-            width: 44px;
-            height: 44px;
-            background: var(--sidebar-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .mobile-menu-btn svg {
-            color: white;
-        }
-
-        @media (max-width: 900px) {
-            .mobile-menu-btn {
-                display: flex;
+                width: 220px;
             }
         }
     </style>
@@ -774,17 +1090,23 @@
         </div>
     </div>
 
-    <!-- Mobile Menu Button -->
-    <button class="mobile-menu-btn" onclick="toggleSidebar()">
-        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M3 12h18M3 6h18M3 18h18"/>
-        </svg>
-    </button>
+    <!-- Background Orbs -->
+    <div class="app-bg">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+    </div>
 
     <!-- App Container -->
     <div class="app-container" id="appContainer" style="opacity: 0;">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+                <svg viewBox="0 0 24 24" stroke="white" stroke-width="2.5" fill="none">
+                    <path d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+
             <div class="sidebar-header">
                 <div class="user-avatar">J</div>
                 <div class="user-info">
@@ -794,7 +1116,7 @@
             </div>
 
             <div class="sidebar-search">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg viewBox="0 0 24 24" stroke="#71717a" stroke-width="2" fill="none">
                     <circle cx="11" cy="11" r="8"/>
                     <path d="m21 21-4.3-4.3"/>
                 </svg>
@@ -802,78 +1124,86 @@
             </div>
 
             <nav class="nav-section">
-                <div class="nav-item active">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="nav-item active" data-nav="home">
+                    <svg class="nav-icon" viewBox="0 0 24 24" stroke="#a1a1aa" stroke-width="1.75" fill="none">
                         <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                         <polyline points="9,22 9,12 15,12 15,22"/>
                     </svg>
-                    <span>Home</span>
+                    <span class="nav-text">Home</span>
+                    <div class="tooltip">Home</div>
                 </div>
-                <div class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="nav-item" data-nav="browse">
+                    <svg class="nav-icon" viewBox="0 0 24 24" stroke="#a1a1aa" stroke-width="1.75" fill="none">
                         <rect x="3" y="3" width="7" height="7"/>
                         <rect x="14" y="3" width="7" height="7"/>
                         <rect x="14" y="14" width="7" height="7"/>
                         <rect x="3" y="14" width="7" height="7"/>
                     </svg>
-                    <span>Browse</span>
+                    <span class="nav-text">Browse</span>
+                    <div class="tooltip">Browse</div>
                 </div>
-                <div class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="nav-item" data-nav="performers">
+                    <svg class="nav-icon" viewBox="0 0 24 24" stroke="#a1a1aa" stroke-width="1.75" fill="none">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
                     </svg>
-                    <span>Performers</span>
+                    <span class="nav-text">Performers</span>
+                    <div class="tooltip">Performers</div>
                 </div>
-                <div class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="nav-item" data-nav="downloads">
+                    <svg class="nav-icon" viewBox="0 0 24 24" stroke="#a1a1aa" stroke-width="1.75" fill="none">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7,10 12,15 17,10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    <span>Downloads</span>
+                    <span class="nav-text">Downloads</span>
+                    <div class="tooltip">Downloads</div>
                 </div>
-                <div class="nav-item">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="nav-item" data-nav="mylist">
+                    <svg class="nav-icon" viewBox="0 0 24 24" stroke="#a1a1aa" stroke-width="1.75" fill="none">
                         <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
                     </svg>
-                    <span>My List</span>
+                    <span class="nav-text">My List</span>
+                    <div class="tooltip">My List</div>
                 </div>
             </nav>
 
             <nav class="nav-section">
                 <div class="nav-section-title">Collections</div>
-                <div class="nav-item">
-                    <div class="nav-icon-container pink">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <div class="nav-item" data-nav="premium">
+                    <div class="nav-icon-box pink">
+                        <svg viewBox="0 0 24 24" stroke="#ffffff" stroke-width="2" fill="none">
                             <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
                         </svg>
                     </div>
-                    <span>Premium</span>
+                    <span class="nav-text">Premium</span>
+                    <div class="tooltip">Premium</div>
                 </div>
-                <div class="nav-item">
-                    <div class="nav-icon-container purple">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <div class="nav-item" data-nav="immersive">
+                    <div class="nav-icon-box purple">
+                        <svg viewBox="0 0 24 24" stroke="#ffffff" stroke-width="2" fill="none">
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                         </svg>
                     </div>
-                    <span>Immersive 3D</span>
+                    <span class="nav-text">Immersive 3D</span>
+                    <div class="tooltip">Immersive 3D</div>
                 </div>
-                <div class="nav-item">
-                    <div class="nav-icon-container blue">
-                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <div class="nav-item" data-nav="vr">
+                    <div class="nav-icon-box blue">
+                        <svg viewBox="0 0 24 24" stroke="#ffffff" stroke-width="2" fill="none">
                             <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
                             <line x1="8" y1="21" x2="16" y2="21"/>
                             <line x1="12" y1="17" x2="12" y2="21"/>
                         </svg>
                     </div>
-                    <span>VR Ready</span>
+                    <span class="nav-text">VR Ready</span>
+                    <div class="tooltip">VR Ready</div>
                 </div>
             </nav>
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main class="main-content" id="mainContent">
             <!-- Featured Hero Carousel -->
             <section class="featured-hero">
                 <div class="featured-slide active" data-index="0">
@@ -883,7 +1213,7 @@
                         <h1 class="featured-title">Midnight Rendezvous</h1>
                         <div class="featured-meta">
                             <span class="featured-badge">
-                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <svg viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
                                 3D
@@ -893,11 +1223,11 @@
                             <span>⭐ 4.9</span>
                         </div>
                         <p class="featured-description">
-                            Experience an intimate evening like never before. Full 360° immersion with complete freedom of movement in stunning detail.
+                            Experience an intimate evening like never before. Full 360° immersion with complete freedom of movement in stunning volumetric detail.
                         </p>
                         <div class="featured-actions">
                             <button class="btn btn-play">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <svg viewBox="0 0 24 24">
                                     <path d="M8 5v14l11-7z"/>
                                 </svg>
                                 Play
@@ -914,7 +1244,7 @@
                         <h1 class="featured-title">Golden Hour</h1>
                         <div class="featured-meta">
                             <span class="featured-badge">
-                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <svg viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
                                 3D
@@ -924,11 +1254,11 @@
                             <span>⭐ 4.8</span>
                         </div>
                         <p class="featured-description">
-                            Warm sunlight, soft touches, and breathtaking moments captured in full volumetric detail.
+                            Warm sunlight, soft touches, and breathtaking moments captured in full volumetric detail. A sensory experience like no other.
                         </p>
                         <div class="featured-actions">
                             <button class="btn btn-play">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <svg viewBox="0 0 24 24">
                                     <path d="M8 5v14l11-7z"/>
                                 </svg>
                                 Play
@@ -945,7 +1275,7 @@
                         <h1 class="featured-title">Velvet Dreams</h1>
                         <div class="featured-meta">
                             <span class="featured-badge">
-                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <svg viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
                                 3D
@@ -955,11 +1285,11 @@
                             <span>⭐ 4.9</span>
                         </div>
                         <p class="featured-description">
-                            Luxurious settings, passionate encounters. Our most requested immersive experience.
+                            Luxurious settings, passionate encounters. Our most requested immersive experience, now available in stunning clarity.
                         </p>
                         <div class="featured-actions">
                             <button class="btn btn-play">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <svg viewBox="0 0 24 24">
                                     <path d="M8 5v14l11-7z"/>
                                 </svg>
                                 Play
@@ -982,7 +1312,7 @@
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">Continue Watching</h2>
-                        <a href="#" class="section-link">See All</a>
+                        <a href="#" class="section-link">See All →</a>
                     </div>
                     <div class="content-row" id="continueRow"></div>
                 </section>
@@ -991,7 +1321,7 @@
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">Trending Now</h2>
-                        <a href="#" class="section-link">See All</a>
+                        <a href="#" class="section-link">See All →</a>
                     </div>
                     <div class="content-row" id="trendingRow"></div>
                 </section>
@@ -1000,7 +1330,7 @@
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">Top Performers</h2>
-                        <a href="#" class="section-link">See All</a>
+                        <a href="#" class="section-link">See All →</a>
                     </div>
                     <div class="content-row" id="performersRow"></div>
                 </section>
@@ -1009,7 +1339,7 @@
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">New Releases</h2>
-                        <a href="#" class="section-link">See All</a>
+                        <a href="#" class="section-link">See All →</a>
                     </div>
                     <div class="content-row" id="newRow"></div>
                 </section>
@@ -1018,7 +1348,7 @@
                 <section class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">VR Exclusives</h2>
-                        <a href="#" class="section-link">See All</a>
+                        <a href="#" class="section-link">See All →</a>
                     </div>
                     <div class="content-row" id="vrRow"></div>
                 </section>
@@ -1044,12 +1374,12 @@
 
         function getGradient(index) {
             const gradients = [
-                'linear-gradient(135deg, #1a0520 0%, #2d1040 100%)',
-                'linear-gradient(135deg, #200a1a 0%, #401035 100%)',
-                'linear-gradient(135deg, #0a1a20 0%, #103540 100%)',
-                'linear-gradient(135deg, #1a150a 0%, #403510 100%)',
-                'linear-gradient(135deg, #100a1a 0%, #301050 100%)',
-                'linear-gradient(135deg, #1a0a15 0%, #401030 100%)',
+                'linear-gradient(135deg, #1a0808 0%, #2d1010 100%)',
+                'linear-gradient(135deg, #1a0f05 0%, #301a08 100%)',
+                'linear-gradient(135deg, #0a0f1a 0%, #101825 100%)',
+                'linear-gradient(135deg, #1a1208 0%, #302510 100%)',
+                'linear-gradient(135deg, #120808 0%, #251010 100%)',
+                'linear-gradient(135deg, #1a0a08 0%, #301510 100%)',
             ];
             return gradients[index % gradients.length];
         }
@@ -1058,16 +1388,16 @@
             const name = type === 'performer' ? performerNames[index % performerNames.length] : sceneNames[index % sceneNames.length];
             const duration = durations[index % durations.length];
             const performer = performerNames[index % performerNames.length];
-            const progress = type === 'continue' ? Math.floor(Math.random() * 80 + 10) : 0;
+            const progress = type === 'continue' ? Math.floor(Math.random() * 70 + 15) : 0;
 
             const card = document.createElement('div');
-            card.className = type === 'performer' ? 'content-card performer-card' : (type === 'wide' ? 'content-card wide-card' : 'content-card');
+            card.className = type === 'performer' ? 'content-card performer-card' : 'content-card';
             
             card.innerHTML = `
                 <div class="card-thumbnail" style="background: ${getGradient(index)}">
                     <div class="card-gradient"></div>
                     <div class="card-3d-badge">
-                        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <svg viewBox="0 0 24 24">
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                         </svg>
                         3D
@@ -1087,19 +1417,36 @@
 
         function populateRows() {
             const rows = [
-                { id: 'continueRow', count: 6, type: 'continue' },
-                { id: 'trendingRow', count: 8, type: 'default' },
-                { id: 'performersRow', count: 10, type: 'performer' },
-                { id: 'newRow', count: 8, type: 'default' },
-                { id: 'vrRow', count: 8, type: 'default' }
+                { id: 'continueRow', count: 8, type: 'continue' },
+                { id: 'trendingRow', count: 10, type: 'default' },
+                { id: 'performersRow', count: 12, type: 'performer' },
+                { id: 'newRow', count: 10, type: 'default' },
+                { id: 'vrRow', count: 10, type: 'default' }
             ];
 
             rows.forEach(row => {
                 const container = document.getElementById(row.id);
-                for (let i = 0; i < row.count; i++) {
-                    container.appendChild(createContentCard(i + Math.random() * 10, row.type));
+                if (container) {
+                    container.innerHTML = '';
+                    for (let i = 0; i < row.count; i++) {
+                        container.appendChild(createContentCard(i + Math.random() * 10, row.type));
+                    }
                 }
             });
+        }
+
+        // Sidebar Toggle
+        let sidebarExpanded = false;
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebarExpanded = !sidebarExpanded;
+            
+            if (sidebarExpanded) {
+                sidebar.classList.add('expanded');
+            } else {
+                sidebar.classList.remove('expanded');
+            }
         }
 
         // Carousel
@@ -1108,11 +1455,25 @@
         const dots = document.querySelectorAll('.carousel-dot');
 
         function goToSlide(index) {
+            const currentContent = slides[currentSlide].querySelector('.featured-content');
+            gsap.to(currentContent.children, {
+                opacity: 0,
+                y: 20,
+                duration: 0.3,
+                stagger: 0.05
+            });
+
             slides.forEach(s => s.classList.remove('active'));
             dots.forEach(d => d.classList.remove('active'));
             slides[index].classList.add('active');
             dots[index].classList.add('active');
             currentSlide = index;
+
+            const newContent = slides[index].querySelector('.featured-content');
+            gsap.fromTo(newContent.children, 
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, delay: 0.3 }
+            );
         }
 
         dots.forEach(dot => {
@@ -1121,18 +1482,21 @@
             });
         });
 
-        setInterval(() => {
+        let carouselInterval = setInterval(() => {
             goToSlide((currentSlide + 1) % slides.length);
-        }, 6000);
+        }, 7000);
 
         // Time
         function updateTime() {
             const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
-                minute: '2-digit',
-                hour12: true 
-            });
+            const timeEl = document.getElementById('currentTime');
+            if (timeEl) {
+                timeEl.textContent = now.toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                });
+            }
         }
         updateTime();
         setInterval(updateTime, 60000);
@@ -1153,9 +1517,30 @@
             app.style.opacity = '1';
             populateRows();
 
-            gsap.from('.sidebar', { x: -50, opacity: 0, duration: 0.6 });
-            gsap.from('.featured-content > *', { opacity: 0, y: 20, duration: 0.5, stagger: 0.1, delay: 0.3 });
-            gsap.from('.content-section', { opacity: 0, y: 30, duration: 0.5, stagger: 0.1, delay: 0.5 });
+            gsap.fromTo('.sidebar', 
+                { x: -50, opacity: 0 },
+                { x: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }
+            );
+            
+            gsap.fromTo('.sidebar-header', 
+                { opacity: 0, y: -20 },
+                { opacity: 1, y: 0, duration: 0.5, delay: 0.2 }
+            );
+
+            gsap.fromTo('.nav-item', 
+                { opacity: 0, x: -20 },
+                { opacity: 1, x: 0, duration: 0.4, stagger: 0.05, delay: 0.3, ease: 'power2.out' }
+            );
+
+            gsap.fromTo('.featured-content > *', 
+                { opacity: 0, y: 40 },
+                { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, delay: 0.4, ease: 'power2.out' }
+            );
+
+            gsap.fromTo('.content-section', 
+                { opacity: 0, y: 50 },
+                { opacity: 1, y: 0, duration: 0.6, stagger: 0.15, delay: 0.5, ease: 'power2.out' }
+            );
         }
 
         if (sessionStorage.getItem('ageVerified') === 'true') {
@@ -1163,16 +1548,16 @@
             showContent();
         }
 
-        // Mobile sidebar toggle
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-        }
-
         // Nav item clicks
         document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
+            item.addEventListener('click', function() {
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
+                this.classList.add('active');
+                
+                gsap.fromTo(this, 
+                    { scale: 0.95 },
+                    { scale: 1, duration: 0.3, ease: 'back.out(1.7)' }
+                );
             });
         });
     </script>
