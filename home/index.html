@@ -247,12 +247,69 @@
             font-size: 1.75rem;
             font-weight: 800;
             letter-spacing: 0.3em;
+            position: relative;
+            text-decoration: none;
+            text-transform: uppercase;
+            
+            /* Base gradient */
+            background: linear-gradient(
+                180deg, 
+                #fcd7a0 0%,
+                #f97316 25%,
+                #ef4444 50%,
+                #dc2626 75%,
+                #991b1b 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            
+            /* Embossed depth */
+            filter: drop-shadow(0 1px 0 rgba(255, 200, 150, 0.3))
+                    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))
+                    drop-shadow(0 4px 8px rgba(239, 68, 68, 0.15));
+        }
+        
+        /* Warm glow behind */
+        .nav-logo::before {
+            content: 'SIREN';
+            position: absolute;
+            inset: 0;
             background: linear-gradient(135deg, #ef4444, #f97316);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            opacity: 1 !important;
-            text-decoration: none;
+            filter: blur(15px);
+            opacity: 0.5;
+            z-index: -1;
+        }
+        
+        /* Shine sweep effect */
+        .nav-logo::after {
+            content: 'SIREN';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                120deg, 
+                transparent 0%,
+                transparent 30%,
+                rgba(255, 255, 255, 0.7) 48%,
+                rgba(255, 220, 180, 0.8) 50%,
+                rgba(255, 255, 255, 0.7) 52%,
+                transparent 70%,
+                transparent 100%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: navLogoShine 5s ease-in-out infinite;
+            z-index: 1;
+        }
+        
+        @keyframes navLogoShine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
         .nav-links {
