@@ -39,39 +39,44 @@
             color: var(--text-primary);
             overflow-x: hidden;
             line-height: 1.5;
+            scrollbar-gutter: stable;
         }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 4px;
+            height: 4px;
         }
 
         ::-webkit-scrollbar-track {
             background: transparent;
+            margin: 0.5rem 0;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 2px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.2);
         }
 
         /* Age Gate */
         .age-gate {
             position: fixed;
             inset: 0;
-            background: var(--bg-primary);
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 10000;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            gap: 2rem;
+            gap: 1.5rem;
             overflow: hidden;
+            padding: 2rem;
         }
         
         .age-gate::before {
@@ -79,7 +84,7 @@
             position: absolute;
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.12) 0%, transparent 70%);
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -92,11 +97,15 @@
         }
 
         .age-gate.hidden {
-            display: none;
+            opacity: 0;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            background: rgba(10, 10, 12, 0);
+            pointer-events: none;
         }
         
         .age-gate-logo {
-            font-size: 4rem;
+            font-size: 3rem;
             font-weight: 800;
             letter-spacing: 0.4em;
             background: linear-gradient(135deg, #ef4444, #f97316, #ef4444);
@@ -133,7 +142,9 @@
         .site-loader {
             position: fixed;
             inset: 0;
-            background: var(--bg-primary);
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 9999;
             display: flex;
             align-items: center;
@@ -141,7 +152,7 @@
             flex-direction: column;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.5s ease;
+            transition: all 0.5s ease;
         }
         
         .site-loader.active {
@@ -150,7 +161,9 @@
         }
         
         .site-loader.fade-out {
-            opacity: 0;
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            background: rgba(10, 10, 12, 0);
         }
         
         .loader-container {
@@ -342,14 +355,14 @@
             position: absolute;
             border-radius: 50%;
             filter: blur(80px);
-            opacity: 0.4;
+            opacity: 0.25;
             animation: loaderOrbFloat 8s ease-in-out infinite;
         }
         
         .loader-orb-1 {
             width: 400px;
             height: 400px;
-            background: rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.3);
             top: -100px;
             left: -100px;
         }
@@ -357,7 +370,7 @@
         .loader-orb-2 {
             width: 300px;
             height: 300px;
-            background: rgba(249, 115, 22, 0.3);
+            background: rgba(249, 115, 22, 0.25);
             bottom: -50px;
             right: -50px;
             animation-delay: -4s;
@@ -370,10 +383,20 @@
 
         .age-gate-content {
             text-align: center;
-            max-width: 420px;
+            max-width: 520px;
             position: relative;
             z-index: 1;
             opacity: 0;
+        }
+        
+        .age-gate-box {
+            background: rgba(15, 15, 20, 0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
         }
         
         .age-gate .age-buttons .btn {
@@ -381,16 +404,89 @@
         }
 
         .age-gate h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
             color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
         .age-gate p {
             color: #a1a1aa;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             line-height: 1.7;
+            font-size: 0.85rem;
+            text-align: justify;
+        }
+        
+        .age-gate-terms {
+            margin-top: 1rem;
+            opacity: 0;
+            max-width: 520px;
+        }
+        
+        .age-gate-terms-title {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #71717a;
+            margin-bottom: 0.75rem;
+        }
+        
+        .age-gate-terms-scroll {
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            text-align: left;
+        }
+        
+        .age-gate-terms-scroll::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        .age-gate-terms-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+        }
+        
+        .age-gate-terms p {
+            font-size: 0.75rem;
+            color: #71717a;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        
+        .age-gate-terms ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .age-gate-terms li {
+            font-size: 0.72rem;
+            color: #71717a;
+            margin-bottom: 0.5rem;
+            padding-left: 1rem;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .age-gate-terms li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #ef4444;
+        }
+        
+        .age-gate-terms a {
+            color: #f97316;
+            text-decoration: none;
+        }
+        
+        .age-gate-terms a:hover {
+            text-decoration: underline;
         }
 
         .age-buttons {
@@ -448,13 +544,14 @@
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
+            background: transparent;
             color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
         /* Background with animated gradient */
@@ -469,15 +566,15 @@
         .bg-orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(120px);
-            opacity: 0.5;
+            filter: blur(100px);
+            opacity: 0.6;
             animation: orbFloat 25s ease-in-out infinite;
         }
 
         .bg-orb-1 {
             width: 700px;
             height: 700px;
-            background: rgba(239, 68, 68, 0.35);
+            background: rgba(239, 68, 68, 0.45);
             top: -200px;
             left: -200px;
         }
@@ -485,7 +582,7 @@
         .bg-orb-2 {
             width: 600px;
             height: 600px;
-            background: rgba(249, 115, 22, 0.3);
+            background: rgba(249, 115, 22, 0.4);
             bottom: -150px;
             right: -150px;
             animation-delay: -8s;
@@ -494,7 +591,7 @@
         .bg-orb-3 {
             width: 500px;
             height: 500px;
-            background: rgba(249, 115, 22, 0.2);
+            background: rgba(249, 115, 22, 0.3);
             top: 40%;
             left: 30%;
             animation-delay: -16s;
@@ -572,28 +669,28 @@
         /* Collapse Toggle Button - Ultra satisfying click */
         .sidebar-toggle {
             position: absolute;
-            top: calc(1rem + 3px);
+            top: 1rem;
             right: 1rem;
             width: 38px;
             height: 38px;
-            background: rgba(239, 68, 68, 0.25);
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.5), rgba(249, 115, 22, 0.5));
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(239, 68, 68, 0.4);
+            border: 1px solid rgba(249, 115, 22, 0.4);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             z-index: 200;
-            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3), inset 0 0 20px rgba(239, 68, 68, 0.1);
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3), 0 4px 30px rgba(249, 115, 22, 0.2), inset 0 0 20px rgba(239, 68, 68, 0.1);
             transition: all 0.3s ease;
         }
         
         .sidebar-toggle:hover {
-            background: rgba(239, 68, 68, 0.35);
-            border-color: rgba(239, 68, 68, 0.6);
-            box-shadow: 0 4px 30px rgba(239, 68, 68, 0.5), inset 0 0 25px rgba(239, 68, 68, 0.15);
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.6), rgba(249, 115, 22, 0.6));
+            border-color: rgba(249, 115, 22, 0.6);
+            box-shadow: 0 6px 25px rgba(220, 38, 38, 0.4), 0 6px 35px rgba(249, 115, 22, 0.3), inset 0 0 25px rgba(239, 68, 68, 0.15);
         }
         
         .sidebar-toggle::before {
@@ -601,7 +698,7 @@
             position: absolute;
             inset: -4px;
             border-radius: 14px;
-            background: radial-gradient(circle, rgba(239, 68, 68, 0.4) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.4) 0%, transparent 70%);
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -663,7 +760,7 @@
                 transparent 100%
             );
             z-index: -1;
-            animation: avatarBorderBounce1 10s ease-in-out infinite;
+            animation: avatarBorderBounce1 8s linear infinite;
         }
         
         .user-avatar::after {
@@ -693,22 +790,20 @@
                 transparent 100%
             );
             z-index: -2;
-            animation: avatarBorderBounce2 10s ease-in-out infinite;
+            animation: avatarBorderBounce2 8s linear infinite;
             pointer-events: none;
         }
         
-        /* Arc 1 starts at top-left, swings to right, soft bounce, returns */
+        /* Arc 1 spins clockwise */
         @keyframes avatarBorderBounce1 {
-            0%, 100% { transform: rotate(-90deg); }
-            45% { transform: rotate(70deg); }
-            55% { transform: rotate(60deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
-        /* Arc 2 starts at bottom-right, swings to left, soft bounce, returns */
+        /* Arc 2 spins counter-clockwise */
         @keyframes avatarBorderBounce2 {
-            0%, 100% { transform: rotate(90deg); }
-            45% { transform: rotate(-70deg); }
-            55% { transform: rotate(-60deg); }
+            0% { transform: rotate(180deg); }
+            100% { transform: rotate(-180deg); }
         }
 
         .user-avatar:hover {
@@ -718,22 +813,20 @@
         }
         
         .user-avatar:hover::before {
-            animation-duration: 4s;
+            animation-duration: 3s;
         }
         
         .user-avatar:hover .avatar-border-arc {
-            animation-duration: 4s;
+            animation-duration: 3s;
         }
         
         .avatar-icon {
-            width: 22px;
-            height: 22px;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 8px rgba(239, 68, 68, 0.3));
+            width: 26px;
+            height: 26px;
             transition: all 0.3s ease;
         }
         
         .user-avatar:hover .avatar-icon {
-            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px rgba(249, 115, 22, 0.5));
             transform: scale(1.1);
         }
 
@@ -781,8 +874,8 @@
             width: 100%;
             height: auto;
             padding: 0.7rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             cursor: text;
             overflow: hidden;
@@ -791,14 +884,14 @@
         
         .sidebar-search.active {
             background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(249, 115, 22, 0.4);
-            box-shadow: 0 0 25px rgba(239, 68, 68, 0.15), 0 0 40px rgba(249, 115, 22, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
         }
 
         .sidebar-search:hover {
             background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(249, 115, 22, 0.3);
-            box-shadow: 0 0 25px rgba(239, 68, 68, 0.1), 0 0 40px rgba(249, 115, 22, 0.08), inset 0 0 20px rgba(239, 68, 68, 0.03);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
         }
 
         .sidebar-search svg {
@@ -813,8 +906,7 @@
 
         .sidebar-search:hover svg,
         .sidebar-search.active svg {
-            stroke: #f97316;
-            filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.5));
+            stroke: #a1a1aa;
         }
 
         .search-input {
@@ -855,10 +947,10 @@
             width: calc(100% + 80px);
             max-height: 400px;
             overflow-y: auto;
-            background: rgba(15, 15, 20, 0.95);
+            background: rgba(15, 15, 20, 0.85);
             backdrop-filter: blur(40px) saturate(180%);
             -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 16px;
             padding: 0.75rem;
             opacity: 0;
@@ -866,7 +958,7 @@
             transform: translateY(-10px) scale(0.98);
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05), 0 0 40px rgba(239, 68, 68, 0.08);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
         }
         
         .search-dropdown.active {
@@ -926,8 +1018,7 @@
         }
         
         .search-item.selected {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.1));
-            box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.05);
+            background: rgba(255, 255, 255, 0.1);
         }
         
         .search-item-icon {
@@ -938,16 +1029,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(249, 115, 22, 0.15));
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .search-item-icon svg {
             width: 18px;
             height: 18px;
-            stroke: #ef4444;
+            stroke: #a1a1aa;
             stroke-width: 1.75;
             fill: none;
+        }
+        
+        .search-item:hover .search-item-icon svg {
+            stroke: #ffffff;
         }
         
         .search-item-icon.performer {
@@ -976,7 +1071,7 @@
         
         .search-item-name mark {
             background: transparent;
-            color: #f97316;
+            color: #ffffff;
             font-weight: 600;
         }
         
@@ -1084,6 +1179,23 @@
             background: transparent;
             border: 1px solid transparent;
             opacity: 0;
+            overflow: hidden;
+        }
+        
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: none;
+        }
+        
+        .nav-item:hover::after {
+            left: 100%;
+            transition: left 0.8s ease;
         }
         
         .sidebar.expanded .nav-item {
@@ -1182,7 +1294,7 @@
 
         .submenu-panel {
             position: fixed;
-            left: calc(1.5rem + 280px + 8px);
+            left: calc(1.5rem + 280px + 4px);
             top: 1.5rem;
             width: 280px;
             max-height: 700px;
@@ -1193,13 +1305,26 @@
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 20px;
             padding: 1.25rem;
+            padding-left: 1.5rem;
             opacity: 0;
             visibility: hidden;
-            transform: translateX(-30px) scale(0.9);
+            transform: translateX(-10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             z-index: 200;
             pointer-events: none;
             scrollbar-width: none;
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+        }
+        
+        /* Invisible hover bridge to prevent menu dropout */
+        .submenu-panel::before {
+            content: '';
+            position: absolute;
+            left: -50px;
+            top: -10px;
+            width: 60px;
+            height: calc(100% + 20px);
+            background: transparent;
         }
 
         .submenu-panel::-webkit-scrollbar {
@@ -1240,6 +1365,24 @@
             background: transparent;
             opacity: 0;
             transform: translateX(-15px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+            transition: none;
+        }
+        
+        .category-item:hover::after {
+            left: 100%;
+            transition: left 0.6s ease;
         }
 
         .category-item:hover {
@@ -1257,10 +1400,43 @@
             flex-shrink: 0;
             transition: all 0.3s ease;
         }
+        
+        .category-item svg path,
+        .category-item svg circle,
+        .category-item svg line,
+        .category-item svg rect,
+        .category-item svg polygon,
+        .category-item svg polyline {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.6s ease, stroke 0.3s ease;
+        }
 
         .category-item:hover svg {
-            stroke: #ffffff;
             transform: scale(1.1);
+            filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.5));
+        }
+        
+        .category-item:hover svg path,
+        .category-item:hover svg circle,
+        .category-item:hover svg line,
+        .category-item:hover svg rect,
+        .category-item:hover svg polygon,
+        .category-item:hover svg polyline {
+            stroke: #ef4444;
+            stroke-dashoffset: 100;
+            animation: drawIcon 1.2s ease forwards;
+        }
+        
+        @keyframes drawIcon {
+            0% {
+                stroke-dashoffset: 100;
+                stroke: #ef4444;
+            }
+            100% {
+                stroke-dashoffset: 0;
+                stroke: #f97316;
+            }
         }
 
         .category-item span {
@@ -1292,6 +1468,24 @@
             transition: background 0.25s ease, transform 0.25s ease;
             opacity: 0;
             transform: translateX(-15px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .performer-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+            transition: none;
+        }
+        
+        .performer-item:hover::after {
+            left: 100%;
+            transition: left 0.6s ease;
         }
 
         .performer-item:hover {
@@ -1309,7 +1503,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            overflow: hidden;
+            overflow: visible;
             flex-shrink: 0;
         }
 
@@ -1320,15 +1514,39 @@
             stroke-width: 1.5;
             fill: none;
         }
+        
+        .performer-avatar svg path,
+        .performer-avatar svg circle {
+            stroke-dasharray: 80;
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+        }
 
         .performer-item:hover .performer-avatar {
             border-color: rgba(249, 115, 22, 0.5);
             box-shadow: 0 0 16px rgba(239, 68, 68, 0.25), 0 0 24px rgba(249, 115, 22, 0.2);
             transform: scale(1.1);
         }
-
+        
         .performer-item:hover .performer-avatar svg {
-            stroke: #a1a1aa;
+            filter: drop-shadow(0 0 3px rgba(249, 115, 22, 0.5));
+        }
+        
+        .performer-item:hover .performer-avatar svg path,
+        .performer-item:hover .performer-avatar svg circle {
+            stroke-dashoffset: 80;
+            animation: drawIconPerformer 1s ease forwards;
+        }
+        
+        @keyframes drawIconPerformer {
+            0% {
+                stroke-dashoffset: 80;
+                stroke: #ef4444;
+            }
+            100% {
+                stroke-dashoffset: 0;
+                stroke: #f97316;
+            }
         }
 
         .performer-name {
@@ -2035,11 +2253,29 @@
     <div class="age-gate" id="ageGate">
         <div class="age-gate-logo">SIREN</div>
         <div class="age-gate-content">
-            <h2>You must be 18+ to enter</h2>
-            <p>This website contains adult content. By entering, you confirm you are at least 18 years old.</p>
-            <div class="age-buttons">
-                <button class="btn btn-primary" onclick="enterSite()">I am 18+</button>
-                <button class="btn btn-secondary" onclick="exitSite()">Exit</button>
+            <div class="age-gate-box">
+                <h2>Access Beyond This Page is Restricted to Adults (18+) Only</h2>
+                <p>This website contains age-restricted content including nudity and explicit material. By entering, you affirm that you are at least 18 years of age, or the age of majority in the jurisdiction you are accessing the Website from, and you consent to viewing such content.</p>
+                <div class="age-buttons">
+                    <button class="btn btn-secondary" onclick="exitSite()">Exit Here</button>
+                    <button class="btn btn-primary" onclick="enterSite()">Enter</button>
+                </div>
+            </div>
+            <div class="age-gate-terms">
+                <div class="age-gate-terms-title">Terms and Conditions to Enter</div>
+                <p>By clicking 'Enter' you affirm that you have read, understand, and agree to the following:</p>
+                <div class="age-gate-terms-scroll">
+                    <ul>
+                        <li>You are at least eighteen (18) years of age, or the age of majority in the jurisdiction you are accessing the Website from;</li>
+                        <li>You have read, understood, and agree to abide by SIREN's full <a href="#">terms and conditions</a> and <a href="#">privacy policy</a>;</li>
+                        <li>You understand that this website contains sexually explicit material and you agree that such material is not offensive or obscene to you;</li>
+                        <li>You agree that sexually explicit material is not deemed to be obscene or illegal in your jurisdiction;</li>
+                        <li>You will use the material available on this website strictly for your own personal use and will not distribute or make available the contents to anyone;</li>
+                        <li>You will NOT expose minors to the sexually explicit content on this website;</li>
+                        <li>You will take appropriate steps to protect children and ensure no minor can access this content, such as enabling parental controls;</li>
+                        <li>You have read this agreement, understood it, and agree to be bound by it.</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -2092,7 +2328,7 @@
     </div>
 
     <!-- App Container -->
-    <div class="app-container" id="appContainer" style="opacity: 0;">
+    <div class="app-container" id="appContainer">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <!-- Glow aura element -->
@@ -2108,18 +2344,7 @@
                 <div class="user-avatar">
                     <span class="avatar-border-arc"></span>
                     <svg class="avatar-icon" viewBox="0 0 24 24">
-                        <defs>
-                            <linearGradient id="lipsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#ef4444"/>
-                                <stop offset="100%" stop-color="#f97316"/>
-                            </linearGradient>
-                        </defs>
-                        <!-- Sexy lips icon -->
-                        <path d="M12 17C12 17 5.5 13.5 5.5 10.5C5.5 8.8 6.8 7 9 7C10.5 7 11.5 8 12 9C12.5 8 13.5 7 15 7C17.2 7 18.5 8.8 18.5 10.5C18.5 13.5 12 17 12 17Z" fill="url(#lipsGradient)"/>
-                        <path d="M12 17C12 17 5.5 13.5 5.5 10.5C5.5 8.8 6.8 7 9 7C10.5 7 11.5 8 12 9C12.5 8 13.5 7 15 7C17.2 7 18.5 8.8 18.5 10.5C18.5 13.5 12 17 12 17Z" stroke="#fff" stroke-width="0.5" stroke-opacity="0.3"/>
-                        <path d="M6 10.5C8.5 11 10.5 10 12 9C13.5 10 15.5 11 18 10.5" stroke="#000" stroke-width="0.8" stroke-linecap="round" opacity="0.2"/>
-                        <!-- Upper lip highlight -->
-                        <path d="M9 8.5C10 8.8 11 9.5 12 9C13 9.5 14 8.8 15 8.5" stroke="#fff" stroke-width="0.5" stroke-linecap="round" opacity="0.4"/>
+                        <path d="M12 21C12 21 4 15 4 9.5C4 6.5 6.5 4 9.5 4C11 4 12 5 12 5C12 5 13 4 14.5 4C17.5 4 20 6.5 20 9.5C20 15 12 21 12 21Z" fill="#0a0a0a" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
                     </svg>
                 </div>
                 <div class="user-info">
@@ -2702,20 +2927,27 @@
         }
         updateTime();
         setInterval(updateTime, 60000);
+        
+        // Populate content early so it shows through blur
+        populateRows();
 
         // Animate age gate entrance on page load
         if (!sessionStorage.getItem('ageVerified')) {
             gsap.fromTo('.age-gate-logo', 
                 { opacity: 0, y: -30, scale: 0.9 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out', delay: 0.2 }
+                { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out', delay: 0.3 }
             );
             gsap.fromTo('.age-gate-content', 
                 { opacity: 0, y: 30 },
-                { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.4 }
+                { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.5 }
             );
             gsap.fromTo('.age-gate .age-buttons .btn', 
                 { opacity: 0, y: 20, scale: 0.9 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: 'back.out(1.7)', delay: 0.7 }
+                { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: 'back.out(1.7)', delay: 0.9 }
+            );
+            gsap.fromTo('.age-gate-terms', 
+                { opacity: 0 },
+                { opacity: 1, duration: 0.6, ease: 'power2.out', delay: 1.1 }
             );
         }
 
@@ -2726,20 +2958,27 @@
             const progress = document.getElementById('loaderProgress');
             const status = document.getElementById('loaderStatus');
             
-            // Fade out age gate
+            // Show loader FIRST (behind age gate) so blur is continuous
+            loader.classList.add('active');
+            loader.style.opacity = '1';
+            
+            // Fade out age gate content
+            gsap.to(['.age-gate-logo', '.age-gate-content', '.age-gate-terms', '.age-gate::before'], {
+                opacity: 0,
+                duration: 0.5,
+                stagger: 0.05,
+                ease: 'power2.in'
+            });
+            
+            // Then fade the age gate overlay to reveal loader underneath
             gsap.to(ageGate, {
                 opacity: 0,
-                scale: 0.95,
-                duration: 0.4,
-                ease: 'power2.in',
+                duration: 0.6,
+                delay: 0.4,
+                ease: 'power2.inOut',
                 onComplete: () => {
                     ageGate.classList.add('hidden');
-                    
-                    // Show loader
-                    loader.classList.add('active');
-                    gsap.fromTo(loader, { opacity: 0 }, { opacity: 1, duration: 0.5 });
-                    
-                    // Animate loading sequence
+                    // Start loading sequence after age gate is gone
                     runLoadingSequence(progress, status);
                 }
             });
@@ -2795,57 +3034,26 @@
         
         function revealSite() {
             const loader = document.getElementById('siteLoader');
-            const app = document.getElementById('appContainer');
             
-            // Populate content first
-            populateRows();
+            // Use a timeline for buttery smooth animation
+            const tl = gsap.timeline();
             
-            // Epic reveal animation
-            gsap.to(loader, {
+            // First fade out the loader content
+            tl.to(['.loader-container', '.loader-orb', '.loader-particles'], {
                 opacity: 0,
-                scale: 1.05,
                 duration: 0.6,
-                ease: 'power2.in',
+                ease: 'power2.in'
+            })
+            // Then very smoothly fade out the overlay
+            .to(loader, {
+                opacity: 0,
+                duration: 1.5,
+                ease: 'power1.out',
                 onComplete: () => {
                     loader.classList.remove('active');
                     loader.style.display = 'none';
-                    
-                    // Show app
-                    app.style.opacity = '1';
-                    
-                    // Sidebar entrance
-                    gsap.fromTo('.sidebar', 
-                        { opacity: 0, x: -30, scale: 0.95 },
-                        { opacity: 1, x: 0, scale: 1, duration: 0.6, ease: 'power3.out' }
-                    );
-                    
-                    // Featured content entrance
-                    gsap.fromTo('.featured-content > *', 
-                        { opacity: 0, y: 50 },
-                        { 
-                            opacity: 1, 
-                            y: 0, 
-                            duration: 0.7, 
-                            stagger: 0.1, 
-                            ease: 'power3.out',
-                            delay: 0.2
-                        }
-                    );
-                    
-                    // Content sections entrance
-                    gsap.fromTo('.content-section', 
-                        { opacity: 0, y: 40 },
-                        { 
-                            opacity: 1, 
-                            y: 0, 
-                            duration: 0.6, 
-                            stagger: 0.15, 
-                            ease: 'power3.out',
-                            delay: 0.4
-                        }
-                    );
                 }
-            });
+            }, '-=0.3');
         }
 
         function exitSite() {
@@ -2903,10 +3111,7 @@
             });
         });
 
-        // Submenu hover handling - smooth transitions
-        let activeSubmenu = null;
-        let activeNavItem = null;
-        let globalHideTimeout = null;
+        // Submenu hover handling - simplified for reliability
         
         // Hide all submenu content initially
         document.querySelectorAll('.submenu-panel').forEach(panel => {
@@ -2914,165 +3119,84 @@
             const title = panel.querySelector('.submenu-title');
             const footer = panel.querySelector('.submenu-footer');
             gsap.set([title, ...items, footer], { opacity: 0, x: -15 });
+            panel.style.opacity = '0';
+            panel.style.transform = 'translateX(-10px)';
+            panel.style.pointerEvents = 'none';
         });
-        
-        const animateContentIn = (submenu) => {
-            const items = submenu.querySelectorAll('.category-item, .performer-item');
-            const title = submenu.querySelector('.submenu-title');
-            const footer = submenu.querySelector('.submenu-footer');
-            
-            // Reset positions first
-            gsap.set([title, ...items, footer], { opacity: 0, x: -15 });
-            
-            // Animate in sequence
-            gsap.to(title, { opacity: 1, x: 0, duration: 0.2, ease: 'power2.out' });
-            
-            gsap.to(items, { 
-                opacity: 1, 
-                x: 0, 
-                duration: 0.2,
-                stagger: 0.02,
-                delay: 0.05,
-                ease: 'power2.out'
-            });
-            
-            gsap.to(footer, { opacity: 1, x: 0, y: 0, duration: 0.2, delay: 0.15, ease: 'power2.out' });
-        };
-        
-        const animateContentOut = (submenu, callback) => {
-            const items = submenu.querySelectorAll('.category-item, .performer-item');
-            const title = submenu.querySelector('.submenu-title');
-            const footer = submenu.querySelector('.submenu-footer');
-            
-            gsap.to([title, ...items, footer], {
-                opacity: 0,
-                x: 15,
-                duration: 0.15,
-                ease: 'power2.in',
-                onComplete: callback
-            });
-        };
-        
-        const showSubmenuPanel = (submenu) => {
-            // Reset content to hidden
-            const items = submenu.querySelectorAll('.category-item, .performer-item');
-            const title = submenu.querySelector('.submenu-title');
-            const footer = submenu.querySelector('.submenu-footer');
-            gsap.set([title, ...items, footer], { opacity: 0, x: -15 });
-            
-            submenu.classList.add('active');
-            submenu.style.pointerEvents = 'auto';
-            
-            gsap.fromTo(submenu, 
-                { 
-                    opacity: 0, 
-                    x: -30,
-                    scale: 0.95,
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 30px rgba(239, 68, 68, 0.15), 0 0 50px rgba(249, 115, 22, 0.1)'
-                },
-                { 
-                    opacity: 1, 
-                    x: 0,
-                    scale: 1,
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 0px rgba(239, 68, 68, 0)',
-                    duration: 0.35,
-                    ease: 'power3.out',
-                    onComplete: () => animateContentIn(submenu)
-                }
-            );
-        };
-        
-        const hideSubmenuPanel = (submenu) => {
-            const items = submenu.querySelectorAll('.category-item, .performer-item');
-            const title = submenu.querySelector('.submenu-title');
-            const footer = submenu.querySelector('.submenu-footer');
-            
-            gsap.to([title, ...items, footer], { opacity: 0, duration: 0.1 });
-            
-            gsap.to(submenu, {
-                opacity: 0,
-                x: -20,
-                scale: 0.95,
-                duration: 0.2,
-                ease: 'power2.in',
-                onComplete: () => {
-                    submenu.classList.remove('active');
-                    submenu.style.pointerEvents = 'none';
-                }
-            });
-        };
-        
-        const switchSubmenu = (oldSubmenu, newSubmenu) => {
-            // Animate old content out to the right
-            animateContentOut(oldSubmenu, () => {
-                // Hide old, show new instantly
-                oldSubmenu.classList.remove('active');
-                oldSubmenu.style.pointerEvents = 'none';
-                gsap.set(oldSubmenu, { opacity: 0 });
-                
-                newSubmenu.classList.add('active');
-                newSubmenu.style.pointerEvents = 'auto';
-                gsap.set(newSubmenu, { opacity: 1, x: 0, scale: 1 });
-                
-                // Animate new content in from the left
-                animateContentIn(newSubmenu);
-            });
-        };
         
         document.querySelectorAll('.nav-item-with-submenu').forEach(item => {
             const submenuId = item.dataset.submenu;
             const submenu = document.getElementById(submenuId);
             if (!submenu) return;
             
-            item.addEventListener('mouseenter', () => {
-                clearTimeout(globalHideTimeout);
+            let hideTimer = null;
+            
+            // Force show this submenu
+            const forceShow = () => {
+                clearTimeout(hideTimer);
                 
-                // Update nav item states
+                // Hide any other open submenus first
+                document.querySelectorAll('.submenu-panel').forEach(panel => {
+                    if (panel !== submenu && panel.classList.contains('active')) {
+                        panel.classList.remove('active');
+                        panel.style.opacity = '0';
+                        panel.style.pointerEvents = 'none';
+                    }
+                });
+                
+                // Update nav states
                 document.querySelectorAll('.nav-item-with-submenu').forEach(i => i.classList.remove('submenu-open'));
                 item.classList.add('submenu-open');
                 
-                if (activeSubmenu === submenu) return;
+                // Show this submenu - direct DOM manipulation, no state checks
+                submenu.classList.add('active');
+                submenu.style.opacity = '1';
+                submenu.style.transform = 'translateX(0)';
+                submenu.style.pointerEvents = 'auto';
                 
-                if (activeSubmenu && activeSubmenu !== submenu) {
-                    // Switch between submenus smoothly
-                    const oldSubmenu = activeSubmenu;
-                    activeSubmenu = submenu;
-                    activeNavItem = item;
-                    switchSubmenu(oldSubmenu, submenu);
-                } else {
-                    // Fresh open
-                    activeSubmenu = submenu;
-                    activeNavItem = item;
-                    showSubmenuPanel(submenu);
-                }
-            });
+                // Animate content in
+                const items = submenu.querySelectorAll('.category-item, .performer-item');
+                const title = submenu.querySelector('.submenu-title');
+                const footer = submenu.querySelector('.submenu-footer');
+                gsap.set([title, ...items, footer], { opacity: 0, x: -15 });
+                gsap.to(title, { opacity: 1, x: 0, duration: 0.2, ease: 'power2.out' });
+                gsap.to(items, { opacity: 1, x: 0, duration: 0.2, stagger: 0.02, delay: 0.05, ease: 'power2.out' });
+                gsap.to(footer, { opacity: 1, x: 0, duration: 0.2, delay: 0.15, ease: 'power2.out' });
+            };
             
-            item.addEventListener('mouseleave', () => {
-                globalHideTimeout = setTimeout(() => {
-                    if (!submenu.matches(':hover') && !item.matches(':hover')) {
-                        item.classList.remove('submenu-open');
-                        if (activeSubmenu === submenu) {
-                            hideSubmenuPanel(submenu);
-                            activeSubmenu = null;
-                            activeNavItem = null;
-                        }
+            // Hide this submenu
+            const hide = () => {
+                item.classList.remove('submenu-open');
+                submenu.classList.remove('active');
+                submenu.style.opacity = '0';
+                submenu.style.transform = 'translateX(-10px)';
+                submenu.style.pointerEvents = 'none';
+            };
+            
+            // Start hide countdown
+            const startHide = () => {
+                clearTimeout(hideTimer);
+                hideTimer = setTimeout(() => {
+                    // Final check - is anything still hovered?
+                    if (!item.matches(':hover') && !submenu.matches(':hover')) {
+                        hide();
                     }
-                }, 150);
-            });
+                }, 120);
+            };
             
-            submenu.addEventListener('mouseenter', () => clearTimeout(globalHideTimeout));
+            // Events on nav item
+            item.addEventListener('mouseenter', forceShow);
+            item.addEventListener('mouseleave', startHide);
             
-            submenu.addEventListener('mouseleave', () => {
-                globalHideTimeout = setTimeout(() => {
-                    const anyNavHovered = [...document.querySelectorAll('.nav-item-with-submenu')].some(i => i.matches(':hover'));
-                    if (!anyNavHovered && !submenu.matches(':hover')) {
-                        if (activeNavItem) activeNavItem.classList.remove('submenu-open');
-                        hideSubmenuPanel(submenu);
-                        activeSubmenu = null;
-                        activeNavItem = null;
-                    }
-                }, 150);
+            // Events on submenu panel
+            submenu.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimer);
+                item.classList.add('submenu-open');
             });
+            submenu.addEventListener('mouseleave', startHide);
+            
+            // Click also works
+            item.addEventListener('click', forceShow);
         });
 
         // Mouse parallax effect on background orbs
