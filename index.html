@@ -72,25 +72,36 @@
         }
         
         .age-gate-logo {
-            font-size: 3rem;
+            font-size: 4.5rem;
             font-weight: 800;
-            letter-spacing: 0.4em;
-            background: linear-gradient(135deg, #ef4444, #f97316, #ef4444);
-            background-size: 200% 200%;
+            letter-spacing: 0.35em;
+            position: relative;
+            opacity: 0;
+            text-transform: uppercase;
+            
+            /* Base gradient */
+            background: linear-gradient(
+                180deg, 
+                #fcd7a0 0%,
+                #f97316 25%,
+                #ef4444 50%,
+                #dc2626 75%,
+                #991b1b 100%
+            );
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: logoShimmer 4s ease-in-out infinite;
-            position: relative;
-            opacity: 0;
+            
+            /* Embossed depth with multiple shadows */
+            filter: drop-shadow(0 1px 0 rgba(255, 200, 150, 0.4))
+                    drop-shadow(0 2px 0 rgba(239, 68, 68, 0.3))
+                    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5))
+                    drop-shadow(0 8px 16px rgba(239, 68, 68, 0.2))
+                    drop-shadow(0 16px 32px rgba(0, 0, 0, 0.4));
         }
         
-        @keyframes logoShimmer {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        
-        .age-gate-logo::after {
+        /* Warm glow behind */
+        .age-gate-logo::before {
             content: 'SIREN';
             position: absolute;
             inset: 0;
@@ -98,9 +109,49 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            filter: blur(30px);
-            opacity: 0.5;
-            z-index: -1;
+            filter: blur(40px);
+            opacity: 0.6;
+            z-index: -2;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        
+        /* Shine sweep effect */
+        .age-gate-logo::after {
+            content: 'SIREN';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                120deg, 
+                transparent 0%,
+                transparent 30%,
+                rgba(255, 255, 255, 0.8) 48%,
+                rgba(255, 220, 180, 0.9) 50%,
+                rgba(255, 255, 255, 0.8) 52%,
+                transparent 70%,
+                transparent 100%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shineSweep 4s ease-in-out infinite;
+            z-index: 1;
+        }
+        
+        @keyframes shineSweep {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { 
+                opacity: 0.5; 
+                filter: blur(40px);
+            }
+            50% { 
+                opacity: 0.7; 
+                filter: blur(50px);
+            }
         }
 
         .age-gate-content {
