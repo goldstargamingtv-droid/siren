@@ -94,50 +94,72 @@ async function signUp(email, password, dateOfBirth) {
         return { error: { message: 'You must be 18 or older to register.' } };
     }
     
-    const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-            data: {
-                date_of_birth: dateOfBirth
-            }
-        }
-    });
-    
-    if (error) return { error };
-    
-    // Update profile with DOB and age verification
-    if (data.user) {
-        await supabase
-            .from('profiles')
-            .update({
-                date_of_birth: dateOfBirth,
-                age_verified: true,
-                age_verified_at: new Date().toISOString()
-            })
-            .eq('id', data.user.id);
+    // Validate password strength
+    if (password.length < 8) {
+        return { error: { message: 'Password must be at least 8 characters.' } };
     }
     
-    return { data };
+    try {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    date_of_birth: dateOfBirth
+                }
+            }
+        });
+        
+        if (error) return { error };
+        
+        // Profile is auto-created by database trigger
+        // Check if email confirmation is required
+        if (data.user && !data.session) {
+            return { 
+                data, 
+                confirmEmail: true,
+                message: 'Please check your email to confirm your account.'
+            };
+        }
+        
+        return { data };
+    } catch (err) {
+        console.error('Signup error:', err);
+        return { error: { message: 'An unexpected error occurred. Please try again.' } };
+    }
 }
 
 async function signIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-    });
-    
-    if (error) return { error };
-    
-    // Update last login
-    if (data.user) {
-        await supabase
-            .from('profiles')
-            .update({ last_login_at: new Date().toISOString() })
-            .eq('id', data.user.id);
+    try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
+        
+        if (error) {
+            // Provide user-friendly error messages
+            let message = error.message;
+            if (error.message.includes('Invalid login')) {
+                message = 'Invalid email or password.';
+            } else if (error.message.includes('Email not confirmed')) {
+                message = 'Please check your email and confirm your account.';
+            }
+            return { error: { message } };
+        }
+        
+        // Update last login
+        if (data.user) {
+            await supabase
+                .from('profiles')
+                .update({ last_login_at: new Date().toISOString() })
+                .eq('id', data.user.id);
+        }
+        
+        return { data };
+    } catch (err) {
+        console.error('Sign in error:', err);
+        return { error: { message: 'An unexpected error occurred. Please try again.' } };
     }
-    
-    return { data };
 }
 
 async function signOut() {
