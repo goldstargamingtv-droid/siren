@@ -175,10 +175,10 @@
         .site-loader {
             position: fixed;
             inset: 0;
-            background: rgba(10, 10, 12, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 10000;
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 99999;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1169,10 +1169,10 @@
             transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
-        .feature-card:nth-child(1)::before { background-image: url('../images/2.jpg'); }
-        .feature-card:nth-child(2)::before { background-image: url('../images/10.jpg'); }
-        .feature-card:nth-child(3)::before { background-image: url('../images/9.jpg'); }
-        .feature-card:nth-child(4)::before { background-image: url('../images/3.jpg'); }
+        .feature-card:nth-child(1)::before { background-image: url('images/2.jpg'); }
+        .feature-card:nth-child(2)::before { background-image: url('images/10.jpg'); }
+        .feature-card:nth-child(3)::before { background-image: url('images/9.jpg'); }
+        .feature-card:nth-child(4)::before { background-image: url('images/3.jpg'); }
 
         .feature-card::after {
             content: '';
@@ -2605,8 +2605,8 @@
                 text-align: center;
             }
         }
-        
-        /* ==================== AGE GATE STYLES ==================== */
+
+        /* ==================== AGE GATE OVERLAY ==================== */
         .age-gate {
             position: fixed;
             inset: 0;
@@ -2623,9 +2623,7 @@
             padding: 2rem;
         }
         
-        .age-gate.hidden {
-            display: none;
-        }
+        .age-gate.hidden { display: none; }
         
         .age-gate::before {
             content: '';
@@ -2649,17 +2647,12 @@
             font-weight: 800;
             letter-spacing: 0.35em;
             position: relative;
-            opacity: 0;
             text-transform: uppercase;
             background: linear-gradient(180deg, #fcd7a0 0%, #f97316 25%, #ef4444 50%, #dc2626 75%, #991b1b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            filter: drop-shadow(0 1px 0 rgba(255, 200, 150, 0.4))
-                    drop-shadow(0 2px 0 rgba(239, 68, 68, 0.3))
-                    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5))
-                    drop-shadow(0 8px 16px rgba(239, 68, 68, 0.2))
-                    drop-shadow(0 16px 32px rgba(0, 0, 0, 0.4));
+            filter: drop-shadow(0 1px 0 rgba(255, 200, 150, 0.4)) drop-shadow(0 2px 0 rgba(239, 68, 68, 0.3)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5)) drop-shadow(0 8px 16px rgba(239, 68, 68, 0.2)) drop-shadow(0 16px 32px rgba(0, 0, 0, 0.4));
         }
         
         .age-gate-logo::before {
@@ -2673,7 +2666,7 @@
             filter: blur(40px);
             opacity: 0.6;
             z-index: -2;
-            animation: glowPulse 3s ease-in-out infinite;
+            animation: ageGlowPulse 3s ease-in-out infinite;
         }
         
         .age-gate-logo::after {
@@ -2685,27 +2678,14 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: shineSweep 4s ease-in-out infinite;
+            animation: ageShineSweep 4s ease-in-out infinite;
             z-index: 1;
         }
         
-        @keyframes shineSweep {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        
-        @keyframes glowPulse {
-            0%, 100% { opacity: 0.5; filter: blur(40px); }
-            50% { opacity: 0.7; filter: blur(50px); }
-        }
+        @keyframes ageShineSweep { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        @keyframes ageGlowPulse { 0%, 100% { opacity: 0.5; filter: blur(40px); } 50% { opacity: 0.7; filter: blur(50px); } }
 
-        .age-gate-content {
-            text-align: center;
-            max-width: 520px;
-            position: relative;
-            z-index: 1;
-            opacity: 0;
-        }
+        .age-gate-content { text-align: center; max-width: 520px; position: relative; z-index: 1; }
         
         .age-gate-box {
             background: rgba(15, 15, 20, 0.4);
@@ -2717,102 +2697,23 @@
             margin-bottom: 1.5rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
-        
-        .age-gate .age-buttons .age-btn {
-            opacity: 0;
-        }
 
-        .age-gate h2 {
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-bottom: 1.25rem;
-            color: #ffffff;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
+        .age-gate h2 { font-size: 0.8rem; font-weight: 700; margin-bottom: 1.25rem; color: #ffffff; text-transform: uppercase; letter-spacing: 0.1em; }
+        .age-gate p { color: #a1a1aa; margin-bottom: 1.5rem; line-height: 1.7; font-size: 0.85rem; text-align: justify; }
+        
+        .age-gate-terms { margin-top: 1rem; max-width: 520px; }
+        .age-gate-terms-title { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #71717a; margin-bottom: 0.75rem; }
+        .age-gate-terms-scroll { max-height: 150px; overflow-y: auto; padding-right: 0.5rem; text-align: left; }
+        .age-gate-terms-scroll::-webkit-scrollbar { width: 3px; }
+        .age-gate-terms-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 2px; }
+        .age-gate-terms p { font-size: 0.75rem; color: #71717a; margin-bottom: 0.5rem; text-align: center; }
+        .age-gate-terms ul { list-style: none; padding: 0; margin: 0; }
+        .age-gate-terms li { font-size: 0.72rem; color: #71717a; margin-bottom: 0.5rem; padding-left: 1rem; position: relative; line-height: 1.5; }
+        .age-gate-terms li::before { content: '•'; position: absolute; left: 0; color: #ef4444; }
+        .age-gate-terms a { color: #f97316; text-decoration: none; }
+        .age-gate-terms a:hover { text-decoration: underline; }
 
-        .age-gate p {
-            color: #a1a1aa;
-            margin-bottom: 1.5rem;
-            line-height: 1.7;
-            font-size: 0.85rem;
-            text-align: justify;
-        }
-        
-        .age-gate-terms {
-            margin-top: 1rem;
-            opacity: 0;
-            max-width: 520px;
-        }
-        
-        .age-gate-terms-title {
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #71717a;
-            margin-bottom: 0.75rem;
-        }
-        
-        .age-gate-terms-scroll {
-            max-height: 150px;
-            overflow-y: auto;
-            padding-right: 0.5rem;
-            text-align: left;
-        }
-        
-        .age-gate-terms-scroll::-webkit-scrollbar {
-            width: 3px;
-        }
-        
-        .age-gate-terms-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 2px;
-        }
-        
-        .age-gate-terms p {
-            font-size: 0.75rem;
-            color: #71717a;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-        
-        .age-gate-terms ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .age-gate-terms li {
-            font-size: 0.72rem;
-            color: #71717a;
-            margin-bottom: 0.5rem;
-            padding-left: 1rem;
-            position: relative;
-            line-height: 1.5;
-        }
-        
-        .age-gate-terms li::before {
-            content: '•';
-            position: absolute;
-            left: 0;
-            color: #ef4444;
-        }
-        
-        .age-gate-terms a {
-            color: #f97316;
-            text-decoration: none;
-        }
-        
-        .age-gate-terms a:hover {
-            text-decoration: underline;
-        }
-
-        .age-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
+        .age-buttons { display: flex; gap: 1rem; justify-content: center; }
 
         .age-btn {
             padding: 0.9rem 2.25rem;
@@ -2826,6 +2727,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            font-family: inherit;
         }
 
         .age-btn-primary {
@@ -2850,10 +2752,7 @@
             animation: ageBtnShine 3s ease-in-out infinite;
         }
         
-        @keyframes ageBtnShine {
-            0% { left: -100%; }
-            50%, 100% { left: 100%; }
-        }
+        @keyframes ageBtnShine { 0% { left: -100%; } 50%, 100% { left: 100%; } }
 
         .age-btn-primary:hover {
             transform: translateY(-2px) scale(1.02);
@@ -2861,10 +2760,7 @@
             background: linear-gradient(135deg, rgba(239, 68, 68, 0.85), rgba(249, 115, 22, 0.85));
         }
         
-        .age-btn-primary:hover::before {
-            animation: none;
-            left: 100%;
-        }
+        .age-btn-primary:hover::before { animation: none; left: 100%; }
 
         .age-btn-secondary {
             background: rgba(255, 255, 255, 0.05);
@@ -2874,27 +2770,12 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        .age-btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.25);
-        }
+        .age-btn-secondary:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.25); }
         
-        /* Main content blur when age gate is active */
-        .main-content-wrapper {
-            transition: filter 0.8s ease;
-        }
-        
-        .main-content-wrapper.blurred {
-            filter: blur(20px) brightness(0.6);
-        }
-        
-        .main-content-wrapper.blurred .site-loader {
-            display: none !important;
-        }
+        .main-content { transition: filter 0.8s ease; }
+        .main-content.blurred { pointer-events: none; }
     </style>
-    <link rel="stylesheet" href="../css/auth-modal.css">
 </head>
-
 <body>
     <!-- Age Gate Overlay -->
     <div class="age-gate" id="ageGate">
@@ -2926,11 +2807,8 @@
             </div>
         </div>
     </div>
-    
-    <!-- Main Content Wrapper (blurred when age gate active) -->
-    <div class="main-content-wrapper blurred" id="mainContent">
-    
-    <!-- Site Loader -->
+
+    <!-- Site Loader (outside main-content so it doesn't get blurred) -->
     <div class="site-loader" id="siteLoader">
         <!-- Ambient orbs -->
         <div class="loader-orb loader-orb-1"></div>
@@ -2970,6 +2848,9 @@
         </div>
     </div>
 
+    <!-- Main Content (blurred when age gate active) -->
+    <div class="main-content blurred" id="mainContent">
+
     <a href="#features" class="skip-link">Skip to main content</a>
     
     <!-- Navigation -->
@@ -2983,9 +2864,8 @@
                         Explore
                     </button>
                 </div>
-                <button class="btn btn-ghost" onclick="openAuthModal('signin')" data-guest-only>Sign In</button>
-                <button class="btn btn-ghost" onclick="SIREN.signOut()" data-auth-only style="display:none;">Sign Out</button>
-                <a href="../browse/" class="btn btn-primary" id="enterBtn">Get Started</a>
+                <a href="browse/" class="btn btn-ghost">Sign In</a>
+                <a href="browse/" class="btn btn-primary" id="enterBtn">Get Started</a>
             </div>
         </nav>
     </header>
@@ -3021,8 +2901,8 @@
             <div class="mega-dropdown-preview">
                 <h4>Featured Content</h4>
                 <div class="mega-preview-grid">
-                    <a href="../browse/" class="mega-preview-card">
-                        <img src="../images/11.jpg" alt="Featured">
+                    <a href="browse/" class="mega-preview-card">
+                        <img src="images/11.jpg" alt="Featured">
                         <div class="mega-preview-info">
                             <div class="mega-preview-title">New This Week</div>
                             <div class="mega-preview-meta">
@@ -3031,8 +2911,8 @@
                             </div>
                         </div>
                     </a>
-                    <a href="../browse/" class="mega-preview-card">
-                        <img src="../images/1.jpg" alt="Featured">
+                    <a href="browse/" class="mega-preview-card">
+                        <img src="images/1.jpg" alt="Featured">
                         <div class="mega-preview-info">
                             <div class="mega-preview-title">Top Rated</div>
                             <div class="mega-preview-meta">
@@ -3041,8 +2921,8 @@
                             </div>
                         </div>
                     </a>
-                    <a href="../browse/" class="mega-preview-card">
-                        <img src="../images/4.jpg" alt="Featured">
+                    <a href="browse/" class="mega-preview-card">
+                        <img src="images/4.jpg" alt="Featured">
                         <div class="mega-preview-info">
                             <div class="mega-preview-title">Interactive</div>
                             <div class="mega-preview-meta">
@@ -3051,8 +2931,8 @@
                             </div>
                         </div>
                     </a>
-                    <a href="../browse/" class="mega-preview-card">
-                        <img src="../images/6.jpg" alt="Featured">
+                    <a href="browse/" class="mega-preview-card">
+                        <img src="images/6.jpg" alt="Featured">
                         <div class="mega-preview-info">
                             <div class="mega-preview-title">Exclusive</div>
                             <div class="mega-preview-meta">
@@ -3066,7 +2946,7 @@
         </div>
         <div class="mega-dropdown-cta">
             <div class="mega-cta-text">Ready to dive in? <span>4,200+</span> videos waiting</div>
-            <a href="../browse/" class="btn btn-primary" style="padding: 0.6rem 1.25rem; font-size: 0.85rem;">Browse All</a>
+            <a href="browse/" class="btn btn-primary" style="padding: 0.6rem 1.25rem; font-size: 0.85rem;">Browse All</a>
         </div>
     </div>
 
@@ -3080,180 +2960,180 @@
                 <!-- Animated film reel background -->
                 <div class="hero-grid" aria-hidden="true">
                     <div class="hero-row">
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/7.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/7.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/7.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/7.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
                     </div>
                     <div class="hero-row">
-                        <div class="hero-thumb"><img src="../images/7.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/11.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/13.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/7.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/11.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/13.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/7.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/11.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/13.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/7.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/11.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/13.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
                     </div>
                     <div class="hero-row">
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/13.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/11.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/13.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/11.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/13.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/11.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/13.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/11.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
                     </div>
                     <div class="hero-row">
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/7.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/11.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/7.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/11.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/7.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/11.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/7.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/11.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
                     </div>
                     <div class="hero-row">
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/13.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/13.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/13.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/13.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
                     </div>
                     <div class="hero-row">
-                        <div class="hero-thumb"><img src="../images/11.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/7.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/13.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/11.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/7.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/13.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/11.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/7.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/13.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/11.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/7.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/13.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
                     </div>
                     <div class="hero-row">
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/7.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/11.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/1.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/7.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/11.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/7.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/11.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/1.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/7.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/11.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
                     </div>
                     <div class="hero-row">
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/13.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/8.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/3.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/5.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/10.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/13.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/2.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/9.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/6.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/12.jpg" alt=""></div>
-                        <div class="hero-thumb"><img src="../images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/13.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/8.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/3.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/5.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/10.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/13.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/2.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/9.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/6.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/12.jpg" alt=""></div>
+                        <div class="hero-thumb"><img src="images/4.jpg" alt=""></div>
                     </div>
                 </div>
                 
@@ -3277,13 +3157,13 @@
                 </p>
                 
                 <div class="hero-buttons">
-                    <a href="../browse/" class="btn btn-primary btn-large" id="startBtn" role="button">
+                    <a href="browse/" class="btn btn-primary btn-large" id="startBtn" role="button">
                         Start Exploring
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path d="M5 12h14M12 5l7 7-7 7"/>
                         </svg>
                     </a>
-                    <a href="../browse/" class="btn btn-outline btn-large">Learn More</a>
+                    <a href="browse/" class="btn btn-outline btn-large">Learn More</a>
                 </div>
                 
                 <div class="hero-stats" role="list" aria-label="Platform statistics">
@@ -3316,7 +3196,7 @@
             <div class="trending-grid">
                 <article class="trending-card trending-card-featured">
                     <div class="trending-thumb">
-                        <img src="../images/11.jpg" alt="">
+                        <img src="images/11.jpg" alt="">
                         <div class="trending-overlay">
                             <div class="trending-play">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -3337,7 +3217,7 @@
 
                 <article class="trending-card">
                     <div class="trending-thumb">
-                        <img src="../images/1.jpg" alt="">
+                        <img src="images/1.jpg" alt="">
                         <div class="trending-overlay">
                             <div class="trending-play">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -3357,7 +3237,7 @@
 
                 <article class="trending-card">
                     <div class="trending-thumb">
-                        <img src="../images/4.jpg" alt="">
+                        <img src="images/4.jpg" alt="">
                         <div class="trending-overlay">
                             <div class="trending-play">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -3378,7 +3258,7 @@
 
                 <article class="trending-card">
                     <div class="trending-thumb">
-                        <img src="../images/12.jpg" alt="">
+                        <img src="images/12.jpg" alt="">
                         <div class="trending-overlay">
                             <div class="trending-play">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -3398,7 +3278,7 @@
 
                 <article class="trending-card">
                     <div class="trending-thumb">
-                        <img src="../images/6.jpg" alt="">
+                        <img src="images/6.jpg" alt="">
                         <div class="trending-overlay">
                             <div class="trending-play">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -3419,7 +3299,7 @@
 
                 <article class="trending-card">
                     <div class="trending-thumb">
-                        <img src="../images/13.jpg" alt="">
+                        <img src="images/13.jpg" alt="">
                         <div class="trending-overlay">
                             <div class="trending-play">
                                 <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
@@ -3439,7 +3319,7 @@
             </div>
 
             <div class="trending-cta">
-                <a href="../browse/" class="btn btn-primary btn-large">
+                <a href="browse/" class="btn btn-primary btn-large">
                     Browse All Content
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -3481,14 +3361,14 @@
                             <!-- Left lens -->
                             <div class="vr-lens vr-lens-left">
                                 <div class="vr-lens-content">
-                                    <img src="../images/10.jpg" alt="" class="vr-preview-image">
+                                    <img src="images/10.jpg" alt="" class="vr-preview-image">
                                     <div class="vr-lens-overlay"></div>
                                 </div>
                             </div>
                             <!-- Right lens -->
                             <div class="vr-lens vr-lens-right">
                                 <div class="vr-lens-content">
-                                    <img src="../images/10.jpg" alt="" class="vr-preview-image">
+                                    <img src="images/10.jpg" alt="" class="vr-preview-image">
                                     <div class="vr-lens-overlay"></div>
                                 </div>
                             </div>
@@ -3594,7 +3474,7 @@
                         </li>
                     </ul>
                     
-                    <a href="../browse/" class="btn btn-primary btn-large">Explore VR Features</a>
+                    <a href="browse/" class="btn btn-primary btn-large">Explore VR Features</a>
                 </div>
                 
                 <div class="immersive-visual">
@@ -3726,7 +3606,7 @@
             </div>
 
             <div class="channels-cta">
-                <a href="../browse/" class="btn btn-outline btn-large">View All Adult Studios</a>
+                <a href="browse/" class="btn btn-outline btn-large">View All Adult Studios</a>
             </div>
         </section>
 
@@ -3820,13 +3700,13 @@
                 <h2 id="cta-title" class="cta-title">Ready to Experience Premium Adult Entertainment?</h2>
                 <p class="cta-subtitle">Join thousands of members already experiencing the future of immersive porn and adult content.</p>
                 <div class="cta-buttons">
-                    <a href="../browse/" class="btn btn-primary btn-large" id="ctaBtn" role="button">
+                    <a href="browse/" class="btn btn-primary btn-large" id="ctaBtn" role="button">
                         Start Free Trial
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <path d="M5 12h14M12 5l7 7-7 7"/>
                         </svg>
                     </a>
-                    <a href="../browse/" class="btn btn-outline btn-large">View Subscription Plans</a>
+                    <a href="browse/" class="btn btn-outline btn-large">View Subscription Plans</a>
                 </div>
                 <div class="cta-newsletter">
                     <p class="cta-newsletter-text">Or get notified when we launch new features</p>
@@ -3860,10 +3740,10 @@
             <nav class="footer-column" aria-label="Platform navigation">
                 <h4>Platform</h4>
                 <ul class="footer-links">
-                    <li><a href="../browse/">Browse Adult Videos</a></li>
-                    <li><a href="../browse/">Porn Studios</a></li>
-                    <li><a href="../browse/">Adult Performers</a></li>
-                    <li><a href="../browse/">VR Porn Content</a></li>
+                    <li><a href="browse/">Browse Adult Videos</a></li>
+                    <li><a href="browse/">Porn Studios</a></li>
+                    <li><a href="browse/">Adult Performers</a></li>
+                    <li><a href="browse/">VR Porn Content</a></li>
                 </ul>
             </nav>
             
@@ -3920,10 +3800,11 @@
             const loader = document.getElementById('siteLoader');
             const progress = document.getElementById('loaderProgress');
             const status = document.getElementById('loaderStatus');
+            const mainContent = document.getElementById('mainContent');
             
-            if (!loader) return;
-            
-            loader.style.display = 'flex';
+            // Reset progress
+            if (progress) progress.style.width = '0%';
+            if (status) status.textContent = 'Entering SIREN...';
             
             const stages = [
                 { progress: 20, status: 'Warming up...', delay: 400 },
@@ -3966,8 +3847,11 @@
                     if (currentStage < stages.length) {
                         setTimeout(nextStage, stage.delay);
                     } else {
-                        // Finish loading
+                        // Finish loading - unblur content then fade loader
                         setTimeout(() => {
+                            // Unblur content
+                            if (mainContent) mainContent.classList.remove('blurred');
+                            
                             loader.classList.add('fade-out');
                             setTimeout(() => {
                                 loader.style.display = 'none';
@@ -3981,9 +3865,12 @@
             setTimeout(nextStage, 300);
         }
         
-        // Only start loader if age already verified
+        // Auto-start loader only if age already verified
         if (localStorage.getItem('siren_age_verified') === 'true') {
             startLoader();
+        } else {
+            // Hide loader until age gate is passed
+            document.getElementById('siteLoader').style.display = 'none';
         }
 
         // Nav mega dropdown menu
@@ -4144,17 +4031,17 @@
         document.getElementById('startBtn').addEventListener('click', (e) => {
             e.preventDefault();
             // Navigate to main app
-            window.location.href = '../browse/';
+            window.location.href = 'browse/';
         });
 
         document.getElementById('enterBtn').addEventListener('click', (e) => {
             e.preventDefault();
-            window.location.href = '../browse/';
+            window.location.href = 'browse/';
         });
 
         document.getElementById('ctaBtn').addEventListener('click', (e) => {
             e.preventDefault();
-            window.location.href = '../browse/';
+            window.location.href = 'browse/';
         });
 
         // Smooth scroll for nav links
@@ -4170,21 +4057,18 @@
             });
         });
     </script>
-    
-    </div><!-- End main-content-wrapper -->
-    
+    </div><!-- End main-content -->
+
     <!-- Age Gate Script -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script>
-        // Check if already verified
-        const AGE_VERIFIED_KEY = 'siren_age_verified';
+        const AGE_KEY = 'siren_age_verified';
         
-        if (localStorage.getItem(AGE_VERIFIED_KEY) === 'true') {
-            // Already verified - hide gate, show content
-            document.getElementById('ageGate').style.display = 'none';
+        // Check if already verified
+        if (localStorage.getItem(AGE_KEY) === 'true') {
+            document.getElementById('ageGate').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('blurred');
         } else {
-            // Show age gate with animations
+            // Animate age gate entrance
             gsap.fromTo('.age-gate-logo', 
                 { opacity: 0, y: -30, scale: 0.9 },
                 { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out', delay: 0.3 }
@@ -4204,36 +4088,19 @@
         }
         
         function enterSite() {
-            // Save verification
-            localStorage.setItem(AGE_VERIFIED_KEY, 'true');
-            sessionStorage.setItem('ageVerified', 'true');
+            localStorage.setItem(AGE_KEY, 'true');
             
-            // Update Supabase if logged in
-            if (window.SIREN && SIREN.isAuthenticated()) {
-                SIREN.updateProfile({ 
-                    age_verified: true, 
-                    age_verified_at: new Date().toISOString() 
-                });
-            }
+            // Show loader FIRST (behind age gate)
+            document.getElementById('siteLoader').style.display = 'flex';
             
-            // Fade out age gate
-            gsap.to(['.age-gate-logo', '.age-gate-content', '.age-gate-terms'], {
-                opacity: 0,
-                filter: 'blur(10px)',
-                duration: 0.5,
-                stagger: 0.05,
-                ease: 'power2.in'
-            });
-            
+            // Then fade out age gate
             gsap.to('.age-gate', {
                 opacity: 0,
                 duration: 0.6,
-                delay: 0.3,
                 ease: 'power2.inOut',
                 onComplete: () => {
-                    document.getElementById('ageGate').style.display = 'none';
-                    // Unblur content and start loader
-                    document.getElementById('mainContent').classList.remove('blurred');
+                    document.getElementById('ageGate').classList.add('hidden');
+                    // Now start the loader animation
                     startLoader();
                 }
             });
@@ -4243,11 +4110,5 @@
             window.location.href = 'https://google.com';
         }
     </script>
-    
-<!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Supabase Client -->
-<script src="../js/supabase-client.js"></script>
-<script src="../js/auth-modal.js"></script>
 </body>
 </html>
