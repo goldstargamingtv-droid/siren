@@ -212,6 +212,11 @@
         }
     </style>
 </head>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="../css/auth-modal.css">
+
 <body class="controls-visible">
     <div class="site-loader active" id="siteLoader">
         <div class="loader-container">
@@ -411,5 +416,28 @@
         document.addEventListener('keydown',e=>{switch(e.key.toLowerCase()){case' ':case'k':e.preventDefault();togglePlay();break;case'f':fullscreenBtn.click();break;case'm':volumeBtn.click();break;case'arrowleft':video.currentTime=Math.max(0,video.currentTime-10);showControls();break;case'arrowright':video.currentTime=Math.min(video.duration,video.currentTime+10);showControls();break;case'arrowup':e.preventDefault();video.volume=Math.min(1,video.volume+0.1);volumeSlider.value=video.volume*100;break;case'arrowdown':e.preventDefault();video.volume=Math.max(0,video.volume-0.1);volumeSlider.value=video.volume*100;break;case'escape':episodesPanel.classList.remove('open');settingsPanel.classList.remove('open');break}});
         video.addEventListener('dblclick',()=>fullscreenBtn.click());
     </script>
+<!-- Supabase Client -->
+<script src="../js/supabase-client.js"></script>
+<script src="../js/auth-modal.js"></script>
+
+<script>
+    // Watch page specific - track watch progress
+    const video = document.getElementById('mainVideo');
+    let lastUpdate = 0;
+    
+    if (video) {
+        video.addEventListener('timeupdate', () => {
+            // Update every 10 seconds
+            if (video.currentTime - lastUpdate > 10) {
+                lastUpdate = video.currentTime;
+                // Get content ID from URL or data attribute
+                const contentId = new URLSearchParams(window.location.search).get('id');
+                if (contentId && SIREN.isAuthenticated()) {
+                    SIREN.updateWatchProgress(contentId, Math.floor(video.currentTime));
+                }
+            }
+        });
+    }
+</script>
 </body>
 </html>
