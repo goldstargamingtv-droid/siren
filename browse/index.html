@@ -2048,6 +2048,18 @@
             background-position: center;
         }
 
+        .featured-bg video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+
         .featured-slide:nth-child(1) .featured-bg {
             background: 
                 url('../images/1.jpg') center/cover no-repeat;
@@ -2059,6 +2071,7 @@
             inset: 0;
             background: radial-gradient(ellipse at 70% 30%, rgba(239, 68, 68, 0.2) 0%, transparent 50%),
                 radial-gradient(ellipse at 30% 70%, rgba(249, 115, 22, 0.15) 0%, transparent 50%);
+            z-index: 1;
         }
 
         .featured-slide:nth-child(2) .featured-bg {
@@ -2072,6 +2085,7 @@
             inset: 0;
             background: radial-gradient(ellipse at 60% 40%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
                 radial-gradient(ellipse at 40% 60%, rgba(234, 179, 8, 0.1) 0%, transparent 50%);
+            z-index: 1;
         }
 
         .featured-slide:nth-child(3) .featured-bg {
@@ -2085,6 +2099,7 @@
             inset: 0;
             background: radial-gradient(ellipse at 65% 35%, rgba(220, 38, 38, 0.2) 0%, transparent 50%),
                 radial-gradient(ellipse at 35% 65%, rgba(239, 68, 68, 0.15) 0%, transparent 50%);
+            z-index: 1;
         }
 
         .featured-bg::after {
@@ -2094,6 +2109,7 @@
             background: 
                 linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 40%, transparent 60%),
                 linear-gradient(to top, #000000 0%, transparent 50%);
+            z-index: 2;
         }
 
         .featured-content {
@@ -3401,7 +3417,11 @@
             <!-- Featured Hero Carousel -->
             <section class="featured-hero">
                 <div class="featured-slide active" data-index="0">
-                    <div class="featured-bg"></div>
+                    <div class="featured-bg">
+                        <video autoplay muted loop playsinline>
+                            <source src="../images/MidnightRendevous.mp4" type="video/mp4">
+                        </video>
+                    </div>
                     <div class="featured-content">
                         <div class="featured-label">Featured</div>
                         <h1 class="featured-title">Midnight Rendezvous</h1>
@@ -3432,7 +3452,11 @@
                 </div>
 
                 <div class="featured-slide" data-index="1">
-                    <div class="featured-bg"></div>
+                    <div class="featured-bg">
+                        <video muted loop playsinline>
+                            <source src="../images/GoldenHourVid1.mp4" type="video/mp4">
+                        </video>
+                    </div>
                     <div class="featured-content">
                         <div class="featured-label">New Release</div>
                         <h1 class="featured-title">Golden Hour</h1>
@@ -3463,7 +3487,11 @@
                 </div>
 
                 <div class="featured-slide" data-index="2">
-                    <div class="featured-bg"></div>
+                    <div class="featured-bg">
+                        <video muted loop playsinline>
+                            <source src="../images/VelvetDreams1.mp4" type="video/mp4">
+                        </video>
+                    </div>
                     <div class="featured-content">
                         <div class="featured-label">Exclusive</div>
                         <h1 class="featured-title">Velvet Dreams</h1>
@@ -3777,11 +3805,24 @@
                     </div>
                 `;
             } else if (type === 'top10') {
-                // Top 10 cards with big numbers
+                // Top 10 cards with big numbers and real images
+                const top10Images = [
+                    '../images/top10a0.jpg',
+                    '../images/Top10b0.jpg',
+                    '../images/top10c0.jpg',
+                    '../images/top10d0.jpg',
+                    '../images/top10e179.jpg',
+                    '../images/top10f0.jpg',
+                    '../images/top10g00.jpg',
+                    '../images/top10h00.jpg',
+                    '../images/top10i0.jpg',
+                    '../images/top10J0.jpg'
+                ];
+                const imgSrc = top10Images[rank - 1] || top10Images[0];
                 card.innerHTML = `
                     <span class="top10-number">${rank}</span>
                     <div class="card-thumbnail">
-                        <div class="card-thumbnail-inner" style="background: ${getGradient(index)}">
+                        <div class="card-thumbnail-inner" style="background-image: url('${imgSrc}'); background-size: cover; background-position: center;">
                             <div class="card-gradient"></div>
                             <div class="card-3d-badge">
                                 <svg viewBox="0 0 24 24">
@@ -4019,6 +4060,12 @@
         const dots = document.querySelectorAll('.carousel-dot');
 
         function goToSlide(index) {
+            // Pause current video
+            const currentVideo = slides[currentSlide].querySelector('video');
+            if (currentVideo) {
+                currentVideo.pause();
+            }
+
             const currentContent = slides[currentSlide].querySelector('.featured-content');
             gsap.to(currentContent.children, {
                 opacity: 0,
@@ -4032,6 +4079,13 @@
             slides[index].classList.add('active');
             dots[index].classList.add('active');
             currentSlide = index;
+
+            // Play new video
+            const newVideo = slides[index].querySelector('video');
+            if (newVideo) {
+                newVideo.currentTime = 0;
+                newVideo.play();
+            }
 
             const newContent = slides[index].querySelector('.featured-content');
             gsap.fromTo(newContent.children, 
