@@ -3402,6 +3402,13 @@
                     </div>
                 `;
             }
+            
+            // Add click to watch
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', () => {
+                window.location.href = '../watch/';
+            });
+            
             return card;
         }
 
@@ -4582,6 +4589,23 @@
             }
         });
 
+        // Play button handlers - navigate to watch page
+        document.querySelectorAll('.btn-play, .card-expanded-btn.btn-play').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = '../watch/';
+            });
+        });
+
+        // Also handle clicks on content cards themselves
+        document.querySelectorAll('.content-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.card-expanded-btn')) {
+                    window.location.href = '../watch/';
+                }
+            });
+        });
     </script>
 </body>
 </html>
