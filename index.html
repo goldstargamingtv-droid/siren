@@ -36,6 +36,32 @@
             overflow-x: hidden;
             line-height: 1.5;
         }
+        
+        /* Background iframe */
+        .bg-iframe-container {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            filter: blur(20px) brightness(0.4);
+            transform: scale(1.1);
+            transition: filter 0.8s ease, transform 0.8s ease;
+        }
+        
+        .bg-iframe-container.revealed {
+            filter: blur(0px) brightness(1);
+            transform: scale(1);
+        }
+        
+        .bg-iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            pointer-events: none;
+        }
+        
+        .bg-iframe-container.revealed iframe {
+            pointer-events: auto;
+        }
 
         /* Age Gate */
         .age-gate {
@@ -163,13 +189,17 @@
         }
         
         .age-gate-box {
-            background: rgba(15, 15, 20, 0.7);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 2rem;
+            background: rgba(15, 15, 20, 0.4);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 2.5rem;
             margin-bottom: 1.5rem;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
         
         .age-gate .age-buttons .btn {
@@ -283,11 +313,17 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.7), rgba(249, 115, 22, 0.7));
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             color: white;
-            box-shadow: 0 4px 24px rgba(239, 68, 68, 0.35), 0 4px 40px rgba(249, 115, 22, 0.2);
+            box-shadow: 
+                0 4px 24px rgba(239, 68, 68, 0.35),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         
         .btn-primary::before {
@@ -308,7 +344,11 @@
 
         .btn-primary:hover {
             transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.4), 0 8px 50px rgba(249, 115, 22, 0.3);
+            box-shadow: 
+                0 8px 32px rgba(239, 68, 68, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.85), rgba(249, 115, 22, 0.85));
         }
         
         .btn-primary:hover::before {
@@ -317,18 +357,25 @@
         }
 
         .btn-secondary {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
         }
     </style>
 </head>
 <body>
+    <!-- Blurred home page background -->
+    <div class="bg-iframe-container" id="bgIframe">
+        <iframe src="home/" title="Home"></iframe>
+    </div>
+    
     <div class="age-gate" id="ageGate">
         <div class="age-gate-logo">SIREN</div>
         <div class="age-gate-content">
@@ -370,8 +417,8 @@
             { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.5 }
         );
         gsap.fromTo('.age-gate .age-buttons .btn', 
-            { opacity: 0, y: 20, scale: 0.9 },
-            { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: 'back.out(1.7)', delay: 0.9 }
+            { opacity: 0, filter: 'blur(12px)', y: 8 },
+            { opacity: 1, filter: 'blur(0px)', y: 0, duration: 1, stagger: 0.2, ease: 'power3.out', delay: 0.9 }
         );
         gsap.fromTo('.age-gate-terms', 
             { opacity: 0 },
@@ -381,20 +428,49 @@
         function enterSite() {
             sessionStorage.setItem('ageVerified', 'true');
             
-            // Fade out animation then redirect
-            gsap.to(['.age-gate-logo', '.age-gate-content', '.age-gate-terms', '.age-gate::before'], {
+            // Also save to localStorage for persistence
+            localStorage.setItem('siren_age_verified', 'true');
+            
+            // Update Supabase profile if logged in
+            if (window.sirenSupabase) {
+                window.sirenSupabase.auth.getSession().then(({ data: { session } }) => {
+                    if (session?.user) {
+                        window.sirenSupabase.from('profiles').update({
+                            age_verified: true,
+                            age_verified_at: new Date().toISOString()
+                        }).eq('id', session.user.id);
+                    }
+                }).catch(() => {});
+            }
+            
+            // Fade out the age gate
+            gsap.to(['.age-gate-logo', '.age-gate-content', '.age-gate-terms'], {
                 opacity: 0,
-                duration: 0.5,
-                stagger: 0.05,
+                duration: 0.4,
+                stagger: 0.03,
                 ease: 'power2.in'
             });
             
             gsap.to('.age-gate', {
                 opacity: 0,
-                duration: 0.6,
-                delay: 0.4,
+                duration: 0.5,
+                delay: 0.3,
                 ease: 'power2.inOut',
                 onComplete: () => {
+                    document.getElementById('ageGate').style.display = 'none';
+                }
+            });
+            
+            // Reveal the background iframe (unblur)
+            gsap.to('.bg-iframe-container', {
+                delay: 0.2,
+                duration: 0.8,
+                ease: 'power2.out',
+                onStart: () => {
+                    document.getElementById('bgIframe').classList.add('revealed');
+                },
+                onComplete: () => {
+                    // Navigate into the iframe or redirect
                     window.location.href = 'home/';
                 }
             });
@@ -404,5 +480,13 @@
             window.location.href = 'https://google.com';
         }
     </script>
+    
+    <!-- Supabase (loaded async, won't block page) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async onload="
+        window.sirenSupabase = supabase.createClient(
+            'https://oyqpmhaujuebwvawfyhj.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cXBtaGF1anVlYnd2YXdmeWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0OTYwNjksImV4cCI6MjA4MzA3MjA2OX0.e6VxOK4ei2hbiqdh5ne27mYq_dqFMq6YoeXZOLohAp8'
+        );
+    "></script>
 </body>
 </html>
