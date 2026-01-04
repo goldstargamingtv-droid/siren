@@ -8,15 +8,15 @@ const SUPABASE_URL = 'https://oyqpmhaujuebwvawfyhj.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cXBtaGF1anVlYnd2YXdmeWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0OTYwNjksImV4cCI6MjA4MzA3MjA2OX0.e6VxOK4ei2hbiqdh5ne27mYq_dqFMq6YoeXZOLohAp8';
 
 // Initialize Supabase client
-let supabase;
+let supabaseClient;
 
 function initSupabase() {
     if (!window.supabase) {
         console.error('Supabase library not loaded');
         return null;
     }
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    return supabase;
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return supabaseClient;
 }
 
 // ============================================
@@ -43,9 +43,9 @@ function notifyAuthListeners(user, profile) {
 
 // Initialize auth listener
 function initAuthListener() {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     
-    supabase.auth.onAuthStateChange(async (event, session) => {
+    supabaseClient.auth.onAuthStateChange(async (event, session) => {
         console.log('Auth event:', event);
         
         if (session?.user) {
@@ -65,7 +65,7 @@ function initAuthListener() {
 async function loadUserProfile() {
     if (!currentUser) return null;
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('profiles')
         .select('*')
         .eq('id', currentUser.id)
@@ -100,7 +100,7 @@ async function signUp(email, password, dateOfBirth) {
     }
     
     try {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
             options: {
@@ -131,7 +131,7 @@ async function signUp(email, password, dateOfBirth) {
 
 async function signIn(email, password) {
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password
         });
@@ -149,7 +149,7 @@ async function signIn(email, password) {
         
         // Update last login
         if (data.user) {
-            await supabase
+            await supabaseClient
                 .from('profiles')
                 .update({ last_login_at: new Date().toISOString() })
                 .eq('id', data.user.id);
@@ -163,7 +163,7 @@ async function signIn(email, password) {
 }
 
 async function signOut() {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabaseClient.auth.signOut();
     if (error) {
         console.error('Sign out error:', error);
         return { error };
@@ -173,21 +173,21 @@ async function signOut() {
 }
 
 async function resetPassword(email) {
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`
     });
     return { data, error };
 }
 
 async function updatePassword(newPassword) {
-    const { data, error } = await supabase.auth.updateUser({
+    const { data, error } = await supabaseClient.auth.updateUser({
         password: newPassword
     });
     return { data, error };
 }
 
 async function getSession() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await supabaseClient.auth.getSession();
     return session;
 }
 
@@ -229,7 +229,7 @@ function getCurrentProfile() {
 async function updateProfile(updates) {
     if (!currentUser) return { error: { message: 'Not authenticated' } };
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('profiles')
         .update(updates)
         .eq('id', currentUser.id)
@@ -249,13 +249,13 @@ async function uploadAvatar(file) {
     const fileExt = file.name.split('.').pop();
     const fileName = `${currentUser.id}/avatar.${fileExt}`;
     
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await supabaseClient.storage
         .from('avatars')
         .upload(fileName, file, { upsert: true });
     
     if (uploadError) return { error: uploadError };
     
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = supabaseClient.storage
         .from('avatars')
         .getPublicUrl(fileName);
     
@@ -313,7 +313,7 @@ async function getContent(options = {}) {
 }
 
 async function getContentById(id) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('content')
         .select(`
             *,
@@ -326,7 +326,7 @@ async function getContentById(id) {
 }
 
 async function getContentBySlug(slug) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('content')
         .select(`
             *,
@@ -369,7 +369,7 @@ async function getPerformers(options = {}) {
 }
 
 async function getPerformerById(id) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('performers')
         .select('*')
         .eq('id', id)
@@ -385,7 +385,7 @@ async function getPerformerById(id) {
 async function getFavorites() {
     if (!currentUser) return { data: [], error: null };
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('favorites')
         .select(`
             *,
@@ -403,7 +403,7 @@ async function getFavorites() {
 async function addToFavorites(contentId) {
     if (!currentUser) return { error: { message: 'Not authenticated' } };
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('favorites')
         .insert({ user_id: currentUser.id, content_id: contentId })
         .select()
@@ -415,7 +415,7 @@ async function addToFavorites(contentId) {
 async function removeFromFavorites(contentId) {
     if (!currentUser) return { error: { message: 'Not authenticated' } };
     
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('favorites')
         .delete()
         .eq('user_id', currentUser.id)
@@ -427,7 +427,7 @@ async function removeFromFavorites(contentId) {
 async function isFavorite(contentId) {
     if (!currentUser) return false;
     
-    const { data } = await supabase
+    const { data } = await supabaseClient
         .from('favorites')
         .select('id')
         .eq('user_id', currentUser.id)
@@ -444,7 +444,7 @@ async function isFavorite(contentId) {
 async function getWatchHistory(limit = 20) {
     if (!currentUser) return { data: [], error: null };
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('watch_history')
         .select(`
             *,
@@ -463,7 +463,7 @@ async function getWatchHistory(limit = 20) {
 async function getContinueWatching(limit = 10) {
     if (!currentUser) return { data: [], error: null };
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('watch_history')
         .select(`
             *,
@@ -485,7 +485,7 @@ async function getContinueWatching(limit = 10) {
 async function updateWatchProgress(contentId, progressSeconds) {
     if (!currentUser) return { error: { message: 'Not authenticated' } };
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .rpc('update_watch_progress', {
             p_content_id: contentId,
             p_user_id: currentUser.id,
@@ -502,7 +502,7 @@ async function updateWatchProgress(contentId, progressSeconds) {
 async function rateContent(contentId, rating) {
     if (!currentUser) return { error: { message: 'Not authenticated' } };
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('ratings')
         .upsert({
             user_id: currentUser.id,
@@ -520,7 +520,7 @@ async function rateContent(contentId, rating) {
 async function getUserRating(contentId) {
     if (!currentUser) return null;
     
-    const { data } = await supabase
+    const { data } = await supabaseClient
         .from('ratings')
         .select('rating')
         .eq('user_id', currentUser.id)
@@ -537,7 +537,7 @@ async function getUserRating(contentId) {
 async function followPerformer(performerId) {
     if (!currentUser) return { error: { message: 'Not authenticated' } };
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('performer_follows')
         .insert({
             user_id: currentUser.id,
@@ -552,7 +552,7 @@ async function followPerformer(performerId) {
 async function unfollowPerformer(performerId) {
     if (!currentUser) return { error: { message: 'Not authenticated' } };
     
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from('performer_follows')
         .delete()
         .eq('user_id', currentUser.id)
@@ -564,7 +564,7 @@ async function unfollowPerformer(performerId) {
 async function isFollowing(performerId) {
     if (!currentUser) return false;
     
-    const { data } = await supabase
+    const { data } = await supabaseClient
         .from('performer_follows')
         .select('id')
         .eq('user_id', currentUser.id)
@@ -577,7 +577,7 @@ async function isFollowing(performerId) {
 async function getFollowedPerformers() {
     if (!currentUser) return { data: [], error: null };
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('performer_follows')
         .select(`
             *,
@@ -593,7 +593,7 @@ async function getFollowedPerformers() {
 // ============================================
 
 async function getCategories() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('categories')
         .select('*')
         .eq('is_active', true)
@@ -603,7 +603,7 @@ async function getCategories() {
 }
 
 async function getFeaturedCategories() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('categories')
         .select('*')
         .eq('is_active', true)
@@ -624,7 +624,7 @@ async function search(query, options = {}) {
     };
     
     // Search content
-    const { data: contentData } = await supabase
+    const { data: contentData } = await supabaseClient
         .from('content')
         .select(`*, performers (id, stage_name)`)
         .eq('status', 'published')
@@ -634,7 +634,7 @@ async function search(query, options = {}) {
     results.content = contentData || [];
     
     // Search performers
-    const { data: performerData } = await supabase
+    const { data: performerData } = await supabaseClient
         .from('performers')
         .select('*')
         .eq('is_active', true)
@@ -645,7 +645,7 @@ async function search(query, options = {}) {
     
     // Log search (optional)
     if (currentUser && options.logSearch !== false) {
-        await supabase
+        await supabaseClient
             .from('search_history')
             .insert({
                 user_id: currentUser.id,
@@ -667,7 +667,7 @@ async function getRecommendations(limit = 20) {
         return getContent({ sortBy: 'view_count', limit });
     }
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .rpc('get_user_recommendations', {
             p_user_id: currentUser.id,
             p_limit: limit
@@ -680,7 +680,7 @@ async function getRecommendations(limit = 20) {
     
     // Fetch full content details
     const contentIds = data.map(r => r.content_id);
-    const { data: content } = await supabase
+    const { data: content } = await supabaseClient
         .from('content')
         .select(`*, performers (id, stage_name, avatar_url)`)
         .in('id', contentIds);
@@ -726,7 +726,7 @@ function updateUIForAuth(isLoggedIn) {
 
 async function initSiren() {
     initSupabase();
-    if (!supabase) {
+    if (!supabaseClient) {
         console.error('Failed to initialize Supabase');
         return;
     }
