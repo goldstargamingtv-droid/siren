@@ -2607,6 +2607,11 @@
         }
     </style>
 </head>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="../css/auth-modal.css">
+
 <body>
     <!-- Site Loader -->
     <div class="site-loader" id="siteLoader">
@@ -2661,7 +2666,8 @@
                         Explore
                     </button>
                 </div>
-                <a href="../browse/" class="btn btn-ghost">Sign In</a>
+                <button class="btn btn-ghost" onclick="openAuthModal('signin')" data-guest-only>Sign In</button>
+                <button class="btn btn-ghost" onclick="SIREN.signOut()" data-auth-only style="display:none;">Sign Out</button>
                 <a href="../browse/" class="btn btn-primary" id="enterBtn">Get Started</a>
             </div>
         </nav>
@@ -3838,5 +3844,8 @@
             });
         });
     </script>
+<!-- Supabase Client -->
+<script src="../js/supabase-client.js"></script>
+<script src="../js/auth-modal.js"></script>
 </body>
 </html>
