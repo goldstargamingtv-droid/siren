@@ -2777,6 +2777,7 @@
         .main-content { transition: filter 0.8s ease; }
         .main-content.blurred { pointer-events: none; }
     </style>
+    <link rel="stylesheet" href="css/auth-modal.css">
 </head>
 <body>
     <!-- Age Gate Overlay -->
@@ -2866,7 +2867,7 @@
                         Explore
                     </button>
                 </div>
-                <a href="browse/" class="btn btn-ghost">Sign In</a>
+                <button class="btn btn-ghost" onclick="openAuthModal('signin')">Sign In</button>
                 <a href="browse/" class="btn btn-primary" id="enterBtn">Get Started</a>
             </div>
         </nav>
@@ -4112,5 +4113,9 @@
             window.location.href = 'https://google.com';
         }
     </script>
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/auth-modal.js"></script>
 </body>
 </html>
