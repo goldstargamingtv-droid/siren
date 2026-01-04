@@ -87,6 +87,7 @@ function injectAuthModal() {
                 </button>
                 
                 <div class="auth-error" id="signupError"></div>
+                <div class="auth-success" id="signupSuccess"></div>
             </form>
             
             <!-- Forgot Password Form -->
@@ -255,6 +256,11 @@ async function handleSignUp(e) {
         return;
     }
     
+    if (password.length < 8) {
+        showAuthError('signup', 'Password must be at least 8 characters');
+        return;
+    }
+    
     if (!terms) {
         showAuthError('signup', 'You must agree to the terms');
         return;
@@ -262,18 +268,21 @@ async function handleSignUp(e) {
     
     setAuthLoading('signup', true);
     
-    const { error } = await SIREN.signUp(email, password, dob);
+    const result = await SIREN.signUp(email, password, dob);
     
     setAuthLoading('signup', false);
     
-    if (error) {
-        showAuthError('signup', error.message);
+    if (result.error) {
+        showAuthError('signup', result.error.message);
+    } else if (result.confirmEmail) {
+        // Email confirmation required
+        showAuthSuccess('signup', result.message || 'Account created! Check your email to verify.');
+        // Clear form
+        document.getElementById('signupForm').reset();
     } else {
-        // Show success message
-        showAuthSuccess('signup', 'Account created! Check your email to verify.');
-        // Or auto-login and redirect
-        // closeAuthModal();
-        // window.location.href = '/browse/';
+        // Auto-confirmed, redirect
+        closeAuthModal();
+        window.location.href = '/browse/';
     }
 }
 
