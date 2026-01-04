@@ -2405,6 +2405,8 @@
             padding: 0.25rem 0 1rem;
             transition: transform 0.54s cubic-bezier(0.5, 0, 0.1, 1);
             will-change: transform;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* Pagination indicator */
@@ -4235,6 +4237,53 @@
             hideExpandedCard();
         });
         
+        // Allow drag through expanded card - only close when actually dragging
+        let expandedMouseDown = null;
+        let expandedDragStarted = false;
+        
+        cardExpanded.addEventListener('mousedown', (e) => {
+            // Don't interfere with button clicks
+            if (e.target.closest('.card-expanded-btn')) return;
+            
+            expandedMouseDown = { x: e.clientX, y: e.clientY };
+            expandedDragStarted = false;
+            e.preventDefault(); // Prevent text selection
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!expandedMouseDown || expandedDragStarted) return;
+            
+            const dx = Math.abs(e.clientX - expandedMouseDown.x);
+            const dy = Math.abs(e.clientY - expandedMouseDown.y);
+            
+            // If moved more than 5px, it's a drag
+            if (dx > 5 || dy > 5) {
+                expandedDragStarted = true;
+                
+                // Hide card and pass to element underneath
+                cardExpanded.style.pointerEvents = 'none';
+                cardExpanded.classList.remove('active');
+                
+                // Find element under cursor and trigger mousedown
+                const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
+                if (elementBelow) {
+                    const newEvent = new MouseEvent('mousedown', {
+                        bubbles: true,
+                        cancelable: true,
+                        clientX: expandedMouseDown.x,
+                        clientY: expandedMouseDown.y
+                    });
+                    elementBelow.dispatchEvent(newEvent);
+                }
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            cardExpanded.style.pointerEvents = '';
+            expandedMouseDown = null;
+            expandedDragStarted = false;
+        });
+        
         // Initialize after rows are populated
         setTimeout(attachCardHoverEvents, 100);
 
@@ -4388,6 +4437,7 @@
             document.body.offsetHeight;
             initSliderButtons();
             initAllSliders();
+            initDragScroll();
         }, 500);
         
         // Reinit on resize
@@ -4403,6 +4453,87 @@
                 });
             }, 200);
         });
+
+        // ========== DRAG TO SCROLL ==========
+        function initDragScroll() {
+            document.querySelectorAll('.content-row').forEach(row => {
+                let isDown = false;
+                let startX;
+                let currentTranslate = 0;
+                let startTranslate = 0;
+                let hasMoved = false;
+                
+                // Get current translateX value
+                function getTranslateX() {
+                    const style = window.getComputedStyle(row);
+                    const matrix = new DOMMatrix(style.transform);
+                    return matrix.m41;
+                }
+                
+                row.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('button')) return;
+                    
+                    isDown = true;
+                    isDraggingRow = false;
+                    hasMoved = false;
+                    startX = e.pageX;
+                    startTranslate = getTranslateX();
+                    row.style.cursor = 'grabbing';
+                    row.style.transition = 'none';
+                    e.preventDefault(); // Prevent text selection
+                    
+                    // Hide expanded card immediately when starting drag
+                    if (cardExpanded) {
+                        cardExpanded.classList.remove('active');
+                    }
+                });
+                
+                row.addEventListener('mouseleave', () => {
+                    if (isDown && hasMoved) {
+                        isDraggingRow = true;
+                        setTimeout(() => { isDraggingRow = false; }, 150);
+                    }
+                    isDown = false;
+                    row.style.cursor = 'grab';
+                    row.style.transition = 'transform 0.54s cubic-bezier(0.5, 0, 0.1, 1)';
+                });
+                
+                row.addEventListener('mouseup', () => {
+                    if (isDown && hasMoved) {
+                        isDraggingRow = true;
+                        setTimeout(() => { isDraggingRow = false; }, 150);
+                    }
+                    isDown = false;
+                    row.style.cursor = 'grab';
+                    row.style.transition = 'transform 0.54s cubic-bezier(0.5, 0, 0.1, 1)';
+                });
+                
+                row.addEventListener('mousemove', (e) => {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    
+                    const x = e.pageX;
+                    const walk = x - startX;
+                    
+                    if (Math.abs(walk) > 5) {
+                        hasMoved = true;
+                        isDraggingRow = true;
+                    }
+                    
+                    // Calculate bounds
+                    const rowWidth = row.scrollWidth;
+                    const containerWidth = row.parentElement.offsetWidth;
+                    const maxTranslate = 0;
+                    const minTranslate = -(rowWidth - containerWidth);
+                    
+                    // Apply new transform with bounds
+                    currentTranslate = Math.min(maxTranslate, Math.max(minTranslate, startTranslate + walk));
+                    row.style.transform = `translateX(${currentTranslate}px)`;
+                });
+                
+                row.style.cursor = 'grab';
+            });
+        }
 
 
         // Age gate
