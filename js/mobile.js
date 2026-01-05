@@ -234,11 +234,11 @@
         
         if (isMobile()) {
             handleWatchPage();
-            // hideAddressBar();
         }
 
         // Re-check on resize
         window.addEventListener('resize', () => {
+            injectMobileNav(); // Re-inject if needed
             if (isMobile()) {
                 handleWatchPage();
             }
@@ -251,4 +251,9 @@
     } else {
         init();
     }
+    
+    // Backup: also run on window load in case DOMContentLoaded already fired
+    window.addEventListener('load', () => {
+        injectMobileNav();
+    });
 })();
