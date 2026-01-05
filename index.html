@@ -3144,8 +3144,197 @@
             90% { opacity: 0.6; }
             50% { transform: translateY(-100px) scale(0.5); }
         }
+
+        /* ==================== */
+        /* Landing Mobile Styles*/
+        /* ==================== */
+        @media (max-width: 768px) {
+            /* Age gate */
+            .age-gate-box {
+                padding: 32px 24px !important;
+                margin: 16px !important;
+            }
+
+            .age-gate-box h2 {
+                font-size: 1.3rem !important;
+            }
+
+            .age-buttons {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+
+            .age-btn {
+                width: 100% !important;
+            }
+
+            /* Header */
+            .header {
+                padding: 16px !important;
+            }
+
+            .header-logo {
+                font-size: 1.5rem !important;
+            }
+
+            .nav-links {
+                display: none !important;
+            }
+
+            .header-right .cta-btn {
+                padding: 10px 16px !important;
+                font-size: 0.8rem !important;
+            }
+
+            /* Hero section */
+            .hero {
+                min-height: 90vh !important;
+                padding: 100px 20px 60px !important;
+            }
+
+            .hero-badge {
+                font-size: 0.7rem !important;
+                padding: 6px 12px !important;
+            }
+
+            .hero-title {
+                font-size: 2.5rem !important;
+                line-height: 1.1 !important;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem !important;
+            }
+
+            .hero-cta {
+                flex-direction: column !important;
+                gap: 12px !important;
+                width: 100% !important;
+            }
+
+            .hero-cta .cta-btn {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            .hero-stats {
+                flex-direction: column !important;
+                gap: 16px !important;
+            }
+
+            /* Features section */
+            .features {
+                padding: 60px 20px !important;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+
+            .feature-card {
+                padding: 24px !important;
+            }
+
+            .section-title {
+                font-size: 2rem !important;
+            }
+
+            .section-subtitle {
+                font-size: 0.95rem !important;
+            }
+
+            /* Preview section */
+            .preview-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+                padding: 0 16px !important;
+            }
+
+            .preview-card {
+                height: 200px !important;
+            }
+
+            /* Tech section */
+            .tech-features {
+                flex-direction: column !important;
+                gap: 20px !important;
+            }
+
+            /* Studios section */
+            .studios-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 16px !important;
+            }
+
+            /* Pricing section */
+            .pricing-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px !important;
+            }
+
+            .pricing-card {
+                padding: 28px 24px !important;
+            }
+
+            .pricing-card.popular {
+                transform: none !important;
+            }
+
+            /* Testimonials */
+            .testimonial-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* FAQ */
+            .faq-item {
+                padding: 20px !important;
+            }
+
+            /* CTA section */
+            .final-cta {
+                padding: 60px 20px !important;
+            }
+
+            .final-cta h2 {
+                font-size: 2rem !important;
+            }
+
+            /* Footer */
+            .footer-grid {
+                grid-template-columns: 1fr !important;
+                gap: 32px !important;
+                text-align: center !important;
+            }
+
+            .footer-links {
+                justify-content: center !important;
+            }
+
+            .footer-bottom {
+                flex-direction: column !important;
+                gap: 16px !important;
+                text-align: center !important;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 375px) {
+            .hero-title {
+                font-size: 2rem !important;
+            }
+
+            .preview-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .preview-card {
+                height: 180px !important;
+            }
+        }
     </style>
     <link rel="stylesheet" href="css/auth-modal.css">
+    <link rel="stylesheet" href="css/mobile.css">
 </head>
 <body>
     <!-- Age Gate Overlay -->
@@ -4621,5 +4810,6 @@ subscribeBtn.addEventListener('click', () => {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-client.js"></script>
 <script src="js/auth-modal.js"></script>
+<script src="js/mobile.js"></script>
 </body>
 </html>
