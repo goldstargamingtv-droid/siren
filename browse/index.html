@@ -7,6 +7,7 @@
     <title>SIREN</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Pacifico&family=Monoton&family=Bebas+Neue&family=Dancing+Script:wght@700&family=Lobster&family=Cinzel&family=Satisfy&family=Righteous&family=Playfair+Display:ital,wght@1,600&family=Cormorant+Garamond:wght@300&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -2645,8 +2646,133 @@
         .card-gradient {
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 40%, transparent 70%);
             z-index: 2;
+        }
+
+        /* Card Title Logos */
+        .card-title-logo {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            z-index: 5;
+            line-height: 1.1;
+        }
+
+        .logo-midnight-whispers {
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.8rem;
+            color: #e8d5ff;
+            text-shadow: 0 0 10px rgba(200, 150, 255, 0.8), 0 0 20px rgba(200, 150, 255, 0.5), 2px 2px 4px rgba(0,0,0,0.9);
+        }
+        .logo-pillow-talk {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.6rem;
+            background: linear-gradient(180deg, #fff 0%, #ffb6c1 50%, #ff69b4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 4px rgba(255, 105, 180, 0.6)) drop-shadow(0 0 15px rgba(255, 182, 193, 0.5));
+        }
+        .logo-girls-night {
+            font-family: 'Monoton', cursive;
+            font-size: 1.3rem;
+            color: #fff;
+            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #ff00de, 0 0 40px #ff00de;
+            animation: neonFlicker 3s infinite alternate;
+        }
+        @keyframes neonFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.85; }
+        }
+        .logo-triple-threat {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            background: linear-gradient(180deg, #ffd700 0%, #b8860b 50%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
+        }
+        .logo-sweet-surrender {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 50%, #d63031 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)) drop-shadow(0 0 20px rgba(255, 107, 107, 0.5));
+        }
+        .logo-best-friends {
+            font-family: 'Lobster', cursive;
+            font-size: 1.7rem;
+            color: #fff;
+            text-shadow: 2px 2px 0 #f97316, 4px 4px 0 rgba(249, 115, 22, 0.4), 0 0 20px rgba(249, 115, 22, 0.5);
+        }
+        .logo-morning-after {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            background: linear-gradient(180deg, #ffecd2 0%, #fcb69f 50%, #ee9ca7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(252, 182, 159, 0.6));
+        }
+        .logo-lazy-sunday {
+            font-family: 'Satisfy', cursive;
+            font-size: 2rem;
+            color: #ffeaa7;
+            text-shadow: 2px 2px 0 #e17055, 0 0 20px rgba(255, 234, 167, 0.5);
+            transform: rotate(-2deg);
+            display: inline-block;
+        }
+        .logo-steam-room {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.6), 0 0 40px rgba(200, 200, 255, 0.4);
+        }
+        .logo-summer-breeze {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 300;
+            font-style: italic;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, #74b9ff 0%, #81ecec 50%, #a8e6cf 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 8px rgba(116, 185, 255, 0.5));
+        }
+        .logo-roommates {
+            font-family: 'Righteous', cursive;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 10px rgba(102, 126, 234, 0.5));
+        }
+        .logo-city-girls {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: #fff;
+            text-shadow: 3px 3px 0 rgba(239, 68, 68, 0.8), 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+        .logo-just-us {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.7rem;
+            font-weight: 600;
+            font-style: italic;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(249, 115, 22, 0.3);
         }
 
         .card-3d-badge {
@@ -3872,8 +3998,48 @@
             const imageNum = (index % 13) + 1;
             return `url('../images/${imageNum}.jpg') center/cover no-repeat`;
         }
+        // Content data with images and logo styles
+        const contentData = [
+            { img: '../images/1.jpg', title: 'Midnight Whispers', logo: 'logo-midnight-whispers' },
+            { img: '../images/2.jpg', title: 'Pillow Talk', logo: 'logo-pillow-talk' },
+            { img: '../images/3.jpg', title: 'Girls Night', logo: 'logo-girls-night' },
+            { img: '../images/4.jpg', title: 'Triple Threat', logo: 'logo-triple-threat' },
+            { img: '../images/5.jpg', title: 'Sweet Surrender', logo: 'logo-sweet-surrender' },
+            { img: '../images/6.jpg', title: 'Best Friends', logo: 'logo-best-friends' },
+            { img: '../images/7.jpg', title: 'Morning After', logo: 'logo-morning-after' },
+            { img: '../images/8.jpg', title: 'Lazy Sunday', logo: 'logo-lazy-sunday' },
+            { img: '../images/9.jpg', title: 'Steam Room', logo: 'logo-steam-room' },
+            { img: '../images/10.jpg', title: 'Summer Breeze', logo: 'logo-summer-breeze' },
+            { img: '../images/11.jpg', title: 'Roommates', logo: 'logo-roommates' },
+            { img: '../images/12.jpg', title: 'City Girls', logo: 'logo-city-girls' },
+            { img: '../images/13.jpg', title: 'Just Us', logo: 'logo-just-us' }
+        ];
+
+        // Shuffle function
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Create shuffled content pool that avoids repeats
+        let shuffledContent = shuffleArray(contentData);
+        let contentIndex = 0;
+        
+        function getNextContent() {
+            if (contentIndex >= shuffledContent.length) {
+                shuffledContent = shuffleArray(contentData);
+                contentIndex = 0;
+            }
+            return shuffledContent[contentIndex++];
+        }
+
         function createContentCard(index, type = 'default', rank = null) {
-            const name = type === 'performer' ? performerNames[index % performerNames.length] : sceneNames[index % sceneNames.length];
+            const content = getNextContent();
+            const name = content.title;
             const duration = durations[index % durations.length];
             const performer = performerNames[index % performerNames.length];
             const progress = type === 'continue' ? Math.floor(Math.random() * 70 + 15) : 0;
@@ -3906,7 +4072,7 @@
                         </div>
                     </div>
                     <div class="card-info">
-                        <h3>${name}</h3>
+                        <h3>${performerNames[index % performerNames.length]}</h3>
                         <p>${Math.floor(Math.random() * 25 + 5)} scenes</p>
                     </div>
                 `;
@@ -3940,10 +4106,10 @@
                     </div>
                 `;
             } else {
-                // Content cards - just thumbnail, no title
+                // Content cards with real images and title logos
                 card.innerHTML = `
                     <div class="card-thumbnail">
-                        <div class="card-thumbnail-inner" style="background: ${getGradient(index)}">
+                        <div class="card-thumbnail-inner" style="background-image: url('${content.img}'); background-size: cover; background-position: center;">
                             <div class="card-gradient"></div>
                             <div class="card-3d-badge">
                                 <svg viewBox="0 0 24 24">
@@ -3951,6 +4117,7 @@
                                 </svg>
                                 <span>3D</span>
                             </div>
+                            <div class="card-title-logo ${content.logo}">${content.title}</div>
                             ${progress ? `<div class="card-progress"><div class="card-progress-bar" style="width: ${progress}%"></div></div>` : ''}
                         </div>
                     </div>
