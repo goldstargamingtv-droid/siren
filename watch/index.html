@@ -553,8 +553,39 @@
             // Normal video mode
             centerPlay.classList.remove('visible');
             introVideo.classList.add('fade-in');
-            introVideo.play();
+            introVideo.play().catch(err => {
+                console.log('Intro video failed, skipping to main content:', err);
+                skipToMainVideo();
+            });
         }
+        
+        // Skip intro and go to main video
+        function skipToMainVideo() {
+            introPlayed = true;
+            introVideo.style.display = 'none';
+            video.style.opacity = '1';
+            video.muted = true;
+            isMuted = true;
+            volumeBtn.querySelector('.vol-high').style.display = 'none';
+            volumeBtn.querySelector('.vol-muted').style.display = 'block';
+            centerPlay.classList.add('visible');
+            controlsOverlay.classList.add('visible');
+            document.body.classList.add('controls-visible');
+        }
+        
+        // Handle intro video errors
+        introVideo.addEventListener('error', () => {
+            console.log('Intro video error, skipping');
+            skipToMainVideo();
+        });
+        
+        // Timeout fallback - if intro doesn't start playing within 5s, skip it
+        setTimeout(() => {
+            if (!introPlayed && introVideo.paused && !isImmersiveMode) {
+                console.log('Intro video timeout, skipping');
+                skipToMainVideo();
+            }
+        }, 5000);
         
         introVideo.addEventListener('playing',()=>{
             isPlaying=true;
