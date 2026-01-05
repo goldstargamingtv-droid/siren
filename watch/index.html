@@ -137,6 +137,8 @@
 
         .video-wrapper{position:absolute;inset:0;z-index:2}
         video{width:100%;height:100%;object-fit:contain;background:#000}
+        .intro-video{position:absolute;inset:0;z-index:3;transition:opacity 0.8s ease}
+        .intro-video.fade-out{opacity:0;pointer-events:none}
 
         /* Controls Overlay */
         .controls-overlay{position:absolute;inset:0;opacity:0;transition:opacity 0.5s;pointer-events:none;z-index:10}
@@ -331,7 +333,12 @@
         <div class="ambient-glow ambient-glow-3"></div>
 
         <div class="video-wrapper">
-            <video id="video" preload="metadata">
+            <!-- Intro Video -->
+            <video id="introVideo" class="intro-video" preload="auto" playsinline>
+                <source src="https://oyqpmhaujuebwvawfyhj.supabase.co/storage/v1/object/public/previews/siren-intro.mp4" type="video/mp4">
+            </video>
+            <!-- Main Content Video -->
+            <video id="video" preload="metadata" style="opacity: 0;">
                 <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
             </video>
         </div>
@@ -467,12 +474,49 @@
         for(let i=0;i<20;i++){const ember=document.createElement('div');ember.className='ember';ember.style.left=Math.random()*100+'%';ember.style.animationDuration=(6+Math.random()*8)+'s';ember.style.animationDelay=Math.random()*8+'s';ember.style.width=(2+Math.random()*4)+'px';ember.style.height=ember.style.width;embersContainer.appendChild(ember)}
 
         // Player
-        const video=document.getElementById('video'),controlsOverlay=document.getElementById('controlsOverlay'),pauseOverlay=document.getElementById('pauseOverlay'),centerPlay=document.getElementById('centerPlay'),playPauseBtn=document.getElementById('playPauseBtn'),progressWrapper=document.getElementById('progressWrapper'),progressFill=document.getElementById('progressFill'),progressBuffer=document.getElementById('progressBuffer'),timeDisplay=document.getElementById('timeDisplay'),timeTooltip=document.getElementById('timeTooltip'),volumeBtn=document.getElementById('volumeBtn'),volumeSlider=document.getElementById('volumeSlider'),fullscreenBtn=document.getElementById('fullscreenBtn'),episodesBtn=document.getElementById('episodesBtn'),episodesPanel=document.getElementById('episodesPanel'),epCloseBtn=document.getElementById('epCloseBtn'),speedBtn=document.getElementById('speedBtn'),settingsPanel=document.getElementById('settingsPanel'),loadingSpinner=document.getElementById('loadingSpinner'),skipIntro=document.getElementById('skipIntro'),nextEpCard=document.getElementById('nextEpCard'),pipBtn=document.getElementById('pipBtn');
-        let hideTO,isPlaying=false,isMuted=false;
+        const video=document.getElementById('video'),introVideo=document.getElementById('introVideo'),controlsOverlay=document.getElementById('controlsOverlay'),pauseOverlay=document.getElementById('pauseOverlay'),centerPlay=document.getElementById('centerPlay'),playPauseBtn=document.getElementById('playPauseBtn'),progressWrapper=document.getElementById('progressWrapper'),progressFill=document.getElementById('progressFill'),progressBuffer=document.getElementById('progressBuffer'),timeDisplay=document.getElementById('timeDisplay'),timeTooltip=document.getElementById('timeTooltip'),volumeBtn=document.getElementById('volumeBtn'),volumeSlider=document.getElementById('volumeSlider'),fullscreenBtn=document.getElementById('fullscreenBtn'),episodesBtn=document.getElementById('episodesBtn'),episodesPanel=document.getElementById('episodesPanel'),epCloseBtn=document.getElementById('epCloseBtn'),speedBtn=document.getElementById('speedBtn'),settingsPanel=document.getElementById('settingsPanel'),loadingSpinner=document.getElementById('loadingSpinner'),skipIntro=document.getElementById('skipIntro'),nextEpCard=document.getElementById('nextEpCard'),pipBtn=document.getElementById('pipBtn');
+        let hideTO,isPlaying=false,isMuted=false,introPlayed=false;
         const fmt=s=>{if(isNaN(s))return'0:00';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);return h>0?h+':'+m.toString().padStart(2,'0')+':'+sec.toString().padStart(2,'0'):m+':'+sec.toString().padStart(2,'0')};
         const showControls=()=>{controlsOverlay.classList.add('visible');document.body.classList.add('controls-visible');clearTimeout(hideTO);if(isPlaying)hideTO=setTimeout(hideControls,3000)};
         const hideControls=()=>{if(isPlaying&&!settingsPanel.classList.contains('open')&&!episodesPanel.classList.contains('open')){controlsOverlay.classList.remove('visible');document.body.classList.remove('controls-visible')}};
-        const togglePlay=()=>{if(video.paused){video.play();isPlaying=true;playPauseBtn.querySelector('.play-icon').style.display='none';playPauseBtn.querySelector('.pause-icon').style.display='block';centerPlay.classList.remove('visible');pauseOverlay.classList.remove('visible');hideTO=setTimeout(hideControls,3000)}else{video.pause();isPlaying=false;playPauseBtn.querySelector('.play-icon').style.display='block';playPauseBtn.querySelector('.pause-icon').style.display='none';centerPlay.classList.add('visible');pauseOverlay.classList.add('visible');showControls()}};
+        
+        // Intro video ends - crossfade to main content
+        introVideo.addEventListener('ended',()=>{
+            introVideo.classList.add('fade-out');
+            video.style.opacity='1';
+            video.play();
+            introPlayed=true;
+            setTimeout(()=>{introVideo.style.display='none';},800);
+        });
+        
+        const togglePlay=()=>{
+            if(!introPlayed&&video.paused){
+                // First play - show intro first
+                introVideo.play();
+                isPlaying=true;
+                playPauseBtn.querySelector('.play-icon').style.display='none';
+                playPauseBtn.querySelector('.pause-icon').style.display='block';
+                centerPlay.classList.remove('visible');
+                pauseOverlay.classList.remove('visible');
+                hideTO=setTimeout(hideControls,3000);
+            }else if(video.paused){
+                video.play();isPlaying=true;
+                playPauseBtn.querySelector('.play-icon').style.display='none';
+                playPauseBtn.querySelector('.pause-icon').style.display='block';
+                centerPlay.classList.remove('visible');
+                pauseOverlay.classList.remove('visible');
+                hideTO=setTimeout(hideControls,3000);
+            }else{
+                video.pause();
+                if(!introPlayed)introVideo.pause();
+                isPlaying=false;
+                playPauseBtn.querySelector('.play-icon').style.display='block';
+                playPauseBtn.querySelector('.pause-icon').style.display='none';
+                centerPlay.classList.add('visible');
+                pauseOverlay.classList.add('visible');
+                showControls();
+            }
+        };
         video.addEventListener('click',togglePlay);centerPlay.addEventListener('click',togglePlay);playPauseBtn.addEventListener('click',togglePlay);document.getElementById('resumeBtn').addEventListener('click',togglePlay);
         document.querySelector('.player-container').addEventListener('mousemove',showControls);
         video.addEventListener('timeupdate',()=>{const pct=(video.currentTime/video.duration)*100;progressFill.style.width=pct+'%';timeDisplay.innerHTML='<span class="now">'+fmt(video.currentTime)+'</span> / '+fmt(video.duration);if(video.currentTime>5&&video.currentTime<90)skipIntro.classList.add('visible');else skipIntro.classList.remove('visible');if(video.duration-video.currentTime<30&&video.duration>60)nextEpCard.classList.add('visible');else nextEpCard.classList.remove('visible')});
