@@ -3715,12 +3715,215 @@
             90% { opacity: 0.6; }
             50% { transform: translateY(-100px) scale(0.5); }
         }
+
+        /* ==================== */
+        /* Browse Mobile Styles */
+        /* ==================== */
+        @media (max-width: 768px) {
+            /* Hide sidebar completely on mobile */
+            .sidebar {
+                display: none !important;
+            }
+
+            /* Full width main content */
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Adjust hero for mobile */
+            .hero-section {
+                height: 75vh !important;
+                min-height: 550px !important;
+            }
+
+            .hero-carousel-item {
+                padding: 0 16px !important;
+                padding-bottom: 120px !important;
+            }
+
+            .hero-content-wrapper {
+                max-width: 100% !important;
+            }
+
+            .hero-title {
+                font-size: 2rem !important;
+                line-height: 1.2 !important;
+            }
+
+            .hero-meta {
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+
+            .hero-description {
+                font-size: 0.9rem !important;
+                -webkit-line-clamp: 3 !important;
+            }
+
+            .hero-buttons {
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+
+            .hero-buttons .btn {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 14px 20px !important;
+            }
+
+            /* Hero navigation dots */
+            .hero-nav {
+                bottom: 90px !important;
+            }
+
+            /* Floating menu adjustments */
+            .floating-menu {
+                bottom: 90px !important;
+                right: 16px !important;
+            }
+
+            .floating-menu.expanded {
+                width: calc(100vw - 32px) !important;
+                right: 16px !important;
+            }
+
+            .floating-bubble {
+                width: 50px !important;
+                height: 50px !important;
+            }
+
+            /* Content rows */
+            .content-section {
+                padding: 16px 0 !important;
+            }
+
+            .row-header {
+                padding: 0 16px !important;
+                margin-bottom: 12px !important;
+            }
+
+            .row-title {
+                font-size: 1.1rem !important;
+            }
+
+            .row-scroll {
+                padding: 0 16px !important;
+                gap: 10px !important;
+            }
+
+            /* Cards */
+            .content-card {
+                width: 130px !important;
+                min-width: 130px !important;
+            }
+
+            .card-image {
+                height: 185px !important;
+            }
+
+            .card-overlay {
+                padding: 10px !important;
+            }
+
+            .card-play-btn {
+                width: 36px !important;
+                height: 36px !important;
+            }
+
+            .card-play-btn svg {
+                width: 14px !important;
+                height: 14px !important;
+            }
+
+            .card-info {
+                padding: 10px !important;
+            }
+
+            .card-title {
+                font-size: 0.8rem !important;
+            }
+
+            .card-meta {
+                font-size: 0.65rem !important;
+            }
+
+            /* Progress bar on cards */
+            .watch-progress {
+                height: 2px !important;
+            }
+
+            /* Header bar */
+            .header-bar {
+                padding: 12px 16px !important;
+            }
+
+            .header-search {
+                display: none !important;
+            }
+
+            .header-user-avatar {
+                width: 32px !important;
+                height: 32px !important;
+            }
+
+            /* Subscription modal */
+            .subscription-modal-content {
+                width: 95% !important;
+                max-width: none !important;
+                padding: 24px 16px !important;
+                max-height: 90vh !important;
+            }
+
+            .sub-plans {
+                flex-direction: column !important;
+            }
+
+            .sub-plan {
+                padding: 20px !important;
+            }
+
+            /* Search results */
+            .search-results {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+                padding: 16px !important;
+            }
+
+            /* User menu dropdown */
+            .user-menu {
+                right: 0 !important;
+                left: auto !important;
+                width: 250px !important;
+            }
+        }
+
+        /* Small phones */
+        @media (max-width: 375px) {
+            .hero-title {
+                font-size: 1.7rem !important;
+            }
+
+            .content-card {
+                width: 115px !important;
+                min-width: 115px !important;
+            }
+
+            .card-image {
+                height: 165px !important;
+            }
+
+            .floating-menu.expanded {
+                bottom: 85px !important;
+            }
+        }
     </style>
 </head>
 
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="../css/auth-modal.css">
+<link rel="stylesheet" href="../css/mobile.css">
 
 <body>
     <!-- Age Gate -->
@@ -6470,5 +6673,6 @@ subscribeBtn.addEventListener('click', () => {
     console.log('Subscribe clicked - integrate payment here');
 });
 </script>
+<script src="../js/mobile.js"></script>
 </body>
 </html>
