@@ -25,10 +25,15 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    z-index: 99999 !important;
+    z-index: 999999 !important;
     justify-content: space-around;
     align-items: center;
     padding-top: 8px;
+    /* iOS fixes */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 .mobile-nav-item {
@@ -82,8 +87,14 @@
     }
 
     /* Add padding for bottom nav */
+    html {
+        padding-bottom: 0 !important;
+    }
+    
     body {
-        padding-bottom: calc(var(--mobile-nav-height) + var(--safe-area-bottom)) !important;
+        padding-bottom: calc(var(--mobile-nav-height) + var(--safe-area-bottom) + 10px) !important;
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
     }
 
     /* Hide desktop elements */
