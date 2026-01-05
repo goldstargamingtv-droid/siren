@@ -1676,8 +1676,12 @@
         // Load user data
         function loadUserData(user, profile) {
             if (!user) {
-                // Redirect to home if not logged in
-                window.location.href = '../';
+                // Show sign-in modal if not logged in
+                if (typeof openAuthModal === 'function') {
+                    openAuthModal('signin');
+                } else {
+                    window.location.href = '../';
+                }
                 return;
             }
             
@@ -1742,7 +1746,11 @@
                     setTimeout(() => {
                         const user = SIREN.getCurrentUser();
                         if (!user) {
-                            window.location.href = '../';
+                            if (typeof openAuthModal === 'function') {
+                                openAuthModal('signin');
+                            } else {
+                                window.location.href = '../';
+                            }
                         }
                     }, 1500);
                 }
