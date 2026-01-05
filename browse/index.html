@@ -3742,6 +3742,29 @@
                 width: 100% !important;
             }
 
+            /* Enable touch scrolling on content rows */
+            .slider-mask {
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                -webkit-overflow-scrolling: touch !important;
+                scroll-snap-type: x proximity;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            .slider-mask::-webkit-scrollbar {
+                display: none;
+            }
+
+            .content-row {
+                touch-action: pan-x !important;
+            }
+
+            /* Hide scroll buttons on mobile - use touch instead */
+            .row-scroll-btn {
+                display: none !important;
+            }
+
             /* Adjust hero for mobile */
             .hero-section {
                 height: 75vh !important;
