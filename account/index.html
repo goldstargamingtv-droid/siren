@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Account Settings - SIREN</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/auth-modal.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: rgba(15, 15, 20, 0.6);
+            --accent-primary: #ef4444;
+            --accent-secondary: #f97316;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border-subtle: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(18, 18, 24, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 2px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(10, 10, 12, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .back-btn svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+        }
+
+        /* Main Layout */
+        .main {
+            padding-top: 70px;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            padding: 2rem 1.5rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            position: sticky;
+            top: 70px;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(249, 115, 22, 0.15));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-avatar svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--accent-primary);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-tier {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tier-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .tier-dot.premium {
+            background: var(--accent-secondary);
+        }
+
+        .tier-dot.vip {
+            background: var(--accent-primary);
+        }
+
+        /* Nav Items */
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            padding-left: 12px;
+        }
+
+        .nav-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(249, 115, 22, 0.08));
+            border-color: rgba(239, 68, 68, 0.2);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active svg {
+            stroke: var(--accent-primary);
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--text-muted);
+            stroke-width: 1.75;
+            fill: none;
+            transition: stroke 0.2s ease;
+        }
+
+        .nav-item:hover svg {
+            stroke: var(--text-secondary);
+        }
+
+        .nav-item.danger {
+            color: var(--accent-primary);
+        }
+
+        .nav-item.danger svg {
+            stroke: var(--accent-primary);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 2rem 3rem;
+            max-width: 800px;
+        }
+
+        .content-header {
+            margin-bottom: 2rem;
+        }
+
+        .content-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(239, 68, 68, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Avatar Upload */
+        .avatar-upload {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(249, 115, 22, 0.15));
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .avatar-preview svg {
+            width: 36px;
+            height: 36px;
+            stroke: var(--accent-primary);
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--accent-primary);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 0.8rem;
+        }
+
+        /* Toggle Switch */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .toggle-row:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-info {
+            flex: 1;
+        }
+
+        .toggle-label {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .toggle-description {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Select Dropdown */
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 18px;
+            padding-right: 44px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .form-select option {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* Subscription Card */
+        .subscription-card {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.05));
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .subscription-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .subscription-tier {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tier-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tier-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            fill: none;
+        }
+
+        .tier-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .tier-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .subscription-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-item svg {
+            width: 18px;
+            height: 18px;
+            stroke: #22c55e;
+        }
+
+        /* Billing Table */
+        .billing-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .billing-table th,
+        .billing-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .billing-table th {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        .billing-table td {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .billing-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .billing-status.paid {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .billing-status.pending {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--accent-secondary);
+        }
+
+        /* Security Item */
+        .security-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .security-item:last-child {
+            border-bottom: none;
+        }
+
+        .security-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .security-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .security-icon svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--text-muted);
+        }
+
+        .security-details h4 {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .security-details p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Help Categories */
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .help-card {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .help-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .help-card svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--accent-primary);
+            margin-bottom: 12px;
+        }
+
+        .help-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .help-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* FAQ Accordion */
+        .faq-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .faq-question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 0;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .faq-question svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--text-muted);
+            transition: transform 0.2s ease;
+        }
+
+        .faq-item.open .faq-question svg {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            display: none;
+            padding-bottom: 18px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 16px 24px;
+            background: rgba(15, 15, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .toast.success svg {
+            stroke: #22c55e;
+        }
+
+        .toast.error {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .toast.error svg {
+            stroke: var(--accent-primary);
+        }
+
+        .toast svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .toast span {
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar {
+                display: none;
+            }
+
+            .content {
+                padding: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .subscription-features {
+                grid-template-columns: 1fr;
+            }
+
+            .help-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <a href="../" class="logo">SIREN</a>
+            <a href="../browse/" class="back-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Browse
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <main class="main">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Account</div>
+                <div class="user-card">
+                    <div class="user-avatar" id="sidebarAvatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+                        </svg>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name" id="sidebarName">Account</div>
+                        <div class="user-tier">
+                            <span class="tier-dot" id="tierDot"></span>
+                            <span id="tierText">Free Member</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="nav-section">
+                <div class="nav-section-title">Settings</div>
+                <div class="nav-items">
+                    <a class="nav-item active" data-section="profile">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+                        <span>Edit Profile</span>
+                    </a>
+                    <a class="nav-item" data-section="preferences">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        <span>Preferences</span>
+                    </a>
+                    <a class="nav-item" data-section="security">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span>Security</span>
+                    </a>
+                    <a class="nav-item" data-section="billing">
+                        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        <span>Billing</span>
+                    </a>
+                    <a class="nav-item" data-section="help">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span>Help & Support</span>
+                    </a>
+                </div>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-section-title">Actions</div>
+                <div class="nav-items">
+                    <a class="nav-item danger" onclick="SIREN.signOut()">
+                        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Sign Out</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Profile Section -->
+            <section class="section active" id="profile">
+                <div class="content-header">
+                    <h1 class="content-title">Edit Profile</h1>
+                    <p class="content-description">Manage your personal information and how others see you.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Profile Picture</div>
+                    <div class="card-description">Upload a new avatar or remove your current one.</div>
+                    <div class="avatar-upload">
+                        <div class="avatar-preview" id="avatarPreview">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5">
+                                <circle cx="12" cy="8" r="4"/>
+                                <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+                            </svg>
+                        </div>
+                        <div class="avatar-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('avatarInput').click()">Upload New</button>
+                            <button class="btn btn-secondary btn-sm">Remove</button>
+                            <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Personal Information</div>
+                    <div class="card-description">Update your name and public profile details.</div>
+                    <form id="profileForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Display Name</label>
+                                <input type="text" class="form-input" id="displayName" placeholder="Enter display name">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-input" id="username" placeholder="Enter username">
+                                <div class="form-hint">This is how others will find you.</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" id="email" disabled>
+                            <div class="form-hint">Contact support to change your email address.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Preferences Section -->
+            <section class="section" id="preferences">
+                <div class="content-header">
+                    <h1 class="content-title">Preferences</h1>
+                    <p class="content-description">Customize your viewing experience and notifications.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Playback Settings</div>
+                    <div class="card-description">Control how content plays on your account.</div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Preferred Quality</label>
+                        <select class="form-select" id="quality">
+                            <option value="auto">Auto (Recommended)</option>
+                            <option value="4k">4K Ultra HD</option>
+                            <option value="fhd">1080p Full HD</option>
+                            <option value="hd">720p HD</option>
+                            <option value="sd">480p SD</option>
+                        </select>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Autoplay</div>
+                            <div class="toggle-description">Automatically play the next video when one ends.</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autoplay" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Previews</div>
+                            <div class="toggle-description">Show video previews when hovering over thumbnails.</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="previews" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Notifications</div>
+                    <div class="card-description">Choose what notifications you want to receive.</div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Email Notifications</div>
+                            <div class="toggle-description">Receive updates about new content and features.</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="emailNotifs" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-label">New Releases</div>
+                            <div class="toggle-description">Get notified when performers you follow release new content.</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="releaseNotifs" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Promotions</div>
+                            <div class="toggle-description">Receive special offers and promotional content.</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="promoNotifs">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Privacy</div>
+                    <div class="card-description">Control your privacy settings.</div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Private Profile</div>
+                            <div class="toggle-description">Hide your profile from other users.</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="privateProfile">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Watch History</div>
+                            <div class="toggle-description">Track your viewing history for recommendations.</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="watchHistory" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="savePreferences()">Save Preferences</button>
+            </section>
+
+            <!-- Security Section -->
+            <section class="section" id="security">
+                <div class="content-header">
+                    <h1 class="content-title">Security</h1>
+                    <p class="content-description">Manage your password and account security settings.</p>
+                </div>
+
+                <div class="card">
+                    <div class="security-item">
+                        <div class="security-info">
+                            <div class="security-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                            </div>
+                            <div class="security-details">
+                                <h4>Password</h4>
+                                <p>Last changed: Never</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="showPasswordModal()">Change</button>
+                    </div>
+
+                    <div class="security-item">
+                        <div class="security-info">
+                            <div class="security-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75">
+                                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                                    <line x1="12" y1="18" x2="12.01" y2="18"/>
+                                </svg>
+                            </div>
+                            <div class="security-details">
+                                <h4>Two-Factor Authentication</h4>
+                                <p>Add an extra layer of security to your account.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" id="twoFactorBtn">Enable</button>
+                    </div>
+
+                    <div class="security-item">
+                        <div class="security-info">
+                            <div class="security-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                                    <line x1="8" y1="21" x2="16" y2="21"/>
+                                    <line x1="12" y1="17" x2="12" y2="21"/>
+                                </svg>
+                            </div>
+                            <div class="security-details">
+                                <h4>Active Sessions</h4>
+                                <p>Manage devices logged into your account.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm">View</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Danger Zone</div>
+                    <div class="card-description">Irreversible actions for your account.</div>
+                    
+                    <div class="security-item">
+                        <div class="security-info">
+                            <div class="security-icon" style="background: rgba(239, 68, 68, 0.1);">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" style="stroke: var(--accent-primary);">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </div>
+                            <div class="security-details">
+                                <h4>Delete Account</h4>
+                                <p>Permanently delete your account and all data.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm">Delete</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Billing Section -->
+            <section class="section" id="billing">
+                <div class="content-header">
+                    <h1 class="content-title">Billing</h1>
+                    <p class="content-description">Manage your subscription and payment methods.</p>
+                </div>
+
+                <div class="card subscription-card">
+                    <div class="subscription-header">
+                        <div class="subscription-tier">
+                            <div class="tier-icon">
+                                <svg viewBox="0 0 24 24" stroke-width="2">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                            <div class="tier-info">
+                                <h3 id="currentPlan">Free Plan</h3>
+                                <p id="planStatus">Basic access to content</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="upgradePlanBtn">Upgrade Plan</button>
+                    </div>
+                    <div class="subscription-features">
+                        <div class="feature-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Access to free content</span>
+                        </div>
+                        <div class="feature-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>720p streaming quality</span>
+                        </div>
+                        <div class="feature-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Watch on 1 device</span>
+                        </div>
+                        <div class="feature-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Limited previews</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Payment Method</div>
+                    <div class="card-description">Add or update your payment information.</div>
+                    
+                    <div class="security-item">
+                        <div class="security-info">
+                            <div class="security-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                    <line x1="1" y1="10" x2="23" y2="10"/>
+                                </svg>
+                            </div>
+                            <div class="security-details">
+                                <h4>No payment method</h4>
+                                <p>Add a payment method to upgrade your plan.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm">Add</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Billing History</div>
+                    <div class="card-description">View your past transactions and invoices.</div>
+                    
+                    <p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 2rem 0;">No billing history yet.</p>
+                </div>
+            </section>
+
+            <!-- Help Section -->
+            <section class="section" id="help">
+                <div class="content-header">
+                    <h1 class="content-title">Help & Support</h1>
+                    <p class="content-description">Get help with your account and find answers to common questions.</p>
+                </div>
+
+                <div class="help-grid">
+                    <div class="help-card">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polygon points="10 8 16 12 10 16 10 8"/>
+                        </svg>
+                        <h4>Getting Started</h4>
+                        <p>Learn how to use SIREN and its features.</p>
+                    </div>
+                    <div class="help-card">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        <h4>Billing & Payments</h4>
+                        <p>Questions about charges and subscriptions.</p>
+                    </div>
+                    <div class="help-card">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                        </svg>
+                        <h4>Technical Issues</h4>
+                        <p>Troubleshoot streaming and playback problems.</p>
+                    </div>
+                    <div class="help-card">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        <h4>Privacy & Safety</h4>
+                        <p>Learn about our privacy practices.</p>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="card-title">Frequently Asked Questions</div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <span>How do I cancel my subscription?</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-answer">
+                            You can cancel your subscription at any time from the Billing section. Your access will continue until the end of your current billing period.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <span>What devices are supported?</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-answer">
+                            SIREN supports most modern web browsers on desktop, mobile, and tablet devices. For VR content, we support major VR headsets including Meta Quest, Valve Index, and HTC Vive.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <span>Is my payment information secure?</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-answer">
+                            Yes, all payment processing is handled by secure, PCI-compliant payment processors. We never store your full credit card details on our servers.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <span>How do I download content for offline viewing?</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                        </div>
+                        <div class="faq-answer">
+                            Downloads are available on Premium and VIP plans. Look for the download icon on supported content, and it will be saved to your Downloads section.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Contact Support</div>
+                    <div class="card-description">Can't find what you're looking for? Our support team is here to help.</div>
+                    <button class="btn btn-primary">Contact Us</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span id="toastMessage">Changes saved successfully!</span>
+    </div>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-client.js"></script>
+    <script src="../js/auth-modal.js"></script>
+
+    <script>
+        // Navigation
+        document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+            item.addEventListener('click', () => {
+                const sectionId = item.dataset.section;
+                
+                // Update nav
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Update sections
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(sectionId).classList.add('active');
+                
+                // Update URL hash
+                window.location.hash = sectionId;
+            });
+        });
+
+        // Handle URL hash on load
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.slice(1);
+            if (hash) {
+                const navItem = document.querySelector(`.nav-item[data-section="${hash}"]`);
+                if (navItem) navItem.click();
+            }
+        });
+
+        // FAQ Toggle
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            faqItem.classList.toggle('open');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.className = 'toast ' + type;
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Profile form
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const displayName = document.getElementById('displayName').value;
+            const username = document.getElementById('username').value;
+            
+            if (window.SIREN && SIREN.updateProfile) {
+                const { error } = await SIREN.updateProfile({
+                    display_name: displayName || null,
+                    username: username || null
+                });
+                
+                if (error) {
+                    showToast(error.message, 'error');
+                } else {
+                    showToast('Profile updated successfully!');
+                    // Update sidebar name
+                    document.getElementById('sidebarName').textContent = displayName || username || 'Account';
+                }
+            }
+        });
+
+        // Save preferences
+        async function savePreferences() {
+            const quality = document.getElementById('quality').value;
+            const autoplay = document.getElementById('autoplay').checked;
+            const privateProfile = document.getElementById('privateProfile').checked;
+            const notifications = document.getElementById('emailNotifs').checked;
+            
+            if (window.SIREN && SIREN.updateProfile) {
+                const { error } = await SIREN.updateProfile({
+                    preferred_quality: quality,
+                    autoplay_enabled: autoplay,
+                    is_private: privateProfile,
+                    notifications_enabled: notifications
+                });
+                
+                if (error) {
+                    showToast(error.message, 'error');
+                } else {
+                    showToast('Preferences saved!');
+                }
+            }
+        }
+
+        // Password modal (placeholder)
+        function showPasswordModal() {
+            // For now just show toast - would open modal
+            showToast('Password change coming soon', 'error');
+        }
+
+        // Load user data
+        function loadUserData(user, profile) {
+            if (!user) {
+                // Redirect to home if not logged in
+                window.location.href = '../';
+                return;
+            }
+            
+            // Update sidebar
+            const email = profile?.email || user.email;
+            const name = profile?.display_name || profile?.username || email?.split('@')[0] || 'Account';
+            const tier = profile?.subscription_tier || 'free';
+            
+            document.getElementById('sidebarName').textContent = name;
+            document.getElementById('tierText').textContent = tier.charAt(0).toUpperCase() + tier.slice(1) + ' Member';
+            
+            const tierDot = document.getElementById('tierDot');
+            tierDot.className = 'tier-dot ' + tier;
+            
+            // Update form fields
+            document.getElementById('displayName').value = profile?.display_name || '';
+            document.getElementById('username').value = profile?.username || '';
+            document.getElementById('email').value = email;
+            
+            // Update preferences
+            if (profile) {
+                document.getElementById('quality').value = profile.preferred_quality || 'auto';
+                document.getElementById('autoplay').checked = profile.autoplay_enabled !== false;
+                document.getElementById('privateProfile').checked = profile.is_private === true;
+                document.getElementById('emailNotifs').checked = profile.notifications_enabled !== false;
+            }
+            
+            // Update billing section
+            const planName = {
+                'free': 'Free Plan',
+                'basic': 'Basic Plan',
+                'premium': 'Premium Plan',
+                'vip': 'VIP Plan'
+            };
+            document.getElementById('currentPlan').textContent = planName[tier] || 'Free Plan';
+            
+            if (tier === 'vip') {
+                document.getElementById('upgradePlanBtn').style.display = 'none';
+            }
+            
+            // Update 2FA button
+            const twoFactorBtn = document.getElementById('twoFactorBtn');
+            if (profile?.two_factor_enabled) {
+                twoFactorBtn.textContent = 'Disable';
+            }
+        }
+
+        // Initialize with auth listener
+        if (window.SIREN) {
+            SIREN.onAuthChange(loadUserData);
+        }
+        
+        // Check session on load
+        window.addEventListener('load', async () => {
+            if (window.SIREN) {
+                const user = SIREN.getCurrentUser();
+                const profile = SIREN.getCurrentProfile();
+                if (user) {
+                    loadUserData(user, profile);
+                } else {
+                    // Wait a bit for auth to initialize
+                    setTimeout(() => {
+                        const user = SIREN.getCurrentUser();
+                        if (!user) {
+                            window.location.href = '../';
+                        }
+                    }, 1500);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
