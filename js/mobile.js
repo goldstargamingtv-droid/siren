@@ -15,8 +15,29 @@
         if (currentPath.includes('/clips')) return 'clips';
         if (currentPath.includes('/search')) return 'search';
         if (currentPath.includes('/account')) return 'profile';
-        if (currentPath === '/' || currentPath.includes('/index.html') || currentPath.endsWith('/')) return 'home';
         return 'home';
+    };
+    
+    // Get base path (works on GitHub Pages and local)
+    const getBasePath = () => {
+        const path = window.location.pathname;
+        // Check if we're on GitHub Pages with a repo name
+        const match = path.match(/^\/[^\/]+\//);
+        if (match && !path.includes('/browse/') && !path.includes('/watch/') && !path.includes('/account/') && !path.includes('/clips/') && !path.includes('/search/') && !path.includes('/tools/')) {
+            return match[0];
+        }
+        // Check if in subfolder
+        if (path.includes('/browse/') || path.includes('/watch/') || path.includes('/account/') || path.includes('/clips/') || path.includes('/search/') || path.includes('/tools/')) {
+            // Find the base by going up from current folder
+            const parts = path.split('/').filter(p => p);
+            if (parts.length >= 2) {
+                // GitHub pages: /repo/browse/ -> /repo/
+                return '/' + parts[0] + '/';
+            }
+            return '../';
+        }
+        // Root level
+        return './';
     };
 
     // Inject bottom navigation
@@ -25,6 +46,7 @@
         if (document.querySelector('.mobile-nav')) return;
 
         const activePage = getActivePage();
+        const base = getBasePath();
         
         const navHTML = `
             <nav class="mobile-nav" id="mobileNav">
@@ -38,7 +60,7 @@
                     </defs>
                 </svg>
 
-                <a href="../index.html" class="mobile-nav-item ${activePage === 'home' ? 'active' : ''}" data-page="home">
+                <a href="${base}index.html" class="mobile-nav-item ${activePage === 'home' ? 'active' : ''}" data-page="home">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                         <polyline points="9 22 9 12 15 12 15 22"/>
@@ -46,7 +68,7 @@
                     <span>Home</span>
                 </a>
 
-                <a href="../browse/index.html" class="mobile-nav-item ${activePage === 'browse' ? 'active' : ''}" data-page="browse">
+                <a href="${base}browse/index.html" class="mobile-nav-item ${activePage === 'browse' ? 'active' : ''}" data-page="browse">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
                         <line x1="7" y1="2" x2="7" y2="22"/>
@@ -60,7 +82,7 @@
                     <span>Browse</span>
                 </a>
 
-                <a href="../clips/index.html" class="mobile-nav-item ${activePage === 'clips' ? 'active' : ''}" data-page="clips">
+                <a href="#" class="mobile-nav-item ${activePage === 'clips' ? 'active' : ''}" data-page="clips" onclick="alert('Clips coming soon!'); return false;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <polygon points="23 7 16 12 23 17 23 7"/>
                         <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
@@ -68,7 +90,7 @@
                     <span>Clips</span>
                 </a>
 
-                <a href="../search/index.html" class="mobile-nav-item ${activePage === 'search' ? 'active' : ''}" data-page="search">
+                <a href="#" class="mobile-nav-item ${activePage === 'search' ? 'active' : ''}" data-page="search" onclick="alert('Search coming soon!'); return false;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="11" cy="11" r="8"/>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -76,7 +98,7 @@
                     <span>Search</span>
                 </a>
 
-                <a href="../account/index.html" class="mobile-nav-item ${activePage === 'profile' ? 'active' : ''}" data-page="profile">
+                <a href="${base}account/index.html" class="mobile-nav-item ${activePage === 'profile' ? 'active' : ''}" data-page="profile">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
