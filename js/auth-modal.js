@@ -222,11 +222,8 @@ async function handleSignIn(e) {
     const email = document.getElementById('signin-email').value;
     const password = document.getElementById('signin-password').value;
     
-    console.log('Attempting sign in for:', email);
-    
     try {
         const result = await SIREN.signIn(email, password);
-        console.log('Sign in result:', result);
         
         setAuthLoading('signin', false);
         
@@ -254,7 +251,6 @@ async function handleSignUp(e) {
     const dob = document.getElementById('signup-dob').value;
     const terms = document.getElementById('signup-terms').checked;
     
-    // Validation
     if (password !== confirm) {
         showAuthError('signup', 'Passwords do not match');
         return;
@@ -271,22 +267,18 @@ async function handleSignUp(e) {
     }
     
     setAuthLoading('signup', true);
-    console.log('Attempting sign up for:', email);
     
     try {
         const result = await SIREN.signUp(email, password, dob);
-        console.log('Sign up result:', result);
         
         setAuthLoading('signup', false);
         
         if (result.error) {
             showAuthError('signup', result.error.message);
         } else if (result.confirmEmail) {
-            // Email confirmation required
             showAuthSuccess('signup', result.message || 'Account created! Check your email to verify.');
             document.getElementById('signupForm').reset();
         } else {
-            // Auto-confirmed, reload page
             closeAuthModal();
             window.location.reload();
         }
