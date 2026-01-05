@@ -299,7 +299,7 @@
         .immersive-container {
             position: absolute;
             inset: 0;
-            z-index: 2;
+            z-index: 15;
             display: none;
             cursor: grab;
         }
@@ -307,12 +307,16 @@
         .immersive-container canvas {
             width: 100% !important;
             height: 100% !important;
+            display: block;
         }
         body.immersive-mode .video-wrapper { display: none; }
         body.immersive-mode .immersive-container { display: block; }
         body.immersive-mode .pause-overlay { display: none; }
         body.immersive-mode .skip-intro { display: none; }
         body.immersive-mode .next-ep-card { display: none; }
+        body.immersive-mode .center-play { z-index: 25; }
+        body.immersive-mode .top-bar { z-index: 25; }
+        body.immersive-mode .bottom-controls { z-index: 25; }
         
         .immersive-badge {
             display: none;
@@ -848,25 +852,68 @@
 
     // Controls
     let isDragging = false;
+    let didDrag = false;
     let prevMouse = { x: 0, y: 0 };
+    let startMouse = { x: 0, y: 0 };
     let lon = 0, lat = 0;
     let immersivePlaying = false;
 
-    container.addEventListener('mousedown', (e) => {
+    // Use document-level events for reliable dragging
+    document.addEventListener('mousedown', (e) => {
+        // Don't start drag if clicking on buttons/controls
+        if (e.target.closest('button') || e.target.closest('.ctrl-btn') || 
+            e.target.closest('.icon-btn') || e.target.closest('.back-btn') ||
+            e.target.closest('.progress-wrapper') || e.target.closest('.volume-slider')) {
+            return;
+        }
         isDragging = true;
+        didDrag = false;
         prevMouse = { x: e.clientX, y: e.clientY };
+        startMouse = { x: e.clientX, y: e.clientY };
     });
 
-    container.addEventListener('mousemove', (e) => {
+    document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
-        lon -= (e.clientX - prevMouse.x) * 0.2;
-        lat += (e.clientY - prevMouse.y) * 0.2;
+        
+        const dx = e.clientX - prevMouse.x;
+        const dy = e.clientY - prevMouse.y;
+        
+        // Check if moved enough to count as drag
+        const totalMove = Math.abs(e.clientX - startMouse.x) + Math.abs(e.clientY - startMouse.y);
+        if (totalMove > 5) didDrag = true;
+        
+        lon -= dx * 0.3;
+        lat += dy * 0.3;
         lat = Math.max(-85, Math.min(85, lat));
         prevMouse = { x: e.clientX, y: e.clientY };
     });
 
-    container.addEventListener('mouseup', () => isDragging = false);
-    container.addEventListener('mouseleave', () => isDragging = false);
+    document.addEventListener('mouseup', () => isDragging = false);
+
+    // Touch support
+    document.addEventListener('touchstart', (e) => {
+        if (e.target.closest('button') || e.target.closest('.ctrl-btn')) return;
+        if (e.touches.length === 1) {
+            isDragging = true;
+            didDrag = false;
+            prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            startMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        
+        const totalMove = Math.abs(e.touches[0].clientX - startMouse.x) + Math.abs(e.touches[0].clientY - startMouse.y);
+        if (totalMove > 5) didDrag = true;
+        
+        lon -= (e.touches[0].clientX - prevMouse.x) * 0.3;
+        lat += (e.touches[0].clientY - prevMouse.y) * 0.3;
+        lat = Math.max(-85, Math.min(85, lat));
+        prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => isDragging = false);
 
     container.addEventListener('wheel', (e) => {
         e.preventDefault();
