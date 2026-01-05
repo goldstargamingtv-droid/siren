@@ -230,12 +230,7 @@ async function handleSignIn(e) {
         showAuthError('signin', error.message);
     } else {
         closeAuthModal();
-        // Redirect or reload
-        if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-            window.location.href = '/browse/';
-        } else {
-            window.location.reload();
-        }
+        window.location.reload();
     }
 }
 
@@ -280,9 +275,9 @@ async function handleSignUp(e) {
         // Clear form
         document.getElementById('signupForm').reset();
     } else {
-        // Auto-confirmed, redirect
+        // Auto-confirmed, reload page
         closeAuthModal();
-        window.location.href = '/browse/';
+        window.location.reload();
     }
 }
 
