@@ -323,11 +323,10 @@
 
         /* Screen */
         .device-screen {
-            width: 100%;
-            height: 100%;
             border: none;
             display: block;
             background: var(--bg-dark);
+            transform-origin: top left;
         }
 
         /* Rotation */
@@ -496,7 +495,7 @@
                 <div class="notch"></div>
                 <div class="dynamic-island"></div>
                 <div class="device-inner" id="deviceInner">
-                    <iframe class="device-screen" id="deviceScreen" src="../index.html"></iframe>
+                    <iframe class="device-screen" id="deviceScreen"></iframe>
                 </div>
                 <div class="home-indicator"></div>
             </div>
@@ -505,7 +504,8 @@
                 <button class="zoom-btn" onclick="adjustZoom(-10)">−</button>
                 <div class="zoom-level" id="zoomLevel">100%</div>
                 <button class="zoom-btn" onclick="adjustZoom(10)">+</button>
-                <button class="zoom-btn" onclick="resetZoom()" title="Reset">↺</button>
+                <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">↺</button>
+                <button class="zoom-btn" onclick="refreshIframe()" title="Refresh Page">⟳</button>
             </div>
 
             <div class="scale-indicator" id="scaleIndicator">Actual Size</div>
@@ -533,8 +533,19 @@
         const landscapeBtn = document.getElementById('landscapeBtn');
 
         // Initialize
-        deviceSelect.addEventListener('change', updateDevice);
+        deviceSelect.addEventListener('change', () => {
+            updateDevice();
+            // Reload iframe to re-trigger media queries
+            const currentSrc = deviceScreen.src;
+            deviceScreen.src = '';
+            setTimeout(() => { deviceScreen.src = currentSrc; }, 50);
+        });
+        
+        // Set initial size BEFORE loading content
         updateDevice();
+        
+        // Now load the initial page
+        deviceScreen.src = '../index.html';
 
         function updateDevice() {
             const option = deviceSelect.selectedOptions[0];
@@ -559,14 +570,14 @@
             const frameW = w + 24; // padding
             const frameH = h + 24;
             
-            let scale = Math.min(
+            let autoScale = Math.min(
                 availableW / frameW,
                 availableH / frameH,
-                zoom / 100
+                1 // Don't scale above 100%
             );
             
-            // Apply scale
-            scale = Math.min(scale, zoom / 100);
+            // Apply user zoom
+            let scale = autoScale * (zoom / 100);
 
             // Update frame classes
             deviceFrame.className = `device-frame ${currentDevice.type}`;
@@ -576,9 +587,16 @@
                 deviceFrame.classList.add('has-notch');
             }
 
-            // Apply sizes
+            // Set inner container to device size
             deviceInner.style.width = w + 'px';
             deviceInner.style.height = h + 'px';
+            deviceInner.style.overflow = 'hidden';
+            
+            // Set iframe to ACTUAL device dimensions (triggers media queries)
+            deviceScreen.style.width = w + 'px';
+            deviceScreen.style.height = h + 'px';
+            
+            // Scale the whole frame
             deviceFrame.style.transform = `scale(${scale})`;
 
             // Update specs
@@ -598,6 +616,14 @@
             portraitBtn.classList.toggle('active', orient === 'portrait');
             landscapeBtn.classList.toggle('active', orient === 'landscape');
             applyDevice();
+            // Reload iframe to re-trigger media queries
+            const currentSrc = deviceScreen.src;
+            deviceScreen.src = '';
+            setTimeout(() => { deviceScreen.src = currentSrc; }, 50);
+        }
+
+        function refreshIframe() {
+            deviceScreen.src = deviceScreen.src;
         }
 
         function loadUrl() {
