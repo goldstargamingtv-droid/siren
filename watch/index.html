@@ -137,9 +137,6 @@
 
         .video-wrapper{position:absolute;inset:0;z-index:2}
         video{width:100%;height:100%;object-fit:contain;background:#000}
-        .intro-video{position:absolute;inset:0;z-index:3;opacity:0;transition:opacity 0.8s ease}
-        .intro-video.fade-in{opacity:1}
-        .intro-video.fade-out{opacity:0;pointer-events:none}
 
         /* Controls Overlay */
         .controls-overlay{position:absolute;inset:0;opacity:0;transition:opacity 0.5s;pointer-events:none;z-index:10}
@@ -228,12 +225,6 @@
         .resume-btn:hover{transform:scale(1.05);box-shadow:0 0 60px rgba(239,68,68,0.5)}
         .resume-btn svg{width:24px;height:24px}
 
-        /* Skip Intro */
-        .skip-intro{position:absolute;bottom:150px;right:48px;background:linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.1);color:#fff;padding:14px 32px;font-size:14px;font-weight:600;letter-spacing:0.05em;cursor:pointer;border-radius:8px;transition:all 0.4s;z-index:18;display:none;font-family:inherit}
-        .skip-intro.visible{display:flex;align-items:center;gap:12px}
-        .skip-intro:hover{background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(249,115,22,0.1));border-color:rgba(239,68,68,0.4);box-shadow:0 0 30px rgba(239,68,68,0.3)}
-        .skip-intro svg{width:18px;height:18px}
-
         /* Next Episode */
         .next-ep-card{position:absolute;bottom:150px;right:48px;background:linear-gradient(135deg,rgba(15,15,20,0.95),rgba(10,10,15,0.98));border:1px solid rgba(239,68,68,0.15);border-radius:20px;padding:24px;width:400px;z-index:18;display:none;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
         .next-ep-card.visible{display:block}
@@ -312,7 +303,6 @@
         body.immersive-mode .video-wrapper { display: none; }
         body.immersive-mode .immersive-container { display: block; }
         body.immersive-mode .pause-overlay { display: none; }
-        body.immersive-mode .skip-intro { display: none; }
         body.immersive-mode .next-ep-card { display: none; }
         body.immersive-mode #pipBtn { display: none; }
         body.immersive-mode #episodesBtn { display: none; }
@@ -489,14 +479,6 @@
                 right: 0 !important;
             }
 
-            /* Skip intro button */
-            .skip-intro {
-                bottom: 120px !important;
-                right: 16px !important;
-                padding: 12px 24px !important;
-                font-size: 0.8rem !important;
-            }
-
             /* Next episode card */
             .next-ep-card {
                 width: calc(100% - 32px) !important;
@@ -524,7 +506,7 @@
             }
 
             /* Video fills screen */
-            #video, #introVideo {
+            #video {
                 object-fit: contain !important;
             }
         }
@@ -604,12 +586,8 @@
         <div class="ambient-glow ambient-glow-3"></div>
 
         <div class="video-wrapper">
-            <!-- Intro Video -->
-            <video id="introVideo" class="intro-video" preload="auto" playsinline muted>
-                <source src="https://oyqpmhaujuebwvawfyhj.supabase.co/storage/v1/object/public/previews/siren-intro.mp4" type="video/mp4">
-            </video>
             <!-- Main Content Video -->
-            <video id="video" preload="auto" style="opacity: 0;">
+            <video id="video" preload="auto">
                 <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
             </video>
         </div>
@@ -699,8 +677,6 @@
                 </div>
             </div>
         </div>
-
-        <button class="skip-intro" id="skipIntro">Skip Intro <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg></button>
 
         <div class="next-ep-card" id="nextEpCard">
             <div class="next-ep-header">
@@ -799,8 +775,8 @@
         for(let i=0;i<20;i++){const ember=document.createElement('div');ember.className='ember';ember.style.left=Math.random()*100+'%';ember.style.animationDuration=(6+Math.random()*8)+'s';ember.style.animationDelay=Math.random()*8+'s';ember.style.width=(2+Math.random()*4)+'px';ember.style.height=ember.style.width;embersContainer.appendChild(ember)}
 
         // Player
-        const video=document.getElementById('video'),introVideo=document.getElementById('introVideo'),controlsOverlay=document.getElementById('controlsOverlay'),pauseOverlay=document.getElementById('pauseOverlay'),centerPlay=document.getElementById('centerPlay'),playPauseBtn=document.getElementById('playPauseBtn'),progressWrapper=document.getElementById('progressWrapper'),progressFill=document.getElementById('progressFill'),progressBuffer=document.getElementById('progressBuffer'),timeDisplay=document.getElementById('timeDisplay'),timeTooltip=document.getElementById('timeTooltip'),volumeBtn=document.getElementById('volumeBtn'),volumeSlider=document.getElementById('volumeSlider'),fullscreenBtn=document.getElementById('fullscreenBtn'),episodesBtn=document.getElementById('episodesBtn'),episodesPanel=document.getElementById('episodesPanel'),epCloseBtn=document.getElementById('epCloseBtn'),speedBtn=document.getElementById('speedBtn'),settingsPanel=document.getElementById('settingsPanel'),loadingSpinner=document.getElementById('loadingSpinner'),skipIntro=document.getElementById('skipIntro'),nextEpCard=document.getElementById('nextEpCard'),pipBtn=document.getElementById('pipBtn');
-        let hideTO,isPlaying=false,isMuted=false,introPlayed=false;
+        const video=document.getElementById('video'),controlsOverlay=document.getElementById('controlsOverlay'),pauseOverlay=document.getElementById('pauseOverlay'),centerPlay=document.getElementById('centerPlay'),playPauseBtn=document.getElementById('playPauseBtn'),progressWrapper=document.getElementById('progressWrapper'),progressFill=document.getElementById('progressFill'),progressBuffer=document.getElementById('progressBuffer'),timeDisplay=document.getElementById('timeDisplay'),timeTooltip=document.getElementById('timeTooltip'),volumeBtn=document.getElementById('volumeBtn'),volumeSlider=document.getElementById('volumeSlider'),fullscreenBtn=document.getElementById('fullscreenBtn'),episodesBtn=document.getElementById('episodesBtn'),episodesPanel=document.getElementById('episodesPanel'),epCloseBtn=document.getElementById('epCloseBtn'),speedBtn=document.getElementById('speedBtn'),settingsPanel=document.getElementById('settingsPanel'),loadingSpinner=document.getElementById('loadingSpinner'),nextEpCard=document.getElementById('nextEpCard'),pipBtn=document.getElementById('pipBtn');
+        let hideTO,isPlaying=false,isMuted=false,introPlayed=true;
         
         const fmt=s=>{if(isNaN(s))return'0:00';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);return h>0?h+':'+m.toString().padStart(2,'0')+':'+sec.toString().padStart(2,'0'):m+':'+sec.toString().padStart(2,'0')};
         const showControls=()=>{controlsOverlay.classList.add('visible');document.body.classList.add('controls-visible');clearTimeout(hideTO);if(isPlaying)hideTO=setTimeout(hideControls,3000)};
@@ -811,7 +787,7 @@
             video.load();
         }
         
-        // Start intro after loader finishes
+        // Start video after loader finishes
         function startIntro(){
             if (isImmersiveMode) {
                 // For immersive: just show play button, animation starts via Three.js script
@@ -822,20 +798,7 @@
                 window.dispatchEvent(new CustomEvent('immersiveReady'));
                 return;
             }
-            // Normal video mode
-            centerPlay.classList.remove('visible');
-            introVideo.classList.add('fade-in');
-            introVideo.play().catch(err => {
-                console.log('Intro video failed, skipping to main content:', err);
-                skipToMainVideo();
-            });
-        }
-        
-        // Skip intro and go to main video
-        function skipToMainVideo() {
-            introPlayed = true;
-            introVideo.style.display = 'none';
-            video.style.opacity = '1';
+            // Normal video mode - show play button, ready to play
             video.muted = true;
             isMuted = true;
             volumeBtn.querySelector('.vol-high').style.display = 'none';
@@ -845,110 +808,32 @@
             document.body.classList.add('controls-visible');
         }
         
-        // Handle intro video errors
-        introVideo.addEventListener('error', () => {
-            console.log('Intro video error, skipping');
-            skipToMainVideo();
-        });
-        
-        // Timeout fallback - if intro doesn't start playing within 5s, skip it
-        setTimeout(() => {
-            if (!introPlayed && introVideo.paused && !isImmersiveMode) {
-                console.log('Intro video timeout, skipping');
-                skipToMainVideo();
-            }
-        }, 5000);
-        
-        introVideo.addEventListener('playing',()=>{
-            isPlaying=true;
-            centerPlay.classList.remove('visible');
-            playPauseBtn.querySelector('.play-icon').style.display='none';
-            playPauseBtn.querySelector('.pause-icon').style.display='block';
-        });
-        
-        // Intro video ends - crossfade to main content
-        introVideo.addEventListener('ended',()=>{
-            introVideo.classList.remove('fade-in');
-            introVideo.classList.add('fade-out');
-            video.style.opacity='1';
-            video.muted=true;
-            isMuted=true;
-            volumeBtn.querySelector('.vol-high').style.display='none';
-            volumeBtn.querySelector('.vol-muted').style.display='block';
-            
-            const playMain = () => {
-                video.play().then(()=>{
-                    introPlayed=true;
-                    isPlaying=true;
-                    playPauseBtn.querySelector('.play-icon').style.display='none';
-                    playPauseBtn.querySelector('.pause-icon').style.display='block';
-                    centerPlay.classList.remove('visible');
-                    pauseOverlay.classList.remove('visible');
-                }).catch(()=>{
-                    centerPlay.classList.add('visible');
-                    isPlaying=false;
-                    introPlayed=true;
-                });
-            };
-            
-            if(video.readyState >= 3){
-                playMain();
-            } else {
-                video.addEventListener('canplay', playMain, {once:true});
-            }
-            
-            introPlayed=true;
-            setTimeout(()=>{introVideo.style.display='none';},800);
-        });
-        
         window.togglePlay=()=>{
             // Skip if immersive mode - handled by Three.js script
             if(isImmersiveMode) return;
             
-            if(!introPlayed){
-                // During intro
-                if(introVideo.paused){
-                    introVideo.play();
-                    isPlaying=true;
-                    playPauseBtn.querySelector('.play-icon').style.display='none';
-                    playPauseBtn.querySelector('.pause-icon').style.display='block';
-                    centerPlay.classList.remove('visible');
-                    pauseOverlay.classList.remove('visible');
-                    hideTO=setTimeout(hideControls,3000);
-                }else{
-                    introVideo.pause();
-                    isPlaying=false;
-                    playPauseBtn.querySelector('.play-icon').style.display='block';
-                    playPauseBtn.querySelector('.pause-icon').style.display='none';
-                    centerPlay.classList.add('visible');
-                    showControls();
-                }
+            if(video.paused){
+                video.play();
+                isPlaying=true;
+                playPauseBtn.querySelector('.play-icon').style.display='none';
+                playPauseBtn.querySelector('.pause-icon').style.display='block';
+                centerPlay.classList.remove('visible');
+                pauseOverlay.classList.remove('visible');
+                hideTO=setTimeout(hideControls,3000);
             }else{
-                // After intro - main video
-                if(video.paused){
-                    video.play();
-                    isPlaying=true;
-                    playPauseBtn.querySelector('.play-icon').style.display='none';
-                    playPauseBtn.querySelector('.pause-icon').style.display='block';
-                    centerPlay.classList.remove('visible');
-                    pauseOverlay.classList.remove('visible');
-                    hideTO=setTimeout(hideControls,3000);
-                }else{
-                    video.pause();
-                    isPlaying=false;
-                    playPauseBtn.querySelector('.play-icon').style.display='block';
-                    playPauseBtn.querySelector('.pause-icon').style.display='none';
-                    centerPlay.classList.add('visible');
-                    pauseOverlay.classList.add('visible');
-                    showControls();
-                }
+                video.pause();
+                isPlaying=false;
+                playPauseBtn.querySelector('.play-icon').style.display='block';
+                playPauseBtn.querySelector('.pause-icon').style.display='none';
+                centerPlay.classList.add('visible');
+                pauseOverlay.classList.add('visible');
+                showControls();
             }
         };
         const togglePlay = window.togglePlay;
-        introVideo.addEventListener('click',togglePlay);
         video.addEventListener('click',togglePlay);centerPlay.addEventListener('click',togglePlay);playPauseBtn.addEventListener('click',togglePlay);document.getElementById('resumeBtn').addEventListener('click',togglePlay);
         document.querySelector('.player-container').addEventListener('mousemove',showControls);
-        video.addEventListener('timeupdate',()=>{const pct=(video.currentTime/video.duration)*100;progressFill.style.width=pct+'%';timeDisplay.innerHTML='<span class="now">'+fmt(video.currentTime)+'</span> / '+fmt(video.duration);if(video.currentTime>5&&video.currentTime<90)skipIntro.classList.add('visible');else skipIntro.classList.remove('visible');if(video.duration-video.currentTime<30&&video.duration>60)nextEpCard.classList.add('visible');else nextEpCard.classList.remove('visible')});
+        video.addEventListener('timeupdate',()=>{const pct=(video.currentTime/video.duration)*100;progressFill.style.width=pct+'%';timeDisplay.innerHTML='<span class="now">'+fmt(video.currentTime)+'</span> / '+fmt(video.duration);if(video.duration-video.currentTime<30&&video.duration>60)nextEpCard.classList.add('visible');else nextEpCard.classList.remove('visible')});
         video.addEventListener('progress',()=>{if(video.buffered.length>0)progressBuffer.style.width=(video.buffered.end(video.buffered.length-1)/video.duration)*100+'%'});
         let isDraggingProgress=false;
         
@@ -1017,7 +902,6 @@
                 video.currentTime=Math.min(video.duration,video.currentTime+10);
             }
         });
-        skipIntro.addEventListener('click',()=>{video.currentTime=90;skipIntro.classList.remove('visible')});
         episodesBtn.addEventListener('click',()=>{episodesPanel.classList.toggle('open');settingsPanel.classList.remove('open')});
         epCloseBtn.addEventListener('click',()=>episodesPanel.classList.remove('open'));
         
@@ -1048,13 +932,6 @@
     const isImmersive = contentType === 'splat' || contentType === 'immersive' || contentType === '3d';
     
     if (!isImmersive) return;
-    
-    // Hide intro video
-    const introVideoEl = document.getElementById('introVideo');
-    if (introVideoEl) {
-        introVideoEl.style.display = 'none';
-        introVideoEl.pause();
-    }
     
     // Setup Three.js
     const container = document.getElementById('immersiveContainer');
