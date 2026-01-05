@@ -519,8 +519,44 @@
             : ['Initializing...','Loading stream...','Buffering...','Almost ready...'];
         let loadProg=0,msgIdx=0;
         const loaderFill=document.getElementById('loaderProgress'),loaderStatus=document.getElementById('loaderStatus'),siteLoader=document.getElementById('siteLoader');
-        function updateLoader(){loadProg+=Math.random()*18+6;if(loadProg>100)loadProg=100;loaderFill.style.width=loadProg+'%';if(loadProg<100){const newIdx=Math.floor((loadProg/100)*(loaderMsgs.length-1));if(newIdx!==msgIdx){msgIdx=newIdx;loaderStatus.textContent=loaderMsgs[msgIdx]}setTimeout(updateLoader,180+Math.random()*250)}else{loaderStatus.textContent='Enjoy';setTimeout(()=>{siteLoader.classList.add('fade-out');setTimeout(()=>{siteLoader.style.display='none';startIntro();},500)},400)}}
-        setTimeout(updateLoader,200);
+        
+        function hideLoader() {
+            siteLoader.style.transition = 'opacity 0.5s ease, visibility 0.5s ease';
+            siteLoader.style.opacity = '0';
+            siteLoader.style.visibility = 'hidden';
+            siteLoader.style.pointerEvents = 'none';
+            setTimeout(() => {
+                siteLoader.style.display = 'none';
+                startIntro();
+            }, 500);
+        }
+        
+        function updateLoader(){
+            loadProg += Math.random()*18+6;
+            if(loadProg > 100) loadProg = 100;
+            loaderFill.style.width = loadProg + '%';
+            
+            if(loadProg < 100){
+                const newIdx = Math.floor((loadProg/100)*(loaderMsgs.length-1));
+                if(newIdx !== msgIdx){
+                    msgIdx = newIdx;
+                    loaderStatus.textContent = loaderMsgs[msgIdx];
+                }
+                setTimeout(updateLoader, 180 + Math.random()*250);
+            } else {
+                loaderStatus.textContent = 'Enjoy';
+                setTimeout(hideLoader, 400);
+            }
+        }
+        setTimeout(updateLoader, 200);
+        
+        // Failsafe - force hide loader after 6 seconds no matter what
+        setTimeout(() => {
+            if (siteLoader.style.display !== 'none') {
+                console.log('Loader failsafe triggered');
+                hideLoader();
+            }
+        }, 6000);
 
         // Embers
         const embersContainer=document.getElementById('embersContainer');
