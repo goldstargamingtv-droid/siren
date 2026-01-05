@@ -673,18 +673,18 @@
 
 <script>
     // Watch page specific - track watch progress
-    const video = document.getElementById('mainVideo');
+    const mainVideoEl = document.getElementById('mainVideo');
     let lastUpdate = 0;
     
-    if (video) {
-        video.addEventListener('timeupdate', () => {
+    if (mainVideoEl) {
+        mainVideoEl.addEventListener('timeupdate', () => {
             // Update every 10 seconds
-            if (video.currentTime - lastUpdate > 10) {
-                lastUpdate = video.currentTime;
+            if (mainVideoEl.currentTime - lastUpdate > 10) {
+                lastUpdate = mainVideoEl.currentTime;
                 // Get content ID from URL or data attribute
                 const contentId = new URLSearchParams(window.location.search).get('id');
                 if (contentId && SIREN.isAuthenticated()) {
-                    SIREN.updateWatchProgress(contentId, Math.floor(video.currentTime));
+                    SIREN.updateWatchProgress(contentId, Math.floor(mainVideoEl.currentTime));
                 }
             }
         });
