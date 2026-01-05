@@ -339,14 +339,244 @@
         body.immersive-mode .immersive-badge { display: flex; }
         .immersive-badge svg { width: 14px; height: 14px; stroke: currentColor; fill: none; }
 
-        @media(max-width:768px){
-            .top-bar,.bottom-controls{padding-left:24px;padding-right:24px}
-            .center-logo{display:none}
-            .pause-overlay{padding:60px 32px}
-            .pause-title{font-size:40px}
-            .episodes-panel{width:100%;right:-100%}
+        /* ==================== */
+        /* Watch Mobile Styles  */
+        /* ==================== */
+        @media (max-width: 768px) {
+            /* Top bar adjustments */
+            .top-bar {
+                padding: 16px !important;
+                background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent) !important;
+            }
+
+            .back-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .back-btn span {
+                display: none;
+            }
+
+            .center-logo {
+                display: none;
+            }
+
+            .title-section {
+                flex: 1;
+                text-align: center;
+            }
+
+            .content-title {
+                font-size: 0.9rem !important;
+            }
+
+            .content-subtitle {
+                font-size: 0.7rem !important;
+            }
+
+            /* Hide some top buttons */
+            .immersive-badge {
+                display: none !important;
+            }
+
+            /* Center play button */
+            .center-play {
+                width: 80px !important;
+                height: 80px !important;
+            }
+
+            .center-play svg {
+                width: 36px !important;
+                height: 36px !important;
+                margin-left: 4px !important;
+            }
+
+            /* Bottom controls */
+            .bottom-controls {
+                padding: 0 16px 24px !important;
+                background: linear-gradient(to top, rgba(0,0,0,0.95) 50%, transparent) !important;
+            }
+
+            /* Progress bar - larger touch target */
+            .progress-wrapper {
+                height: 24px !important;
+                padding: 10px 0 !important;
+            }
+
+            .progress-bar {
+                height: 4px !important;
+            }
+
+            /* Time display */
+            .time-display {
+                font-size: 0.75rem !important;
+            }
+
+            /* Control buttons - larger for touch */
+            .controls-row {
+                gap: 8px !important;
+            }
+
+            .ctrl-btn {
+                width: 44px !important;
+                height: 44px !important;
+            }
+
+            .ctrl-btn svg {
+                width: 22px !important;
+                height: 22px !important;
+            }
+
+            /* Hide less important controls on mobile */
+            #pipBtn,
+            #episodesBtn,
+            .speed-btn {
+                display: none !important;
+            }
+
+            /* Volume - hide slider, keep mute */
+            .volume-control {
+                position: relative;
+            }
+
+            .volume-slider {
+                display: none !important;
+            }
+
+            /* Play/pause button prominence */
+            #playPauseBtn {
+                width: 50px !important;
+                height: 50px !important;
+                background: rgba(255,255,255,0.1) !important;
+                border-radius: 50% !important;
+            }
+
+            #playPauseBtn svg {
+                width: 26px !important;
+                height: 26px !important;
+            }
+
+            /* Pause overlay */
+            .pause-overlay {
+                padding: 60px 24px !important;
+            }
+
+            .pause-title {
+                font-size: 32px !important;
+            }
+
+            .pause-meta {
+                font-size: 0.8rem !important;
+            }
+
+            .pause-description {
+                font-size: 0.85rem !important;
+                -webkit-line-clamp: 4 !important;
+            }
+
+            #resumeBtn {
+                padding: 14px 28px !important;
+            }
+
+            /* Episodes panel - full screen */
+            .episodes-panel {
+                width: 100% !important;
+                right: -100% !important;
+            }
+
+            .episodes-panel.open {
+                right: 0 !important;
+            }
+
+            /* Skip intro button */
+            .skip-intro {
+                bottom: 120px !important;
+                right: 16px !important;
+                padding: 12px 24px !important;
+                font-size: 0.8rem !important;
+            }
+
+            /* Next episode card */
+            .next-ep-card {
+                width: calc(100% - 32px) !important;
+                right: 16px !important;
+                bottom: 120px !important;
+                padding: 16px !important;
+            }
+
+            /* Loading spinner */
+            .loading-spinner {
+                width: 50px !important;
+                height: 50px !important;
+            }
+
+            /* Settings panel */
+            .settings-panel {
+                right: 16px !important;
+                bottom: 100px !important;
+                min-width: 200px !important;
+            }
+
+            /* For portrait video viewing */
+            .player-container {
+                background: #000 !important;
+            }
+
+            /* Video fills screen */
+            #video, #introVideo {
+                object-fit: contain !important;
+            }
+        }
+
+        /* Extra small phones */
+        @media (max-width: 375px) {
+            .center-play {
+                width: 70px !important;
+                height: 70px !important;
+            }
+
+            .center-play svg {
+                width: 30px !important;
+                height: 30px !important;
+            }
+
+            .ctrl-btn {
+                width: 40px !important;
+                height: 40px !important;
+            }
+
+            .pause-title {
+                font-size: 26px !important;
+            }
+        }
+
+        /* Landscape mobile - minimal UI */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .top-bar {
+                padding: 8px 16px !important;
+            }
+
+            .bottom-controls {
+                padding: 0 16px 12px !important;
+            }
+
+            .center-play {
+                width: 60px !important;
+                height: 60px !important;
+            }
+
+            .pause-overlay {
+                flex-direction: row !important;
+                padding: 20px 40px !important;
+            }
+
+            .pause-content {
+                max-width: 50% !important;
+            }
         }
     </style>
+    <link rel="stylesheet" href="../css/mobile.css">
 </head>
 
 <body class="controls-visible">
@@ -1135,5 +1365,6 @@
     }, 3000);
 })();
 </script>
+<script src="../js/mobile.js"></script>
 </body>
 </html>
