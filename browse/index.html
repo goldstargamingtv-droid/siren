@@ -2082,6 +2082,7 @@
             font-weight: 600;
             text-decoration: none;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .upgrade-btn:hover {
@@ -3403,6 +3404,317 @@
                 display: none;
             }
         }
+
+        /* ==========================================
+           SUBSCRIPTION MODAL
+           ========================================== */
+        .sub-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            padding: 2rem;
+        }
+
+        .sub-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sub-modal {
+            background: rgba(15, 15, 20, 0.6);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            max-width: 480px;
+            width: 100%;
+            padding: 3rem;
+            position: relative;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .sub-modal-overlay.active .sub-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .sub-modal-close {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .sub-modal-close:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: rotate(90deg);
+        }
+
+        .sub-modal-close svg {
+            width: 18px;
+            height: 18px;
+            stroke: rgba(255, 255, 255, 0.6);
+        }
+
+        .sub-modal-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sub-modal-logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            position: relative;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            background: linear-gradient(180deg, #fcd7a0 0%, #f97316 25%, #ef4444 50%, #dc2626 75%, #991b1b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 1px 0 rgba(255, 200, 150, 0.3)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4)) drop-shadow(0 4px 8px rgba(239, 68, 68, 0.15));
+        }
+
+        .sub-modal-logo::before {
+            content: 'SIREN';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: blur(10px);
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .sub-modal-logo::after {
+            content: 'SIREN';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent 0%, transparent 30%, rgba(255, 255, 255, 0.7) 48%, rgba(255, 220, 180, 0.8) 50%, rgba(255, 255, 255, 0.7) 52%, transparent 70%, transparent 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: subLogoShine 5s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes subLogoShine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .sub-modal-tagline {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .sub-pricing-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sub-pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #f97316, #ef4444, #dc2626);
+        }
+
+        .sub-plan-badge {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .sub-price {
+            display: flex;
+            align-items: baseline;
+            gap: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sub-price-currency {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sub-price-amount {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            line-height: 1;
+        }
+
+        .sub-price-period {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-left: 0.25rem;
+        }
+
+        .sub-price-note {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 1.5rem;
+        }
+
+        .sub-features {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .sub-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .sub-feature-icon {
+            width: 20px;
+            height: 20px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sub-feature-icon svg {
+            width: 10px;
+            height: 10px;
+            stroke: #ef4444;
+            stroke-width: 3;
+        }
+
+        .sub-cta-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(239, 68, 68, 0.15);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sub-cta-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(239, 68, 68, 0.3));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sub-cta-btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 10px 30px -10px rgba(239, 68, 68, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .sub-cta-btn:hover::before {
+            opacity: 1;
+        }
+
+        .sub-cta-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .sub-cta-btn:active {
+            transform: translateY(0);
+        }
+
+        .sub-terms {
+            text-align: center;
+            margin-top: 1.25rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .sub-terms a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .sub-terms a:hover {
+            color: #ef4444;
+        }
+
+        .sub-modal-particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            border-radius: 20px;
+        }
+
+        .sub-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(239, 68, 68, 0.4);
+            border-radius: 50%;
+            animation: subFloat 8s infinite ease-in-out;
+        }
+
+        @keyframes subFloat {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            50% { transform: translateY(-100px) scale(0.5); }
+        }
     </style>
 </head>
 
@@ -3841,7 +4153,7 @@
                             </svg>
                             <span data-user-tier>Free</span>
                         </div>
-                        <a href="../account/#billing" class="upgrade-btn">Upgrade</a>
+                        <button class="upgrade-btn" id="openSubModal">Upgrade</button>
                     </div>
                 </div>
 
@@ -5987,4 +6299,145 @@
         }
         
         // Show/hide upgrade button based on tier
-        const upgradeBtn = document.querySelect
+        const upgradeBtn = document.querySelector('#openSubModal');
+        if (upgradeBtn && profile?.subscription_tier === 'premium') {
+            upgradeBtn.style.display = 'none';
+        }
+    }
+</script>
+
+<!-- Subscription Modal -->
+<div class="sub-modal-overlay" id="subscriptionModal">
+    <div class="sub-modal">
+        <div class="sub-modal-particles" id="subParticles"></div>
+        
+        <button class="sub-modal-close" id="closeSubModal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+        </button>
+        
+        <div class="sub-modal-header">
+            <div class="sub-modal-logo">SIREN</div>
+            <div class="sub-modal-tagline">Immersive Entertainment</div>
+        </div>
+        
+        <div class="sub-pricing-card">
+            <div class="sub-plan-badge">Premium Access</div>
+            
+            <div class="sub-price">
+                <span class="sub-price-currency">$</span>
+                <span class="sub-price-amount">14</span>
+                <span class="sub-price-period">/month</span>
+            </div>
+            <div class="sub-price-note">Billed monthly. Cancel anytime.</div>
+            
+            <div class="sub-features">
+                <div class="sub-feature">
+                    <div class="sub-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <span>Unlimited streaming in 4K</span>
+                </div>
+                <div class="sub-feature">
+                    <div class="sub-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <span>Exclusive immersive 3D experiences</span>
+                </div>
+                <div class="sub-feature">
+                    <div class="sub-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <span>New content added weekly</span>
+                </div>
+                <div class="sub-feature">
+                    <div class="sub-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <span>Watch on any device</span>
+                </div>
+                <div class="sub-feature">
+                    <div class="sub-feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <span>No ads, ever</span>
+                </div>
+            </div>
+        </div>
+        
+        <button class="sub-cta-btn" id="subscribeBtn">
+            <span>Start Watching Now</span>
+        </button>
+        
+        <div class="sub-terms">
+            By subscribing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Subscription Modal
+const subModal = document.getElementById('subscriptionModal');
+const closeSubModal = document.getElementById('closeSubModal');
+const subscribeBtn = document.getElementById('subscribeBtn');
+const openSubModalBtn = document.getElementById('openSubModal');
+const premiumNavItem = document.querySelector('[data-nav="premium"]');
+
+// Create particles
+const subParticles = document.getElementById('subParticles');
+for(let i = 0; i < 8; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'sub-particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.bottom = '-10px';
+    particle.style.animationDelay = Math.random() * 8 + 's';
+    subParticles.appendChild(particle);
+}
+
+// Open modal function
+function openSubscriptionModal() {
+    subModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// Open from Upgrade button
+if (openSubModalBtn) {
+    openSubModalBtn.addEventListener('click', openSubscriptionModal);
+}
+
+// Open from Premium nav item
+if (premiumNavItem) {
+    premiumNavItem.addEventListener('click', openSubscriptionModal);
+}
+
+// Close modal
+closeSubModal.addEventListener('click', () => {
+    subModal.classList.remove('active');
+    document.body.style.overflow = '';
+});
+
+// Close on overlay click
+subModal.addEventListener('click', (e) => {
+    if(e.target === subModal) {
+        subModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+});
+
+// Close on escape
+document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && subModal.classList.contains('active')) {
+        subModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+});
+
+// Subscribe button
+subscribeBtn.addEventListener('click', () => {
+    // TODO: Integrate with Stripe checkout
+    console.log('Subscribe clicked - integrate payment here');
+});
+</script>
+</body>
+</html>
