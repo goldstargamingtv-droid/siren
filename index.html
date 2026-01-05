@@ -4913,7 +4913,7 @@ subscribeBtn.addEventListener('click', () => {
 <script src="js/mobile.js"></script>
 
 <!-- Mobile Navigation (fallback) -->
-<nav class="mobile-nav" id="mobileNav">
+<nav class="mobile-nav" id="mobileNav" style="display:none;">
     <svg width="0" height="0" style="position:absolute">
         <defs>
             <linearGradient id="nav-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -4960,5 +4960,21 @@ subscribeBtn.addEventListener('click', () => {
         <span>Profile</span>
     </a>
 </nav>
+<script>
+// Force mobile nav on small screens - bypasses CSS issues
+(function(){
+    var nav = document.getElementById('mobileNav');
+    if(nav && window.innerWidth <= 768) {
+        nav.style.cssText = 'display:flex!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;height:70px;background:rgba(5,5,10,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.08);z-index:999999;justify-content:space-around;align-items:center;padding:8px 0;';
+    }
+    window.addEventListener('resize', function(){
+        if(nav && window.innerWidth <= 768) {
+            nav.style.cssText = 'display:flex!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;height:70px;background:rgba(5,5,10,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.08);z-index:999999;justify-content:space-around;align-items:center;padding:8px 0;';
+        } else if(nav) {
+            nav.style.display = 'none';
+        }
+    });
+})();
+</script>
 </body>
 </html>
