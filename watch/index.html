@@ -314,12 +314,15 @@
         body.immersive-mode .pause-overlay { display: none; }
         body.immersive-mode .skip-intro { display: none; }
         body.immersive-mode .next-ep-card { display: none; }
+        body.immersive-mode #pipBtn { display: none; }
+        body.immersive-mode #episodesBtn { display: none; }
         body.immersive-mode .controls-overlay { pointer-events: none; }
         body.immersive-mode .center-play,
         body.immersive-mode .top-bar,
         body.immersive-mode .top-bar *,
         body.immersive-mode .bottom-controls,
-        body.immersive-mode .bottom-controls * { pointer-events: auto; }
+        body.immersive-mode .bottom-controls *,
+        body.immersive-mode .progress-wrapper { pointer-events: auto; }
         
         .immersive-badge {
             display: none;
@@ -717,17 +720,47 @@
         document.querySelector('.player-container').addEventListener('mousemove',showControls);
         video.addEventListener('timeupdate',()=>{const pct=(video.currentTime/video.duration)*100;progressFill.style.width=pct+'%';timeDisplay.innerHTML='<span class="now">'+fmt(video.currentTime)+'</span> / '+fmt(video.duration);if(video.currentTime>5&&video.currentTime<90)skipIntro.classList.add('visible');else skipIntro.classList.remove('visible');if(video.duration-video.currentTime<30&&video.duration>60)nextEpCard.classList.add('visible');else nextEpCard.classList.remove('visible')});
         video.addEventListener('progress',()=>{if(video.buffered.length>0)progressBuffer.style.width=(video.buffered.end(video.buffered.length-1)/video.duration)*100+'%'});
-        let isDragging=false;
+        let isDraggingProgress=false;
+        
+        // Expose seek function for immersive mode
+        window.seekImmersive = null;
+        window.skipImmersive = null;
+        
         const seekTo=(e)=>{
+            if(isImmersiveMode && window.seekImmersive) {
+                const rect=progressWrapper.getBoundingClientRect();
+                const pos=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+                window.seekImmersive(pos);
+                return;
+            }
             if(!introPlayed)return;
             const rect=progressWrapper.getBoundingClientRect();
             const pos=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
             video.currentTime=pos*video.duration;
         };
-        progressWrapper.addEventListener('mousedown',e=>{if(!introPlayed)return;isDragging=true;seekTo(e);e.preventDefault();});
+        progressWrapper.addEventListener('mousedown',e=>{
+            if(isImmersiveMode && window.seekImmersive) {
+                isDraggingProgress=true;
+                seekTo(e);
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+            if(!introPlayed)return;
+            isDraggingProgress=true;
+            seekTo(e);
+            e.preventDefault();
+        });
         document.addEventListener('mousemove',e=>{
-            if(isDragging){seekTo(e);e.preventDefault();}
-            if(introPlayed){
+            if(isDraggingProgress){seekTo(e);e.preventDefault();}
+            if(isImmersiveMode) {
+                const rect=progressWrapper.getBoundingClientRect();
+                const pos=(e.clientX-rect.left)/rect.width;
+                if(pos>=0&&pos<=1){
+                    timeTooltip.textContent=fmt(pos*600); // 10 min duration for immersive
+                    timeTooltip.style.left=(e.clientX-rect.left)+'px';
+                }
+            } else if(introPlayed){
                 const rect=progressWrapper.getBoundingClientRect();
                 const pos=(e.clientX-rect.left)/rect.width;
                 if(pos>=0&&pos<=1){
@@ -736,12 +769,24 @@
                 }
             }
         });
-        document.addEventListener('mouseup',()=>{isDragging=false;});
+        document.addEventListener('mouseup',()=>{isDraggingProgress=false;});
         volumeBtn.addEventListener('click',()=>{isMuted=!isMuted;video.muted=isMuted;volumeBtn.querySelector('.vol-high').style.display=isMuted?'none':'block';volumeBtn.querySelector('.vol-muted').style.display=isMuted?'block':'none';volumeSlider.value=isMuted?0:video.volume*100});
         volumeSlider.addEventListener('input',e=>{video.volume=e.target.value/100;video.muted=false;isMuted=e.target.value==0;volumeBtn.querySelector('.vol-high').style.display=isMuted?'none':'block';volumeBtn.querySelector('.vol-muted').style.display=isMuted?'block':'none'});
         fullscreenBtn.addEventListener('click',()=>{if(!document.fullscreenElement){document.querySelector('.player-container').requestFullscreen();fullscreenBtn.querySelector('.expand-icon').style.display='none';fullscreenBtn.querySelector('.compress-icon').style.display='block'}else{document.exitFullscreen();fullscreenBtn.querySelector('.expand-icon').style.display='block';fullscreenBtn.querySelector('.compress-icon').style.display='none'}});
-        document.getElementById('rewindBtn').addEventListener('click',()=>video.currentTime=Math.max(0,video.currentTime-10));
-        document.getElementById('forwardBtn').addEventListener('click',()=>video.currentTime=Math.min(video.duration,video.currentTime+10));
+        document.getElementById('rewindBtn').addEventListener('click',()=>{
+            if(isImmersiveMode && window.skipImmersive) {
+                window.skipImmersive(-10);
+            } else {
+                video.currentTime=Math.max(0,video.currentTime-10);
+            }
+        });
+        document.getElementById('forwardBtn').addEventListener('click',()=>{
+            if(isImmersiveMode && window.skipImmersive) {
+                window.skipImmersive(10);
+            } else {
+                video.currentTime=Math.min(video.duration,video.currentTime+10);
+            }
+        });
         skipIntro.addEventListener('click',()=>{video.currentTime=90;skipIntro.classList.remove('visible')});
         episodesBtn.addEventListener('click',()=>{episodesPanel.classList.toggle('open');settingsPanel.classList.remove('open')});
         epCloseBtn.addEventListener('click',()=>episodesPanel.classList.remove('open'));
@@ -1017,6 +1062,24 @@
             showImmersiveUI();
         }
     }
+    
+    // Seek to position (0-1)
+    window.seekImmersive = function(pos) {
+        immersiveTime = pos * immersiveDuration;
+        const pct = pos * 100;
+        progressFillEl.style.width = pct + '%';
+        timeDisplayEl.innerHTML = '<span class="now">' + formatTime(immersiveTime) + '</span> / ' + formatTime(immersiveDuration);
+        showImmersiveUI();
+    };
+    
+    // Skip by seconds
+    window.skipImmersive = function(seconds) {
+        immersiveTime = Math.max(0, Math.min(immersiveDuration, immersiveTime + seconds));
+        const pct = (immersiveTime / immersiveDuration) * 100;
+        progressFillEl.style.width = pct + '%';
+        timeDisplayEl.innerHTML = '<span class="now">' + formatTime(immersiveTime) + '</span> / ' + formatTime(immersiveDuration);
+        showImmersiveUI();
+    };
 
     // Bind play buttons
     document.getElementById('centerPlay').addEventListener('click', toggleImmersive);
@@ -1036,6 +1099,12 @@
         if (e.key === ' ' || e.key.toLowerCase() === 'k') {
             e.preventDefault();
             toggleImmersive();
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            window.skipImmersive(-10);
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            window.skipImmersive(10);
         }
     });
 
