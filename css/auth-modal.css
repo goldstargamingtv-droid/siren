@@ -327,80 +327,35 @@
 /* Responsive */
 @media (max-width: 768px) {
     .auth-modal-overlay {
-        padding: 16px;
-        align-items: flex-start;
-        padding-top: 60px;
+        padding: 16px !important;
+        z-index: 9999999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
     .auth-modal {
-        max-width: 100%;
-        width: 100%;
-        margin: 0;
-        padding: 24px 20px;
-        border-radius: 20px;
-        max-height: calc(100vh - 120px);
-        overflow-y: auto;
+        width: calc(100% - 32px) !important;
+        max-width: 400px !important;
+        margin: 0 auto !important;
+        padding: 24px 20px !important;
+        border-radius: 20px !important;
+        max-height: 85vh !important;
+        overflow-y: auto !important;
+        background: rgba(20, 20, 28, 0.98) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
     }
     
     .auth-modal-close {
         top: 12px;
         right: 12px;
-        width: 36px;
-        height: 36px;
-    }
-    
-    .auth-modal-header {
-        margin-bottom: 20px;
     }
     
     .auth-logo {
         font-size: 1.5rem;
     }
     
-    .auth-tagline {
-        font-size: 0.8rem;
-    }
-    
-    .auth-tabs {
-        gap: 8px;
-        margin-bottom: 20px;
-    }
-    
-    .auth-tab {
-        padding: 10px 16px;
-        font-size: 0.85rem;
-    }
-    
-    .auth-form-group {
-        margin-bottom: 16px;
-    }
-    
-    .auth-form-group label {
-        font-size: 0.75rem;
-    }
-    
     .auth-form-group input {
-        padding: 12px 14px;
-        font-size: 16px; /* Prevents iOS zoom */
-    }
-    
-    .auth-submit {
-        padding: 14px;
-        font-size: 0.9rem;
-        margin-top: 16px;
-    }
-    
-    .auth-form-options {
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
-    }
-    
-    .auth-divider {
-        margin: 20px 0;
-    }
-    
-    .auth-social-btn {
-        padding: 12px;
+        font-size: 16px !important; /* Prevents iOS zoom */
     }
 }
