@@ -3169,8 +3169,45 @@
             }
 
             /* Header */
-            .header {
-                padding: 16px !important;
+            header {
+                padding-top: env(safe-area-inset-top, 0px) !important;
+            }
+
+            .nav {
+                flex-wrap: wrap !important;
+                padding: 12px 16px !important;
+                gap: 12px !important;
+            }
+
+            .nav-logo {
+                font-size: 1.4rem !important;
+            }
+
+            /* Hide explore on mobile - they have bottom nav */
+            .nav-menu-wrapper {
+                display: none !important;
+            }
+
+            .nav-buttons {
+                gap: 8px !important;
+            }
+
+            .nav-buttons .btn {
+                padding: 10px 14px !important;
+                font-size: 0.75rem !important;
+            }
+
+            .nav-buttons .btn-primary {
+                padding: 10px 16px !important;
+            }
+
+            /* User menu on mobile */
+            .user-menu-btn {
+                padding: 8px 12px !important;
+            }
+
+            .user-menu-btn span {
+                display: none !important;
             }
 
             .header-logo {
@@ -3188,8 +3225,8 @@
 
             /* Hero section */
             .hero {
-                min-height: 90vh !important;
-                padding: 100px 20px 60px !important;
+                min-height: 85vh !important;
+                padding: 80px 20px 60px !important;
             }
 
             .hero-badge {
