@@ -860,6 +860,39 @@
     let startMouse = { x: 0, y: 0 };
     let lon = 0, lat = 0;
     let immersivePlaying = false;
+    
+    // Animation and timing
+    let animating = false;
+    let immersiveTime = 0;
+    const immersiveDuration = 600; // 10 minutes fake duration
+    let lastFrameTime = performance.now();
+    let uiHideTimeout = null;
+    
+    const progressFillEl = document.getElementById('progressFill');
+    const timeDisplayEl = document.getElementById('timeDisplay');
+    const controlsOverlayEl = document.getElementById('controlsOverlay');
+    
+    function formatTime(s) {
+        const m = Math.floor(s / 60);
+        const sec = Math.floor(s % 60);
+        return m + ':' + sec.toString().padStart(2, '0');
+    }
+    
+    function showImmersiveUI() {
+        controlsOverlayEl.classList.add('visible');
+        document.body.classList.add('controls-visible');
+        clearTimeout(uiHideTimeout);
+        if (immersivePlaying) {
+            uiHideTimeout = setTimeout(hideImmersiveUI, 3000);
+        }
+    }
+    
+    function hideImmersiveUI() {
+        if (immersivePlaying) {
+            controlsOverlayEl.classList.remove('visible');
+            document.body.classList.remove('controls-visible');
+        }
+    }
 
     // Use document-level events for reliable dragging
     document.addEventListener('mousedown', (e) => {
@@ -873,6 +906,7 @@
         didDrag = false;
         prevMouse = { x: e.clientX, y: e.clientY };
         startMouse = { x: e.clientX, y: e.clientY };
+        showImmersiveUI();
     });
 
     document.addEventListener('mousemove', (e) => {
@@ -924,11 +958,18 @@
         camera.updateProjectionMatrix();
     }, { passive: false });
 
-    // Animation loop
-    let animating = false;
+    // Mouse move shows UI
+    document.addEventListener('mousemove', () => {
+        if (animating) showImmersiveUI();
+    });
+    
     function animate() {
         if (!animating) return;
         requestAnimationFrame(animate);
+        
+        const now = performance.now();
+        const delta = (now - lastFrameTime) / 1000;
+        lastFrameTime = now;
 
         const phi = THREE.MathUtils.degToRad(90 - lat);
         const theta = THREE.MathUtils.degToRad(lon);
@@ -942,6 +983,15 @@
         if (immersivePlaying) {
             particles.rotation.y += 0.001;
             particles.rotation.x += 0.0005;
+            
+            // Update time
+            immersiveTime += delta;
+            if (immersiveTime > immersiveDuration) immersiveTime = immersiveDuration;
+            
+            // Update progress bar
+            const pct = (immersiveTime / immersiveDuration) * 100;
+            progressFillEl.style.width = pct + '%';
+            timeDisplayEl.innerHTML = '<span class="now">' + formatTime(immersiveTime) + '</span> / ' + formatTime(immersiveDuration);
         }
 
         renderer.render(scene, camera);
@@ -957,10 +1007,14 @@
             centerPlayEl.classList.remove('visible');
             playPauseBtnEl.querySelector('.play-icon').style.display = 'none';
             playPauseBtnEl.querySelector('.pause-icon').style.display = 'block';
+            lastFrameTime = performance.now(); // Reset frame time to avoid big delta
+            uiHideTimeout = setTimeout(hideImmersiveUI, 3000);
         } else {
             centerPlayEl.classList.add('visible');
             playPauseBtnEl.querySelector('.play-icon').style.display = 'block';
             playPauseBtnEl.querySelector('.pause-icon').style.display = 'none';
+            clearTimeout(uiHideTimeout);
+            showImmersiveUI();
         }
     }
 
@@ -995,6 +1049,9 @@
     // Start when ready
     window.addEventListener('immersiveReady', () => {
         animating = true;
+        // Initialize time display
+        timeDisplayEl.innerHTML = '<span class="now">0:00</span> / ' + formatTime(immersiveDuration);
+        progressFillEl.style.width = '0%';
         animate();
     });
     
@@ -1002,6 +1059,8 @@
     setTimeout(() => {
         if (!animating) {
             animating = true;
+            timeDisplayEl.innerHTML = '<span class="now">0:00</span> / ' + formatTime(immersiveDuration);
+            progressFillEl.style.width = '0%';
             animate();
         }
     }, 3000);
