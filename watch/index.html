@@ -1300,5 +1300,19 @@
         <span>Profile</span>
     </a>
 </nav>
+<script>
+(function(){
+    var nav = document.getElementById('mobileNav');
+    function showMobileNav() {
+        if(nav && window.innerWidth <= 768) {
+            nav.style.cssText = 'display:flex!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;height:70px;background:rgba(5,5,10,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.08);z-index:999999;justify-content:space-around;align-items:center;padding:8px 0;';
+        } else if(nav) {
+            nav.style.display = 'none';
+        }
+    }
+    showMobileNav();
+    window.addEventListener('resize', showMobileNav);
+})();
+</script>
 </body>
 </html>
