@@ -85,6 +85,7 @@ async function loadUserProfile() {
 // ============================================
 
 async function signUp(email, password, dateOfBirth) {
+    console.log('SIREN.signUp called');
     // Validate age (must be 18+)
     const birthDate = new Date(dateOfBirth);
     const today = new Date();
@@ -110,6 +111,8 @@ async function signUp(email, password, dateOfBirth) {
             }
         });
         
+        console.log('Supabase signUp response:', { data, error });
+        
         if (error) return { error };
         
         // Profile is auto-created by database trigger
@@ -130,11 +133,14 @@ async function signUp(email, password, dateOfBirth) {
 }
 
 async function signIn(email, password) {
+    console.log('SIREN.signIn called');
     try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password
         });
+        
+        console.log('Supabase signIn response:', { data, error });
         
         if (error) {
             // Provide user-friendly error messages
@@ -168,7 +174,7 @@ async function signOut() {
         console.error('Sign out error:', error);
         return { error };
     }
-    window.location.href = '/';
+    window.location.reload();
     return { success: true };
 }
 
@@ -725,20 +731,26 @@ function updateUIForAuth(isLoggedIn) {
 // ============================================
 
 async function initSiren() {
+    console.log('Initializing SIREN...');
     initSupabase();
     if (!supabaseClient) {
         console.error('Failed to initialize Supabase');
         return;
     }
+    console.log('Supabase client initialized');
     
     initAuthListener();
     
     // Check for existing session
     const session = await getSession();
+    console.log('Existing session:', session);
     if (session?.user) {
         currentUser = session.user;
         await loadUserProfile();
         updateUIForAuth(true);
+        console.log('User logged in:', currentUser.email);
+    } else {
+        console.log('No active session');
     }
     
     console.log('SIREN initialized');
