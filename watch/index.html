@@ -299,7 +299,7 @@
         .immersive-container {
             position: absolute;
             inset: 0;
-            z-index: 15;
+            z-index: 5;
             display: none;
             cursor: grab;
         }
@@ -314,9 +314,12 @@
         body.immersive-mode .pause-overlay { display: none; }
         body.immersive-mode .skip-intro { display: none; }
         body.immersive-mode .next-ep-card { display: none; }
-        body.immersive-mode .center-play { z-index: 25; }
-        body.immersive-mode .top-bar { z-index: 25; }
-        body.immersive-mode .bottom-controls { z-index: 25; }
+        body.immersive-mode .controls-overlay { pointer-events: none; }
+        body.immersive-mode .center-play,
+        body.immersive-mode .top-bar,
+        body.immersive-mode .top-bar *,
+        body.immersive-mode .bottom-controls,
+        body.immersive-mode .bottom-controls * { pointer-events: auto; }
         
         .immersive-badge {
             display: none;
@@ -965,11 +968,13 @@
     document.getElementById('centerPlay').addEventListener('click', toggleImmersive);
     document.getElementById('playPauseBtn').addEventListener('click', toggleImmersive);
     
-    // Click on viewer to toggle
+    // Click on viewer to toggle (only if not dragging)
     container.addEventListener('click', (e) => {
-        if (e.target === renderer.domElement) {
+        if (e.target === renderer.domElement && !didDrag) {
             toggleImmersive();
         }
+        // Reset didDrag after click event processes
+        setTimeout(() => { didDrag = false; }, 0);
     });
 
     // Keyboard
