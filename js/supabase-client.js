@@ -699,6 +699,7 @@ async function getRecommendations(limit = 20) {
 // ============================================
 
 function updateUIForAuth(isLoggedIn) {
+    console.log('updateUIForAuth called:', isLoggedIn);
     // Default implementation - override on each page
     const signInBtns = document.querySelectorAll('.btn-sign-in, [data-auth="sign-in"]');
     const signOutBtns = document.querySelectorAll('.btn-sign-out, [data-auth="sign-out"]');
@@ -707,22 +708,27 @@ function updateUIForAuth(isLoggedIn) {
     
     signInBtns.forEach(btn => btn.style.display = isLoggedIn ? 'none' : '');
     signOutBtns.forEach(btn => btn.style.display = isLoggedIn ? '' : 'none');
-    authOnly.forEach(el => el.style.display = isLoggedIn ? '' : 'none');
+    authOnly.forEach(el => el.style.display = isLoggedIn ? 'flex' : 'none');
     guestOnly.forEach(el => el.style.display = isLoggedIn ? 'none' : '');
     
     // Update user display
-    if (isLoggedIn && currentProfile) {
+    if (isLoggedIn) {
         const userNames = document.querySelectorAll('[data-user-name]');
         const userAvatars = document.querySelectorAll('[data-user-avatar]');
         const userEmails = document.querySelectorAll('[data-user-email]');
         
-        userNames.forEach(el => el.textContent = currentProfile.display_name || currentProfile.username || 'User');
-        userEmails.forEach(el => el.textContent = currentProfile.email);
+        const displayName = currentProfile?.display_name || currentProfile?.username || currentUser?.email?.split('@')[0] || 'Account';
+        const email = currentProfile?.email || currentUser?.email || '';
+        
+        userNames.forEach(el => el.textContent = displayName);
+        userEmails.forEach(el => el.textContent = email);
         userAvatars.forEach(el => {
-            if (currentProfile.avatar_url) {
+            if (currentProfile?.avatar_url) {
                 el.src = currentProfile.avatar_url;
             }
         });
+        
+        console.log('UI updated for user:', email);
     }
 }
 
