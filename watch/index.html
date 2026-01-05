@@ -504,8 +504,19 @@
     </div>
 
     <script>
+        // Check immersive mode FIRST
+        const urlParams = new URLSearchParams(window.location.search);
+        const contentType = urlParams.get('type') || urlParams.get('mode');
+        const isImmersiveMode = contentType === 'splat' || contentType === 'immersive' || contentType === '3d';
+        
+        if (isImmersiveMode) {
+            document.body.classList.add('immersive-mode');
+        }
+        
         // Loader
-        const loaderMsgs=['Initializing...','Loading stream...','Buffering...','Almost ready...'];
+        const loaderMsgs = isImmersiveMode 
+            ? ['Initializing 3D...','Loading splats...','Building scene...','Almost ready...']
+            : ['Initializing...','Loading stream...','Buffering...','Almost ready...'];
         let loadProg=0,msgIdx=0;
         const loaderFill=document.getElementById('loaderProgress'),loaderStatus=document.getElementById('loaderStatus'),siteLoader=document.getElementById('siteLoader');
         function updateLoader(){loadProg+=Math.random()*18+6;if(loadProg>100)loadProg=100;loaderFill.style.width=loadProg+'%';if(loadProg<100){const newIdx=Math.floor((loadProg/100)*(loaderMsgs.length-1));if(newIdx!==msgIdx){msgIdx=newIdx;loaderStatus.textContent=loaderMsgs[msgIdx]}setTimeout(updateLoader,180+Math.random()*250)}else{loaderStatus.textContent='Enjoy';setTimeout(()=>{siteLoader.classList.add('fade-out');setTimeout(()=>{siteLoader.style.display='none';startIntro();},500)},400)}}
@@ -523,11 +534,23 @@
         const showControls=()=>{controlsOverlay.classList.add('visible');document.body.classList.add('controls-visible');clearTimeout(hideTO);if(isPlaying)hideTO=setTimeout(hideControls,3000)};
         const hideControls=()=>{if(isPlaying&&!settingsPanel.classList.contains('open')&&!episodesPanel.classList.contains('open')){controlsOverlay.classList.remove('visible');document.body.classList.remove('controls-visible')}};
         
-        // Preload main video
-        video.load();
+        // Preload main video (skip if immersive)
+        if (!isImmersiveMode) {
+            video.load();
+        }
         
         // Start intro after loader finishes
         function startIntro(){
+            if (isImmersiveMode) {
+                // For immersive: just show play button, animation starts via Three.js script
+                centerPlay.classList.add('visible');
+                controlsOverlay.classList.add('visible');
+                document.body.classList.add('controls-visible');
+                // Dispatch event for Three.js to start
+                window.dispatchEvent(new CustomEvent('immersiveReady'));
+                return;
+            }
+            // Normal video mode
             centerPlay.classList.remove('visible');
             introVideo.classList.add('fade-in');
             introVideo.play();
@@ -576,6 +599,9 @@
         });
         
         window.togglePlay=()=>{
+            // Skip if immersive mode - handled by Three.js script
+            if(isImmersiveMode) return;
+            
             if(!introPlayed){
                 // During intro
                 if(introVideo.paused){
@@ -664,7 +690,7 @@
         video.addEventListener('canplay',()=>loadingSpinner.classList.remove('visible'));
         
         // Keyboard
-        document.addEventListener('keydown',e=>{switch(e.key.toLowerCase()){case' ':case'k':e.preventDefault();window.togglePlay();break;case'f':fullscreenBtn.click();break;case'm':volumeBtn.click();break;case'arrowleft':video.currentTime=Math.max(0,video.currentTime-10);showControls();break;case'arrowright':video.currentTime=Math.min(video.duration,video.currentTime+10);showControls();break;case'arrowup':e.preventDefault();video.volume=Math.min(1,video.volume+0.1);volumeSlider.value=video.volume*100;break;case'arrowdown':e.preventDefault();video.volume=Math.max(0,video.volume-0.1);volumeSlider.value=video.volume*100;break;case'escape':episodesPanel.classList.remove('open');settingsPanel.classList.remove('open');break}});
+        document.addEventListener('keydown',e=>{if(isImmersiveMode)return;switch(e.key.toLowerCase()){case' ':case'k':e.preventDefault();window.togglePlay();break;case'f':fullscreenBtn.click();break;case'm':volumeBtn.click();break;case'arrowleft':video.currentTime=Math.max(0,video.currentTime-10);showControls();break;case'arrowright':video.currentTime=Math.min(video.duration,video.currentTime+10);showControls();break;case'arrowup':e.preventDefault();video.volume=Math.min(1,video.volume+0.1);volumeSlider.value=video.volume*100;break;case'arrowdown':e.preventDefault();video.volume=Math.max(0,video.volume-0.1);volumeSlider.value=video.volume*100;break;case'escape':episodesPanel.classList.remove('open');settingsPanel.classList.remove('open');break}});
         video.addEventListener('dblclick',()=>fullscreenBtn.click());
     </script>
 <!-- Supabase Client -->
@@ -695,27 +721,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function() {
-    // Check if immersive mode via URL param: ?type=splat or ?mode=immersive
+    // Check if immersive mode
     const urlParams = new URLSearchParams(window.location.search);
     const contentType = urlParams.get('type') || urlParams.get('mode');
     const isImmersive = contentType === 'splat' || contentType === 'immersive' || contentType === '3d';
     
-    if (!isImmersive) return; // Exit if not immersive mode
+    if (!isImmersive) return;
     
-    // Enable immersive mode
-    document.body.classList.add('immersive-mode');
-    
-    // Skip intro video for immersive content
-    const introVideo = document.getElementById('introVideo');
-    if (introVideo) {
-        introVideo.style.display = 'none';
+    // Hide intro video
+    const introVideoEl = document.getElementById('introVideo');
+    if (introVideoEl) {
+        introVideoEl.style.display = 'none';
+        introVideoEl.pause();
     }
-    
-    // Override startIntro to do nothing for immersive
-    window.startIntro = function() {
-        // Just hide loader, no intro video
-        document.getElementById('centerPlay').classList.add('visible');
-    };
     
     // Setup Three.js
     const container = document.getElementById('immersiveContainer');
@@ -790,44 +808,26 @@
     camera.position.set(0, 0, 0.1);
 
     // Controls
-    let isDraggingImmersive = false;
+    let isDragging = false;
     let prevMouse = { x: 0, y: 0 };
     let lon = 0, lat = 0;
-    let immersiveIsPlaying = false;
+    let immersivePlaying = false;
 
     container.addEventListener('mousedown', (e) => {
-        isDraggingImmersive = true;
+        isDragging = true;
         prevMouse = { x: e.clientX, y: e.clientY };
     });
 
     container.addEventListener('mousemove', (e) => {
-        if (!isDraggingImmersive) return;
+        if (!isDragging) return;
         lon -= (e.clientX - prevMouse.x) * 0.2;
         lat += (e.clientY - prevMouse.y) * 0.2;
         lat = Math.max(-85, Math.min(85, lat));
         prevMouse = { x: e.clientX, y: e.clientY };
     });
 
-    container.addEventListener('mouseup', () => isDraggingImmersive = false);
-    container.addEventListener('mouseleave', () => isDraggingImmersive = false);
-
-    container.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) {
-            isDraggingImmersive = true;
-            prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        }
-    });
-
-    container.addEventListener('touchmove', (e) => {
-        if (!isDraggingImmersive || e.touches.length !== 1) return;
-        e.preventDefault();
-        lon -= (e.touches[0].clientX - prevMouse.x) * 0.2;
-        lat += (e.touches[0].clientY - prevMouse.y) * 0.2;
-        lat = Math.max(-85, Math.min(85, lat));
-        prevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    }, { passive: false });
-
-    container.addEventListener('touchend', () => isDraggingImmersive = false);
+    container.addEventListener('mouseup', () => isDragging = false);
+    container.addEventListener('mouseleave', () => isDragging = false);
 
     container.addEventListener('wheel', (e) => {
         e.preventDefault();
@@ -835,9 +835,11 @@
         camera.updateProjectionMatrix();
     }, { passive: false });
 
-    // Animation
-    function animateImmersive() {
-        requestAnimationFrame(animateImmersive);
+    // Animation loop
+    let animating = false;
+    function animate() {
+        if (!animating) return;
+        requestAnimationFrame(animate);
 
         const phi = THREE.MathUtils.degToRad(90 - lat);
         const theta = THREE.MathUtils.degToRad(lon);
@@ -848,7 +850,7 @@
             500 * Math.sin(phi) * Math.sin(theta)
         );
 
-        if (immersiveIsPlaying) {
+        if (immersivePlaying) {
             particles.rotation.y += 0.001;
             particles.rotation.x += 0.0005;
         }
@@ -856,49 +858,62 @@
         renderer.render(scene, camera);
     }
 
-    // Override video play/pause for immersive
-    const origTogglePlay = window.togglePlay;
-    window.togglePlay = function() {
-        if (isImmersive) {
-            immersiveIsPlaying = !immersiveIsPlaying;
-            const playPauseBtn = document.getElementById('playPauseBtn');
-            const centerPlay = document.getElementById('centerPlay');
-            
-            if (immersiveIsPlaying) {
-                centerPlay.classList.remove('visible');
-                playPauseBtn.querySelector('.play-icon').style.display = 'none';
-                playPauseBtn.querySelector('.pause-icon').style.display = 'block';
-            } else {
-                centerPlay.classList.add('visible');
-                playPauseBtn.querySelector('.play-icon').style.display = 'block';
-                playPauseBtn.querySelector('.pause-icon').style.display = 'none';
-            }
-        } else if (origTogglePlay) {
-            origTogglePlay();
+    // Play/pause for immersive
+    function toggleImmersive() {
+        immersivePlaying = !immersivePlaying;
+        const centerPlayEl = document.getElementById('centerPlay');
+        const playPauseBtnEl = document.getElementById('playPauseBtn');
+        
+        if (immersivePlaying) {
+            centerPlayEl.classList.remove('visible');
+            playPauseBtnEl.querySelector('.play-icon').style.display = 'none';
+            playPauseBtnEl.querySelector('.pause-icon').style.display = 'block';
+        } else {
+            centerPlayEl.classList.add('visible');
+            playPauseBtnEl.querySelector('.play-icon').style.display = 'block';
+            playPauseBtnEl.querySelector('.pause-icon').style.display = 'none';
         }
-    };
+    }
 
-    // Resize handler
+    // Bind play buttons
+    document.getElementById('centerPlay').addEventListener('click', toggleImmersive);
+    document.getElementById('playPauseBtn').addEventListener('click', toggleImmersive);
+    
+    // Click on viewer to toggle
+    container.addEventListener('click', (e) => {
+        if (e.target === renderer.domElement) {
+            toggleImmersive();
+        }
+    });
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            toggleImmersive();
+        }
+    });
+
+    // Resize
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Start animation when loader finishes
-    const checkLoaderDone = setInterval(() => {
-        const loader = document.getElementById('siteLoader');
-        if (loader && loader.style.display === 'none') {
-            clearInterval(checkLoaderDone);
-            animateImmersive();
-        }
-    }, 100);
-
-    // Start animation after timeout fallback
+    // Start when ready
+    window.addEventListener('immersiveReady', () => {
+        animating = true;
+        animate();
+    });
+    
+    // Fallback start
     setTimeout(() => {
-        clearInterval(checkLoaderDone);
-        animateImmersive();
-    }, 5000);
+        if (!animating) {
+            animating = true;
+            animate();
+        }
+    }, 3000);
 })();
 </script>
 </body>
