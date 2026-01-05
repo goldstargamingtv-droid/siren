@@ -51,19 +51,25 @@ function initAuthListener() {
         if (session?.user) {
             currentUser = session.user;
             console.log('User set:', currentUser.email);
+            
+            // Update UI immediately - don't wait for profile
+            updateUIForAuth(true);
+            
+            // Then try to load profile in background
             try {
                 await loadUserProfile();
+                // Update UI again with profile data
+                updateUIForAuth(true);
             } catch (e) {
                 console.error('loadUserProfile failed:', e);
             }
         } else {
             currentUser = null;
             currentProfile = null;
+            updateUIForAuth(false);
         }
         
-        console.log('Calling updateUIForAuth with:', !!currentUser);
         notifyAuthListeners(currentUser, currentProfile);
-        updateUIForAuth(!!currentUser);
     });
 }
 
@@ -72,21 +78,34 @@ async function loadUserProfile() {
     console.log('loadUserProfile called, currentUser:', currentUser?.id);
     if (!currentUser) return null;
     
-    const { data, error } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUser.id)
-        .single();
+    console.log('Starting profile query...');
     
-    console.log('Profile query result:', { data, error });
-    
-    if (error) {
-        console.error('Error loading profile:', error);
+    try {
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Query timeout after 10s')), 10000)
+        );
+        
+        const queryPromise = supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('id', currentUser.id)
+            .single();
+        
+        const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+        
+        console.log('Profile query result:', { data, error });
+        
+        if (error) {
+            console.error('Error loading profile:', error);
+            return null;
+        }
+        
+        currentProfile = data;
+        return data;
+    } catch (err) {
+        console.error('Profile query failed:', err);
         return null;
     }
-    
-    currentProfile = data;
-    return data;
 }
 
 // ============================================
