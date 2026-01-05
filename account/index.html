@@ -902,7 +902,144 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ==================== */
+        /* Account Mobile Styles*/
+        /* ==================== */
+        @media (max-width: 768px) {
+            .header {
+                padding: 16px !important;
+            }
+
+            .logo {
+                font-size: 1.3rem !important;
+            }
+
+            .back-btn {
+                font-size: 0.8rem !important;
+                padding: 8px 12px !important;
+            }
+
+            .back-btn svg {
+                width: 16px !important;
+                height: 16px !important;
+            }
+
+            /* Main layout */
+            .main-container {
+                flex-direction: column !important;
+                padding: 16px !important;
+                padding-bottom: 100px !important;
+            }
+
+            /* Sidebar becomes top section */
+            .sidebar {
+                width: 100% !important;
+                position: relative !important;
+                top: 0 !important;
+            }
+
+            .profile-section {
+                padding: 20px !important;
+            }
+
+            .profile-avatar {
+                width: 70px !important;
+                height: 70px !important;
+            }
+
+            .profile-name {
+                font-size: 1.2rem !important;
+            }
+
+            /* Nav tabs horizontal scroll */
+            .nav-tabs {
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                overflow-x: auto !important;
+                gap: 8px !important;
+                padding-bottom: 8px !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .nav-tab {
+                flex-shrink: 0 !important;
+                padding: 10px 16px !important;
+                font-size: 0.8rem !important;
+                white-space: nowrap !important;
+            }
+
+            /* Content area */
+            .content-area {
+                width: 100% !important;
+                padding: 0 !important;
+            }
+
+            .content-section {
+                padding: 20px !important;
+            }
+
+            .section-title {
+                font-size: 1.3rem !important;
+            }
+
+            /* Forms */
+            .form-row {
+                flex-direction: column !important;
+                gap: 16px !important;
+            }
+
+            .form-group {
+                width: 100% !important;
+            }
+
+            .form-input {
+                padding: 14px 16px !important;
+            }
+
+            /* Buttons */
+            .btn {
+                width: 100% !important;
+                justify-content: center !important;
+                padding: 14px 20px !important;
+            }
+
+            .btn-row {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+
+            /* Settings cards */
+            .settings-card {
+                padding: 16px !important;
+            }
+
+            .settings-row {
+                flex-direction: column !important;
+                gap: 12px !important;
+                align-items: flex-start !important;
+            }
+
+            /* Plan card */
+            .plan-card {
+                padding: 20px !important;
+            }
+
+            .plan-features {
+                gap: 12px !important;
+            }
+
+            /* Help grid */
+            .help-grid {
+                gap: 12px !important;
+            }
+
+            .help-card {
+                padding: 16px !important;
+            }
+        }
     </style>
+    <link rel="stylesheet" href="../css/mobile.css">
 </head>
 <body>
     <!-- Header -->
@@ -1578,5 +1715,6 @@
             }
         });
     </script>
+    <script src="../js/mobile.js"></script>
 </body>
 </html>
