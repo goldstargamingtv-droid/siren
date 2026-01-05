@@ -42,30 +42,32 @@ function notifyAuthListeners(user, profile) {
 }
 
 // Initialize auth listener
+let profileLoadPending = false;
+
 function initAuthListener() {
     if (!supabaseClient) return;
     
     supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        console.log('Auth event:', event, session);
-        
         if (session?.user) {
             currentUser = session.user;
-            console.log('User set:', currentUser.email);
-            
-            // Update UI immediately - don't wait for profile
             updateUIForAuth(true);
             
-            // Then try to load profile in background
-            try {
-                await loadUserProfile();
-                // Update UI again with profile data
-                updateUIForAuth(true);
-            } catch (e) {
-                console.error('loadUserProfile failed:', e);
+            // Only load profile once, skip if already pending
+            if (!profileLoadPending && !currentProfile) {
+                profileLoadPending = true;
+                try {
+                    await loadUserProfile();
+                    updateUIForAuth(true);
+                } catch (e) {
+                    console.error('loadUserProfile failed:', e);
+                } finally {
+                    profileLoadPending = false;
+                }
             }
         } else {
             currentUser = null;
             currentProfile = null;
+            profileLoadPending = false;
             updateUIForAuth(false);
         }
         
@@ -75,25 +77,14 @@ function initAuthListener() {
 
 // Load user profile
 async function loadUserProfile() {
-    console.log('loadUserProfile called, currentUser:', currentUser?.id);
     if (!currentUser) return null;
     
-    console.log('Starting profile query...');
-    
     try {
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Query timeout after 10s')), 10000)
-        );
-        
-        const queryPromise = supabaseClient
+        const { data, error } = await supabaseClient
             .from('profiles')
             .select('*')
             .eq('id', currentUser.id)
             .single();
-        
-        const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
-        
-        console.log('Profile query result:', { data, error });
         
         if (error) {
             console.error('Error loading profile:', error);
@@ -113,7 +104,6 @@ async function loadUserProfile() {
 // ============================================
 
 async function signUp(email, password, dateOfBirth) {
-    console.log('SIREN.signUp called');
     // Validate age (must be 18+)
     const birthDate = new Date(dateOfBirth);
     const today = new Date();
@@ -123,7 +113,6 @@ async function signUp(email, password, dateOfBirth) {
         return { error: { message: 'You must be 18 or older to register.' } };
     }
     
-    // Validate password strength
     if (password.length < 8) {
         return { error: { message: 'Password must be at least 8 characters.' } };
     }
@@ -139,12 +128,9 @@ async function signUp(email, password, dateOfBirth) {
             }
         });
         
-        console.log('Supabase signUp response:', { data, error });
-        
         if (error) return { error };
         
         // Profile is auto-created by database trigger
-        // Check if email confirmation is required
         if (data.user && !data.session) {
             return { 
                 data, 
@@ -161,17 +147,13 @@ async function signUp(email, password, dateOfBirth) {
 }
 
 async function signIn(email, password) {
-    console.log('SIREN.signIn called');
     try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({
             email,
             password
         });
         
-        console.log('Supabase signIn response:', { data, error });
-        
         if (error) {
-            // Provide user-friendly error messages
             let message = error.message;
             if (error.message.includes('Invalid login')) {
                 message = 'Invalid email or password.';
@@ -727,8 +709,6 @@ async function getRecommendations(limit = 20) {
 // ============================================
 
 function updateUIForAuth(isLoggedIn) {
-    console.log('updateUIForAuth called:', isLoggedIn);
-    // Default implementation - override on each page
     const signInBtns = document.querySelectorAll('.btn-sign-in, [data-auth="sign-in"]');
     const signOutBtns = document.querySelectorAll('.btn-sign-out, [data-auth="sign-out"]');
     const authOnly = document.querySelectorAll('[data-auth-only]');
@@ -739,7 +719,6 @@ function updateUIForAuth(isLoggedIn) {
     authOnly.forEach(el => el.style.display = isLoggedIn ? 'flex' : 'none');
     guestOnly.forEach(el => el.style.display = isLoggedIn ? 'none' : '');
     
-    // Update user display
     if (isLoggedIn) {
         const userNames = document.querySelectorAll('[data-user-name]');
         const userAvatars = document.querySelectorAll('[data-user-avatar]');
@@ -755,8 +734,6 @@ function updateUIForAuth(isLoggedIn) {
                 el.src = currentProfile.avatar_url;
             }
         });
-        
-        console.log('UI updated for user:', email);
     }
 }
 
@@ -765,29 +742,13 @@ function updateUIForAuth(isLoggedIn) {
 // ============================================
 
 async function initSiren() {
-    console.log('Initializing SIREN...');
     initSupabase();
     if (!supabaseClient) {
         console.error('Failed to initialize Supabase');
         return;
     }
-    console.log('Supabase client initialized');
     
     initAuthListener();
-    
-    // Check for existing session
-    const session = await getSession();
-    console.log('Existing session:', session);
-    if (session?.user) {
-        currentUser = session.user;
-        await loadUserProfile();
-        updateUIForAuth(true);
-        console.log('User logged in:', currentUser.email);
-    } else {
-        console.log('No active session');
-    }
-    
-    console.log('SIREN initialized');
 }
 
 // Auto-init when DOM is ready
