@@ -222,15 +222,24 @@ async function handleSignIn(e) {
     const email = document.getElementById('signin-email').value;
     const password = document.getElementById('signin-password').value;
     
-    const { error } = await SIREN.signIn(email, password);
+    console.log('Attempting sign in for:', email);
     
-    setAuthLoading('signin', false);
-    
-    if (error) {
-        showAuthError('signin', error.message);
-    } else {
-        closeAuthModal();
-        window.location.reload();
+    try {
+        const result = await SIREN.signIn(email, password);
+        console.log('Sign in result:', result);
+        
+        setAuthLoading('signin', false);
+        
+        if (result.error) {
+            showAuthError('signin', result.error.message);
+        } else {
+            closeAuthModal();
+            window.location.reload();
+        }
+    } catch (err) {
+        console.error('Sign in exception:', err);
+        setAuthLoading('signin', false);
+        showAuthError('signin', 'An unexpected error occurred');
     }
 }
 
@@ -262,22 +271,29 @@ async function handleSignUp(e) {
     }
     
     setAuthLoading('signup', true);
+    console.log('Attempting sign up for:', email);
     
-    const result = await SIREN.signUp(email, password, dob);
-    
-    setAuthLoading('signup', false);
-    
-    if (result.error) {
-        showAuthError('signup', result.error.message);
-    } else if (result.confirmEmail) {
-        // Email confirmation required
-        showAuthSuccess('signup', result.message || 'Account created! Check your email to verify.');
-        // Clear form
-        document.getElementById('signupForm').reset();
-    } else {
-        // Auto-confirmed, reload page
-        closeAuthModal();
-        window.location.reload();
+    try {
+        const result = await SIREN.signUp(email, password, dob);
+        console.log('Sign up result:', result);
+        
+        setAuthLoading('signup', false);
+        
+        if (result.error) {
+            showAuthError('signup', result.error.message);
+        } else if (result.confirmEmail) {
+            // Email confirmation required
+            showAuthSuccess('signup', result.message || 'Account created! Check your email to verify.');
+            document.getElementById('signupForm').reset();
+        } else {
+            // Auto-confirmed, reload page
+            closeAuthModal();
+            window.location.reload();
+        }
+    } catch (err) {
+        console.error('Sign up exception:', err);
+        setAuthLoading('signup', false);
+        showAuthError('signup', 'An unexpected error occurred');
     }
 }
 
