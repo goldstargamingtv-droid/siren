@@ -46,16 +46,22 @@ function initAuthListener() {
     if (!supabaseClient) return;
     
     supabaseClient.auth.onAuthStateChange(async (event, session) => {
-        console.log('Auth event:', event);
+        console.log('Auth event:', event, session);
         
         if (session?.user) {
             currentUser = session.user;
-            await loadUserProfile();
+            console.log('User set:', currentUser.email);
+            try {
+                await loadUserProfile();
+            } catch (e) {
+                console.error('loadUserProfile failed:', e);
+            }
         } else {
             currentUser = null;
             currentProfile = null;
         }
         
+        console.log('Calling updateUIForAuth with:', !!currentUser);
         notifyAuthListeners(currentUser, currentProfile);
         updateUIForAuth(!!currentUser);
     });
@@ -63,6 +69,7 @@ function initAuthListener() {
 
 // Load user profile
 async function loadUserProfile() {
+    console.log('loadUserProfile called, currentUser:', currentUser?.id);
     if (!currentUser) return null;
     
     const { data, error } = await supabaseClient
@@ -70,6 +77,8 @@ async function loadUserProfile() {
         .select('*')
         .eq('id', currentUser.id)
         .single();
+    
+    console.log('Profile query result:', { data, error });
     
     if (error) {
         console.error('Error loading profile:', error);
