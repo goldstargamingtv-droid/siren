@@ -3630,7 +3630,8 @@
     <div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">V.6</div>
     
     <!-- Age Gate Overlay -->
-        <div class="age-gate" id="ageGate">
+    <div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">V.14</div>
+    <div class="age-gate" id="ageGate">
         <div class="age-gate-logo">SIREN</div>
         <div class="age-gate-content">
             <div class="age-gate-box">
@@ -5275,6 +5276,10 @@ subscribeBtn.addEventListener('click', () => {
     if (!carousel || window.innerWidth > 768) return;
     
     let currentPage = 0;
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+    
     const totalPages = pages.length;
     
     function updateDots(index) {
@@ -5284,28 +5289,44 @@ subscribeBtn.addEventListener('click', () => {
     }
     
     function goToPage(index) {
-        if (index < 0 || index >= totalPages) return;
+        if (index < 0) index = 0;
+        if (index >= totalPages) index = totalPages - 1;
         currentPage = index;
-        carousel.scrollTo({ left: index * carousel.offsetWidth, behavior: 'smooth' });
+        gsap.to(carousel, {
+            x: -currentPage * window.innerWidth,
+            duration: 0.3,
+            ease: 'power2.out'
+        });
         updateDots(index);
     }
     
-    // Update dots on scroll
-    let scrollTimeout;
-    carousel.addEventListener('scroll', () => {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            const scrollLeft = carousel.scrollLeft;
-            const pageWidth = carousel.offsetWidth;
-            const newPage = Math.round(scrollLeft / pageWidth);
-            if (newPage !== currentPage) {
-                currentPage = newPage;
-                updateDots(currentPage);
-            }
-        }, 50);
+    carousel.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+        gsap.killTweensOf(carousel);
     }, { passive: true });
     
-    // Dot clicks
+    carousel.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        currentX = e.touches[0].clientX;
+        const diff = currentX - startX;
+        const x = -currentPage * window.innerWidth + diff;
+        gsap.set(carousel, { x: x });
+    }, { passive: true });
+    
+    carousel.addEventListener('touchend', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        const diff = currentX - startX;
+        if (diff > 50 && currentPage > 0) {
+            goToPage(currentPage - 1);
+        } else if (diff < -50 && currentPage < totalPages - 1) {
+            goToPage(currentPage + 1);
+        } else {
+            goToPage(currentPage);
+        }
+    }, { passive: true });
+    
     dots.forEach((dot, i) => {
         dot.addEventListener('click', () => goToPage(i));
     });

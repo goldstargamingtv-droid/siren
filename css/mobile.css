@@ -116,7 +116,6 @@
         inset: 0;
         background: #08080c;
         z-index: 1000;
-        overflow: hidden;
     }
 
     /* Hide mobile landing when age gate is visible (via body class) */
@@ -179,13 +178,7 @@
     .mobile-landing-carousel {
         display: flex;
         flex: 1;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
+        touch-action: pan-x;
     }
     
     .mobile-landing-carousel::-webkit-scrollbar {
@@ -203,8 +196,6 @@
         padding: 0 24px 180px;
         position: relative;
         flex-shrink: 0;
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
     }
 
     /* Background Image */
