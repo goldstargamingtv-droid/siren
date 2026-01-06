@@ -1696,6 +1696,9 @@
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: block;
         }
 
         .performer-card::before {
@@ -4341,7 +4344,7 @@
                     </div>
                 </div>
                 <div class="performer-grid">
-                    <div class="performer-card">
+                    <a href="../performer/?id=luna-star" class="performer-card">
                         <div class="performer-trending"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div>
                         <div class="performer-avatar-large">
                             <div class="performer-ring"></div>
@@ -4350,8 +4353,8 @@
                         </div>
                         <div class="performer-card-name">Luna Star</div>
                         <div class="performer-card-meta">89 scenes • 4.8★</div>
-                    </div>
-                    <div class="performer-card">
+                    </a>
+                    <a href="../performer/?id=jade-west" class="performer-card">
                         <div class="performer-avatar-large">
                             <div class="performer-ring"></div>
                             <div class="performer-avatar-bg" style="background: url('../images/3.jpg') center/cover no-repeat;">
@@ -4359,8 +4362,8 @@
                         </div>
                         <div class="performer-card-name">Jade West</div>
                         <div class="performer-card-meta">67 scenes • 4.7★</div>
-                    </div>
-                    <div class="performer-card">
+                    </a>
+                    <a href="../performer/?id=mia-chen" class="performer-card">
                         <div class="performer-trending"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div>
                         <div class="performer-avatar-large">
                             <div class="performer-ring"></div>
@@ -4369,8 +4372,8 @@
                         </div>
                         <div class="performer-card-name">Mia Chen</div>
                         <div class="performer-card-meta">124 scenes • 4.9★</div>
-                    </div>
-                    <div class="performer-card">
+                    </a>
+                    <a href="../performer/?id=sofia-vega" class="performer-card">
                         <div class="performer-avatar-large">
                             <div class="performer-ring"></div>
                             <div class="performer-avatar-bg" style="background: url('../images/5.jpg') center/cover no-repeat;">
@@ -4378,8 +4381,8 @@
                         </div>
                         <div class="performer-card-name">Sofia Vega</div>
                         <div class="performer-card-meta">92 scenes • 4.8★</div>
-                    </div>
-                    <div class="performer-card">
+                    </a>
+                    <a href="../performer/?id=emma-blake" class="performer-card">
                         <div class="performer-avatar-large">
                             <div class="performer-ring"></div>
                             <div class="performer-avatar-bg" style="background: url('../images/6.jpg') center/cover no-repeat;">
@@ -4387,8 +4390,8 @@
                         </div>
                         <div class="performer-card-name">Emma Blake</div>
                         <div class="performer-card-meta">78 scenes • 4.6★</div>
-                    </div>
-                    <div class="performer-card">
+                    </a>
+                    <a href="../performer/?id=lily-james" class="performer-card">
                         <div class="performer-avatar-large">
                             <div class="performer-ring"></div>
                             <div class="performer-avatar-bg" style="background: url('../images/7.jpg') center/cover no-repeat;">
@@ -4396,11 +4399,11 @@
                         </div>
                         <div class="performer-card-name">Lily James</div>
                         <div class="performer-card-meta">45 scenes • 4.7★</div>
-                    </div>
+                    </a>
                 </div>
             </div>
             <div class="submenu-footer">
-                <div class="submenu-view-all"><span>View All Performers</span><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+                <a href="../performer/" class="submenu-view-all"><span>View All Performers</span><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
             </div>
         </div>
 
@@ -5158,7 +5161,7 @@
                     if (card.dataset.is3d === 'true') {
                         window.location.href = '../watch/?type=3d';
                     } else if (card.dataset.multiangle === 'true') {
-                        window.location.href = '../watch/multiangle.html';
+                        window.location.href = '../multiangle/';
                     } else {
                         window.location.href = '../watch/';
                     }
@@ -5195,7 +5198,7 @@
                     window.location.href = '../watch/?type=3d';
                 } else if (card.dataset.multiangle === 'true') {
                     console.log('[SIREN] Navigating to multiangle viewer');
-                    window.location.href = '../watch/multiangle.html';
+                    window.location.href = '../multiangle/';
                 } else {
                     console.log('[SIREN] Navigating to normal video');
                     window.location.href = '../watch/';
@@ -6103,7 +6106,7 @@
                         if (item.is3D) {
                             card.href = '../watch/index.html?type=splat';
                         } else if (item.isMultiAngle) {
-                            card.href = '../watch/multiangle.html';
+                            card.href = '../multiangle/';
                         } else {
                             card.href = '../watch/index.html';
                         }
@@ -6960,7 +6963,7 @@
                 if (card && card.dataset.is3d === 'true') {
                     window.location.href = '../watch/?type=3d';
                 } else if (card && card.dataset.multiangle === 'true') {
-                    window.location.href = '../watch/multiangle.html';
+                    window.location.href = '../multiangle/';
                 } else {
                     window.location.href = '../watch/';
                 }
@@ -6973,7 +6976,7 @@
                 if (card && card.dataset.is3d === 'true') {
                     window.location.href = '../watch/?type=3d';
                 } else if (card && card.dataset.multiangle === 'true') {
-                    window.location.href = '../watch/multiangle.html';
+                    window.location.href = '../multiangle/';
                 } else {
                     window.location.href = '../watch/';
                 }
@@ -7008,7 +7011,7 @@
                     if (card.dataset.is3d === 'true') {
                         window.location.href = '../watch/?type=3d';
                     } else if (card.dataset.multiangle === 'true') {
-                        window.location.href = '../watch/multiangle.html';
+                        window.location.href = '../multiangle/';
                     } else {
                         window.location.href = '../watch/';
                     }
@@ -7042,7 +7045,7 @@
                 if (card.dataset.is3d === 'true') {
                     window.location.href = '../watch/?type=3d';
                 } else if (card.dataset.multiangle === 'true') {
-                    window.location.href = '../watch/multiangle.html';
+                    window.location.href = '../multiangle/';
                 } else {
                     window.location.href = '../watch/';
                 }
