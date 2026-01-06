@@ -5039,9 +5039,11 @@
             // Mark special cards
             if (is3D) {
                 card.dataset.is3d = 'true';
+                console.log('[SIREN] Created 3D card:', name);
             }
             if (isMultiAngle) {
                 card.dataset.multiangle = 'true';
+                console.log('[SIREN] Created multiangle card:', name);
             }
             
             // Store data for expanded card to use
@@ -5175,12 +5177,22 @@
                 
                 if (timeDiff > 200 || distX > 5 || distY > 5) return;
                 
+                // DEBUG
+                console.log('[SIREN] Card clicked:', {
+                    is3d: card.dataset.is3d,
+                    multiangle: card.dataset.multiangle,
+                    title: card.dataset.title
+                });
+                
                 // Check content type
                 if (card.dataset.is3d === 'true') {
+                    console.log('[SIREN] Navigating to 3D splat viewer');
                     window.location.href = '../watch/?type=splat';
                 } else if (card.dataset.multiangle === 'true') {
+                    console.log('[SIREN] Navigating to multiangle viewer');
                     window.location.href = '../watch/multiangle.html';
                 } else {
+                    console.log('[SIREN] Navigating to normal video');
                     window.location.href = '../watch/';
                 }
             });
