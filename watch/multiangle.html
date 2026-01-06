@@ -563,15 +563,16 @@
         
         // Switch camera angle with animation
         function switchAngle(index) {
+            if (!camera || !camera.position) return;
+            
             currentAngle = index;
             const angle = CAMERA_ANGLES[index];
             const target = toCartesian(angle.theta, angle.phi, angle.dist);
             
-            // For gsplat.js, we need to set position directly on camera.data
-            const camData = camera.data;
-            const startX = camData.position[0];
-            const startY = camData.position[1];
-            const startZ = camData.position[2];
+            // gsplat.js camera uses position.x/y/z
+            const startX = camera.position.x;
+            const startY = camera.position.y;
+            const startZ = camera.position.z;
             
             gsap.to({ t: 0 }, {
                 t: 1,
@@ -579,9 +580,9 @@
                 ease: 'power2.out',
                 onUpdate: function() {
                     const t = this.targets()[0].t;
-                    camData.position[0] = startX + (target.x - startX) * t;
-                    camData.position[1] = startY + (target.y - startY) * t;
-                    camData.position[2] = startZ + (target.z - startZ) * t;
+                    camera.position.x = startX + (target.x - startX) * t;
+                    camera.position.y = startY + (target.y - startY) * t;
+                    camera.position.z = startZ + (target.z - startZ) * t;
                 }
             });
             
@@ -631,12 +632,8 @@
                     }
                 );
                 
-                // Reset camera
-                const initAngle = CAMERA_ANGLES[0];
-                const pos = toCartesian(initAngle.theta, initAngle.phi, initAngle.dist);
-                camera.data.position[0] = pos.x;
-                camera.data.position[1] = pos.y;
-                camera.data.position[2] = pos.z;
+                // Reset camera - don't force position, let controls handle it
+                // The OrbitControls will manage camera positioning
                 
                 initAngleSelectors();
                 
