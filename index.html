@@ -5006,31 +5006,13 @@
         }
         
         function enterSite() {
-            localStorage.setItem(AGE_KEY, 'true');
+            alert('Enter clicked!');
+            try {
+                localStorage.setItem(AGE_KEY, 'true');
+            } catch(e) {}
             
-            const isMobileDevice = window.innerWidth <= 768;
-            
-            if (isMobileDevice) {
-                // Simple fade out on mobile
-                document.getElementById('ageGate').classList.add('hidden');
-                document.body.classList.remove('age-gate-active');
-                // Skip loader on mobile, go straight to landing
-            } else {
-                // Show loader FIRST (behind age gate)
-                document.getElementById('siteLoader').style.display = 'flex';
-                
-                // Then fade out age gate
-                gsap.to('.age-gate', {
-                    opacity: 0,
-                    duration: 0.6,
-                    ease: 'power2.inOut',
-                    onComplete: () => {
-                        document.getElementById('ageGate').classList.add('hidden');
-                        // Now start the loader animation
-                        startLoader();
-                    }
-                });
-            }
+            // Redirect to browse
+            window.location.href = './browse/index.html';
         }
         
         function exitSite() {
