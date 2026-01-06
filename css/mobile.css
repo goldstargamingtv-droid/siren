@@ -83,14 +83,18 @@
         -webkit-overflow-scrolling: touch;
     }
 
+    /* PERFORMANCE: Reduce all animations globally */
+    @media (prefers-reduced-motion: no-preference) {
+        *, *::before, *::after {
+            animation-duration: 0.3s !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.15s !important;
+        }
+    }
+
     /* Prevent zoom on inputs */
     input, select, textarea {
         font-size: 16px !important;
-    }
-
-    /* Allow vertical scroll everywhere */
-    * {
-        touch-action: pan-y pinch-zoom;
     }
 
     /* ==========================================
@@ -262,11 +266,25 @@
     }
 
     /* ==========================================
-       AGE GATE - APP STYLE
+       AGE GATE - APP STYLE (OPTIMIZED)
        ========================================== */
     .age-gate {
         padding: 20px !important;
         padding-top: 60px !important;
+    }
+
+    /* Disable ALL animations on age gate */
+    .age-gate *,
+    .age-gate::before,
+    .age-gate::after,
+    .age-gate-logo::before,
+    .age-gate-logo::after {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .age-gate::before {
+        display: none !important;
     }
 
     .age-gate-logo {
@@ -274,9 +292,21 @@
         margin-bottom: 24px !important;
     }
 
+    .age-gate-logo::before,
+    .age-gate-logo::after {
+        display: none !important;
+    }
+
+    .age-gate-content {
+        opacity: 1 !important;
+    }
+
     .age-gate-box {
         padding: 24px 20px !important;
         border-radius: 20px !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(20, 20, 25, 0.95) !important;
     }
 
     .age-gate h2 {
@@ -301,6 +331,7 @@
 
     .age-gate-terms {
         margin-top: 20px !important;
+        opacity: 1 !important;
     }
 
     .age-gate-terms-scroll {
@@ -385,8 +416,11 @@
         gap: 12px !important;
         cursor: default !important;
         transform: none !important;
+        will-change: auto !important;
+        transition: none !important;
         display: flex !important;
         flex-wrap: nowrap !important;
+        touch-action: auto !important;
     }
 
     /* Hide scroll buttons */
@@ -399,14 +433,14 @@
         width: 140px !important;
         min-width: 140px !important;
         flex-shrink: 0 !important;
+        touch-action: auto !important;
     }
 
-    /* CRITICAL: Allow vertical scrolling on cards */
-    .content-card,
-    .content-card *,
+    /* Allow scrolling on all card elements */
     .card-image,
-    .card-image * {
-        touch-action: pan-y pan-x !important;
+    .card-image *,
+    .content-card * {
+        touch-action: auto !important;
     }
 
     .card-image {
@@ -608,19 +642,25 @@
     }
 
     /* ==========================================
-       LOADER - SIMPLIFIED
+       LOADER - SIMPLIFIED FOR MOBILE
        ========================================== */
     .site-loader {
         background: #08080c !important;
     }
 
     .loader-orb,
-    .loader-particle {
+    .loader-particle,
+    .loader-particles,
+    .loader-glow {
         display: none !important;
     }
 
     .loader-rings {
         transform: scale(0.8) !important;
+    }
+
+    .loader-ring {
+        animation-duration: 3s !important;
     }
 
     /* ==========================================
@@ -635,10 +675,25 @@
         transform: none !important;
     }
 
-    /* Reduce animations */
+    /* Remove all glow effects */
     .sidebar-glow,
     .category-glow,
-    .card-glow {
+    .card-glow,
+    .hero-glow,
+    *[class*="-glow"] {
+        display: none !important;
+    }
+
+    /* Disable backdrop blur everywhere */
+    * {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Reduce animation complexity */
+    .hero-float,
+    .hero-badge,
+    .floating-element {
         display: none !important;
     }
 }

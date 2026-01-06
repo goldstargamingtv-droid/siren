@@ -3747,7 +3747,6 @@
                 overflow-x: auto !important;
                 overflow-y: hidden !important;
                 -webkit-overflow-scrolling: touch !important;
-                scroll-snap-type: x proximity;
                 scrollbar-width: none;
                 -ms-overflow-style: none;
             }
@@ -3757,7 +3756,16 @@
             }
 
             .content-row {
-                touch-action: pan-x !important;
+                touch-action: auto !important;
+                transform: none !important;
+                will-change: auto !important;
+                transition: none !important;
+            }
+
+            /* Cards allow both scroll directions */
+            .content-card,
+            .card-image {
+                touch-action: auto !important;
             }
 
             /* Hide scroll buttons on mobile - use touch instead */
@@ -5626,8 +5634,10 @@
                 }
             }
             
-            // Reset transform
-            row.style.transform = 'translateX(0)';
+            // Reset transform - skip on mobile (use native scroll)
+            if (!IS_MOBILE) {
+                row.style.transform = 'translateX(0)';
+            }
             
             // Initial button state
             updateSliderButtons(rowId);
@@ -5735,7 +5745,8 @@
                 const rowIds = ['continueRow', 'top10Row', 'trendingRow', 'featuredRow', 'performersRow', 'newRow', 'vrRow'];
                 rowIds.forEach(id => {
                     const row = document.getElementById(id);
-                    if (row) row.style.transform = 'translateX(0)';
+                    // Skip transform on mobile
+                    if (row && !IS_MOBILE) row.style.transform = 'translateX(0)';
                     initSlider(id);
                 });
             }, 200);
