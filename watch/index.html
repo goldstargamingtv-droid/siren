@@ -992,51 +992,67 @@
     const geometry = new THREE.SphereGeometry(500, 60, 40);
     geometry.scale(-1, 1, 1);
 
-    // Placeholder texture
+    // Placeholder texture - Dark Studio Environment
     const canvas = document.createElement('canvas');
     canvas.width = 2048;
     canvas.height = 1024;
     const ctx = canvas.getContext('2d');
     
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, '#1a0a1a');
-    gradient.addColorStop(0.3, '#2d1b3d');
-    gradient.addColorStop(0.5, '#1f1f3d');
-    gradient.addColorStop(0.7, '#2d1b3d');
-    gradient.addColorStop(1, '#1a0a1a');
+    // Dark room gradient - floor to ceiling
+    const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
+    gradient.addColorStop(0, '#0a0a0a');      // Dark floor
+    gradient.addColorStop(0.3, '#111111');    // Lower walls
+    gradient.addColorStop(0.5, '#0d0d0d');    // Mid
+    gradient.addColorStop(0.7, '#080808');    // Upper walls
+    gradient.addColorStop(1, '#050505');      // Ceiling
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    for (let i = 0; i < 200; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const r = Math.random() * 3;
+    
+    // Add subtle red ambient glow from bottom
+    const redGlow = ctx.createRadialGradient(canvas.width/2, canvas.height, 0, canvas.width/2, canvas.height, 600);
+    redGlow.addColorStop(0, 'rgba(239, 68, 68, 0.08)');
+    redGlow.addColorStop(0.5, 'rgba(239, 68, 68, 0.03)');
+    redGlow.addColorStop(1, 'transparent');
+    ctx.fillStyle = redGlow;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Subtle wall panels / vertical lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < canvas.width; x += 128) {
         ctx.beginPath();
-        ctx.arc(x, y, r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.3})`;
-        ctx.fill();
+        ctx.moveTo(x, canvas.height * 0.2);
+        ctx.lineTo(x, canvas.height * 0.8);
+        ctx.stroke();
     }
+    
+    // Horizontal line for floor edge
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height * 0.7);
+    ctx.lineTo(canvas.width, canvas.height * 0.7);
+    ctx.stroke();
 
-    ctx.font = 'bold 100px Outfit, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-    ctx.fillText('SIREN IMMERSIVE', canvas.width / 2, canvas.height / 2 - 40);
-    ctx.font = '40px Outfit, sans-serif';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-    ctx.fillText('Gaussian Splatting Demo', canvas.width / 2, canvas.height / 2 + 40);
+    // Subtle spotlight from above
+    const spotlight = ctx.createRadialGradient(canvas.width/2, 200, 0, canvas.width/2, 200, 400);
+    spotlight.addColorStop(0, 'rgba(255, 255, 255, 0.03)');
+    spotlight.addColorStop(1, 'transparent');
+    ctx.fillStyle = spotlight;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     const texture = new THREE.CanvasTexture(canvas);
     const material = new THREE.MeshBasicMaterial({ map: texture });
     const sphere = new THREE.Mesh(geometry, material);
     scene.add(sphere);
 
-    // Particles
+    // Subtle floating dust particles
     const particlesGeometry = new THREE.BufferGeometry();
-    const particleCount = 800;
+    const particleCount = 200;
     const positions = new Float32Array(particleCount * 3);
     
     for (let i = 0; i < particleCount * 3; i += 3) {
-        const radius = 50 + Math.random() * 200;
+        const radius = 20 + Math.random() * 100;
         const theta = Math.random() * Math.PI * 2;
         const phi = Math.random() * Math.PI;
         positions[i] = radius * Math.sin(phi) * Math.cos(theta);
@@ -1045,7 +1061,7 @@
     }
     
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const particlesMaterial = new THREE.PointsMaterial({ color: 0xff6644, size: 1.5, transparent: true, opacity: 0.5 });
+    const particlesMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5, transparent: true, opacity: 0.15 });
     const particles = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particles);
 

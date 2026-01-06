@@ -4530,7 +4530,7 @@
                                 <svg viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
-                                <span>3D</span>
+                                <span>3D Immersive</span>
                             </span>
                             <span>45 min</span>
                             <span>4K Ultra</span>
@@ -4565,7 +4565,7 @@
                                 <svg viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
-                                <span>3D</span>
+                                <span>3D Immersive</span>
                             </span>
                             <span>38 min</span>
                             <span>4K Ultra</span>
@@ -4600,7 +4600,7 @@
                                 <svg viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
-                                <span>3D</span>
+                                <span>3D Immersive</span>
                             </span>
                             <span>52 min</span>
                             <span>4K Ultra</span>
@@ -4635,7 +4635,7 @@
                                 <svg viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
-                                <span>3D</span>
+                                <span>3D Immersive</span>
                             </span>
                             <span>32 min</span>
                             <span>4K Ultra</span>
@@ -4670,7 +4670,7 @@
                                 <svg viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
-                                <span>3D</span>
+                                <span>3D Immersive</span>
                             </span>
                             <span>41 min</span>
                             <span>4K Ultra</span>
@@ -5087,14 +5087,14 @@
                                 <svg viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
-                                <span>3D</span>
+                                <span>3D Immersive</span>
                             </div>` : ''}
                             ${isMultiAngle ? `<div class="card-3d-badge">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="12" cy="12" r="10"/>
                                     <circle cx="12" cy="12" r="3"/>
                                 </svg>
-                                <span>8-ANGLE</span>
+                                <span>4D Gaussian</span>
                             </div>` : ''}
                         </div>
                     </div>
@@ -5109,14 +5109,14 @@
                                 <svg viewBox="0 0 24 24">
                                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                                 </svg>
-                                <span>3D</span>
+                                <span>3D Immersive</span>
                             </div>` : ''}
                             ${isMultiAngle ? `<div class="card-3d-badge">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="12" cy="12" r="10"/>
                                     <circle cx="12" cy="12" r="3"/>
                                 </svg>
-                                <span>8-ANGLE</span>
+                                <span>4D Gaussian</span>
                             </div>` : ''}
                             <div class="card-title-logo ${content.logo}">${content.title}</div>
                             ${progress ? `<div class="card-progress"><div class="card-progress-bar" style="width: ${progress}%"></div></div>` : ''}
@@ -5205,7 +5205,7 @@
             totalCardsCreated = 0;
             
             const rows = [
-                { id: 'continueRow', count: 20, type: 'continue' },
+                { id: 'continueRow', count: 3, type: 'continue' },
                 { id: 'top10Row', count: 10, type: 'top10' },
                 { id: 'trendingRow', count: 24, type: 'portrait' },
                 { id: 'featuredRow', count: 12, type: 'large' },
@@ -5999,7 +5999,7 @@
             // Content data for grid
             const mobileContent = {
                 all: [
-                    { section: 'Continue Watching', items: generateItems(4, 'continue') },
+                    { section: 'Continue Watching', items: generateItems(3, 'continue') },
                     { section: 'Top Performers', items: generatePerformers(6), isPerformerSection: true },
                     { section: 'Trending Now', items: generateItems(6, 'trending') },
                     { section: 'New Releases', items: generateItems(6, 'new') },
@@ -6047,7 +6047,7 @@
                         title: sceneNames[i % sceneNames.length],
                         performer: performerNames[i % performerNames.length],
                         duration: durations[i % durations.length],
-                        badge: is3D ? '3D' : (isMultiAngle ? '8-ANGLE' : badge),
+                        badge: is3D ? '3D Immersive' : (isMultiAngle ? '4D Gaussian' : badge),
                         isVR: type === 'vr',
                         is3D: is3D,
                         isMultiAngle: isMultiAngle
