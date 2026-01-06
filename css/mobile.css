@@ -180,6 +180,11 @@
         display: flex;
         flex: 1;
         will-change: transform;
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        perspective: 1000px;
+        touch-action: pan-y pinch-zoom;
     }
 
     /* Each Page */
@@ -193,6 +198,8 @@
         padding: 0 24px 180px;
         position: relative;
         flex-shrink: 0;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
     }
 
     /* Background Image */

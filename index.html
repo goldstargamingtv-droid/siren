@@ -5280,25 +5280,28 @@ subscribeBtn.addEventListener('click', () => {
     let currentX = 0;
     let isDragging = false;
     let isHorizontal = null;
+    let rafId = null;
     
     const totalPages = pages.length;
-    const threshold = 50; // Min swipe distance
+    const threshold = 50;
     const velocityThreshold = 0.3;
     let startTime = 0;
+    
+    function setTransform(x, transition = false) {
+        if (transition) {
+            carousel.style.transition = 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)';
+        } else {
+            carousel.style.transition = 'none';
+        }
+        carousel.style.transform = `translate3d(${x}%, 0, 0)`;
+    }
     
     function goToPage(index, animate = true) {
         if (index < 0) index = 0;
         if (index >= totalPages) index = totalPages - 1;
         
         currentPage = index;
-        
-        if (animate) {
-            carousel.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        } else {
-            carousel.style.transition = 'none';
-        }
-        
-        carousel.style.transform = `translateX(-${currentPage * 100}%)`;
+        setTransform(-currentPage * 100, animate);
         
         dots.forEach((dot, i) => {
             dot.classList.toggle('active', i === currentPage);
@@ -5306,6 +5309,7 @@ subscribeBtn.addEventListener('click', () => {
     }
     
     function handleTouchStart(e) {
+        if (rafId) cancelAnimationFrame(rafId);
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         startTime = Date.now();
@@ -5322,30 +5326,30 @@ subscribeBtn.addEventListener('click', () => {
         const diffX = currentX - startX;
         const diffY = currentY - startY;
         
-        // Determine direction on first significant move
-        if (isHorizontal === null && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
+        if (isHorizontal === null && (Math.abs(diffX) > 8 || Math.abs(diffY) > 8)) {
             isHorizontal = Math.abs(diffX) > Math.abs(diffY);
         }
         
-        // Only handle horizontal swipes
         if (isHorizontal) {
             e.preventDefault();
             
-            // Add resistance at edges
-            let offset = diffX;
-            if ((currentPage === 0 && diffX > 0) || (currentPage === totalPages - 1 && diffX < 0)) {
-                offset = diffX * 0.3; // Rubber band effect
-            }
-            
-            const translateX = -currentPage * window.innerWidth + offset;
-            const percent = (translateX / window.innerWidth) * 100;
-            carousel.style.transform = `translateX(${percent}%)`;
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => {
+                let offset = diffX;
+                if ((currentPage === 0 && diffX > 0) || (currentPage === totalPages - 1 && diffX < 0)) {
+                    offset = diffX * 0.25;
+                }
+                
+                const percent = -currentPage * 100 + (offset / window.innerWidth) * 100;
+                carousel.style.transform = `translate3d(${percent}%, 0, 0)`;
+            });
         }
     }
     
     function handleTouchEnd(e) {
         if (!isDragging) return;
         isDragging = false;
+        if (rafId) cancelAnimationFrame(rafId);
         
         if (!isHorizontal) {
             goToPage(currentPage);
@@ -5356,7 +5360,6 @@ subscribeBtn.addEventListener('click', () => {
         const elapsed = Date.now() - startTime;
         const velocity = Math.abs(diff) / elapsed;
         
-        // Determine if we should change page
         if (Math.abs(diff) > threshold || velocity > velocityThreshold) {
             if (diff > 0 && currentPage > 0) {
                 goToPage(currentPage - 1);
@@ -5370,7 +5373,6 @@ subscribeBtn.addEventListener('click', () => {
         }
     }
     
-    // Touch events
     carousel.addEventListener('touchstart', handleTouchStart, { passive: true });
     carousel.addEventListener('touchmove', handleTouchMove, { passive: false });
     carousel.addEventListener('touchend', handleTouchEnd, { passive: true });
