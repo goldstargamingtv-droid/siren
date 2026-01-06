@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>localStorage.setItem('siren_age_verified','true');</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
@@ -4009,6 +4008,7 @@
 <link rel="stylesheet" href="../css/mobile.css">
 
 <body>
+    <div style="position:fixed;top:10px;right:10px;background:blue;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">B.15</div>
     <!-- Age Gate -->
     <!-- Premium Loader -->
     <div class="site-loader active" id="siteLoader">
@@ -5101,6 +5101,33 @@
             let cardMouseDownTime = 0;
             let cardMouseDownX = 0;
             let cardMouseDownY = 0;
+            let cardTouchStartTime = 0;
+            let cardTouchStartX = 0;
+            let cardTouchStartY = 0;
+            
+            // Touch events for mobile
+            card.addEventListener('touchstart', (e) => {
+                cardTouchStartTime = Date.now();
+                cardTouchStartX = e.touches[0].clientX;
+                cardTouchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            card.addEventListener('touchend', (e) => {
+                if (e.target.closest('.btn-play')) return;
+                
+                const touch = e.changedTouches[0];
+                const timeDiff = Date.now() - cardTouchStartTime;
+                const distX = Math.abs(touch.clientX - cardTouchStartX);
+                const distY = Math.abs(touch.clientY - cardTouchStartY);
+                
+                if (timeDiff < 300 && distX < 10 && distY < 10) {
+                    if (card.dataset.is3d === 'true') {
+                        window.location.href = '../watch/?type=splat';
+                    } else {
+                        window.location.href = '../watch/';
+                    }
+                }
+            }, { passive: true });
             
             card.addEventListener('mousedown', (e) => {
                 cardMouseDownTime = Date.now();
@@ -6733,10 +6760,53 @@
                     window.location.href = '../watch/';
                 }
             });
+            
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const card = btn.closest('.content-card');
+                if (card && card.dataset.is3d === 'true') {
+                    window.location.href = '../watch/?type=splat';
+                } else {
+                    window.location.href = '../watch/';
+                }
+            }, { passive: false });
         });
 
         // Also handle clicks on content cards themselves - but not during drag
         document.querySelectorAll('.content-card').forEach(card => {
+            let cardTouchStartTime = 0;
+            let cardTouchStartX = 0;
+            let cardTouchStartY = 0;
+            
+            // Touch events for mobile
+            card.addEventListener('touchstart', (e) => {
+                cardTouchStartTime = Date.now();
+                cardTouchStartX = e.touches[0].clientX;
+                cardTouchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            card.addEventListener('touchend', (e) => {
+                // Don't navigate if clicking buttons
+                if (e.target.closest('.card-expanded-btn')) return;
+                if (e.target.closest('.btn-play')) return;
+                
+                const touch = e.changedTouches[0];
+                const timeDiff = Date.now() - cardTouchStartTime;
+                const distX = Math.abs(touch.clientX - cardTouchStartX);
+                const distY = Math.abs(touch.clientY - cardTouchStartY);
+                
+                // Only navigate if it was a tap (not drag)
+                if (timeDiff < 300 && distX < 10 && distY < 10) {
+                    if (card.dataset.is3d === 'true') {
+                        window.location.href = '../watch/?type=splat';
+                    } else {
+                        window.location.href = '../watch/';
+                    }
+                }
+            }, { passive: true });
+            
+            // Mouse events for desktop
             let cardMouseDownTime = 0;
             let cardMouseDownX = 0;
             let cardMouseDownY = 0;
