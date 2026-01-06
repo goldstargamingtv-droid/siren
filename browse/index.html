@@ -4008,7 +4008,7 @@
 <link rel="stylesheet" href="../css/mobile.css">
 
 <body>
-    <div style="position:fixed;top:10px;right:10px;background:blue;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">B.15</div>
+    <div style="position:fixed;top:10px;right:10px;background:blue;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">B.16</div>
     <!-- Age Gate -->
     <!-- Premium Loader -->
     <div class="site-loader active" id="siteLoader">
@@ -5855,14 +5855,18 @@
                     const badgeOptions = badges[type] || [null];
                     const badge = badgeOptions[Math.floor(Math.random() * badgeOptions.length)];
                     
+                    // First 2 Continue Watching items are 3D
+                    const is3D = (type === 'continue' && i < 2);
+                    
                     items.push({
                         id: `${type}-${i}`,
                         img: `../images/${imgNum}.jpg`,
                         title: sceneNames[i % sceneNames.length],
                         performer: performerNames[i % performerNames.length],
                         duration: durations[i % durations.length],
-                        badge: badge,
-                        isVR: type === 'vr'
+                        badge: is3D ? '3D' : badge,
+                        isVR: type === 'vr',
+                        is3D: is3D
                     });
                 }
                 return items;
@@ -5907,11 +5911,12 @@
                     // Regular cards
                     section.items.forEach(item => {
                         const card = document.createElement('a');
-                        card.href = '../watch/index.html';
+                        card.href = item.is3D ? '../watch/index.html?type=splat' : '../watch/index.html';
                         card.className = 'mobile-grid-card';
+                        if (item.is3D) card.dataset.is3d = 'true';
                         card.innerHTML = `
                             <img src="${item.img}" alt="${item.title}" loading="lazy">
-                            ${item.badge ? `<div class="mobile-grid-card-badge">${item.badge}</div>` : ''}
+                            ${item.badge ? `<div class="mobile-grid-card-badge${item.is3D ? ' badge-3d' : ''}">${item.badge}</div>` : ''}
                             <div class="mobile-grid-card-duration">${item.duration}</div>
                             <div class="mobile-grid-card-overlay">
                                 <div class="mobile-grid-card-title">${item.title}</div>
