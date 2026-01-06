@@ -539,7 +539,7 @@
     </div>
 
     <script type="module">
-        console.log('%c[SIREN MULTIANGLE v1.2.0 - 3D Hotspots]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
+        console.log('%c[SIREN MULTIANGLE v1.2.1]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
         
         // Scene configurations - from dylanebert's Hugging Face 3dgs dataset
@@ -772,61 +772,46 @@
             }, 1500);
         }
         
+        // Animation state
+        let isAnimating = false;
+        
         // Switch camera angle with animation
         function switchAngle(index) {
-            if (!camera) return;
+            if (!camera || isAnimating) return;
             
             currentAngle = index;
             const angle = CAMERA_ANGLES[index];
             const target = toCartesian(angle.theta, angle.phi, angle.dist);
             
-            // Debug camera structure
-            console.log('[SIREN] Camera object:', camera);
-            console.log('[SIREN] Camera position:', camera.position);
-            console.log('[SIREN] Camera data:', camera.data);
-            console.log('[SIREN] Controls:', controls);
-            console.log('[SIREN] Switching to angle', index, angle.name, 'target:', target);
+            console.log('[SIREN] Switching to angle', index, angle.name);
             
-            // Try different approaches based on camera structure
-            // Approach 1: Direct position properties
-            if (camera.position && typeof camera.position.x === 'number') {
-                const start = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
-                gsap.to(camera.position, {
-                    x: target.x,
-                    y: target.y,
-                    z: target.z,
-                    duration: 0.6,
-                    ease: 'power2.out'
-                });
-            }
-            // Approach 2: Position as array in data
-            else if (camera.data && camera.data.position) {
-                gsap.to(camera.data.position, {
-                    0: target.x,
-                    1: target.y,
-                    2: target.z,
-                    duration: 0.6,
-                    ease: 'power2.out'
-                });
-            }
-            // Approach 3: setPosition method
-            else if (camera.setPosition) {
-                const start = camera.getPosition ? camera.getPosition() : {x:0,y:0,z:5};
-                const anim = { t: 0 };
-                gsap.to(anim, {
-                    t: 1,
-                    duration: 0.6,
-                    ease: 'power2.out',
-                    onUpdate: () => {
-                        const t = anim.t;
-                        camera.setPosition(
-                            start.x + (target.x - start.x) * t,
-                            start.y + (target.y - start.y) * t,
-                            start.z + (target.z - start.z) * t
-                        );
-                    }
-                });
-            }
+            // Disable controls during animation
+            isAnimating = true;
+            
+            // Get current position
+            const start = {
+                x: camera.position.x,
+                y: camera.position.y,
+                z: camera.position.z
+            };
+            
+            // Animate
+            gsap.to(start, {
+                x: target.x,
+                y: target.y,
+                z: target.z,
+                duration: 0.6,
+                ease: 'power2.out',
+                onUpdate: () => {
+                    // Directly set camera position each frame
+                    camera.position.x = start.x;
+                    camera.position.y = start.y;
+                    camera.position.z = start.z;
+                },
+                onComplete: () => {
+                    isAnimating = false;
+                }
+            });
             
             // Update UI
             document.querySelectorAll('.angle-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
@@ -906,7 +891,10 @@
             
             // Render loop
             const frame = () => {
-                controls.update();
+                // Skip controls update during camera animation
+                if (!isAnimating) {
+                    controls.update();
+                }
                 renderer.render(scene, camera);
                 updateHotspots();
                 requestAnimationFrame(frame);
