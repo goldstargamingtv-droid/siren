@@ -539,7 +539,7 @@
     </div>
 
     <script type="module">
-        console.log('%c[SIREN MULTIANGLE v1.2.2]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
+        console.log('%c[SIREN MULTIANGLE v1.2.3]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
         
         // Scene configurations - from dylanebert's Hugging Face 3dgs dataset
@@ -775,7 +775,7 @@
         // Animation state
         let isAnimating = false;
         
-        // Switch camera angle with animation
+        // Switch camera angle - instant snap then recreate controls
         function switchAngle(index) {
             if (!camera || isAnimating) return;
             
@@ -783,45 +783,27 @@
             const angle = CAMERA_ANGLES[index];
             const target = toCartesian(angle.theta, angle.phi, angle.dist);
             
-            console.log('[SIREN] Switching to angle', index, angle.name);
+            console.log('[SIREN] Switching to angle', index, angle.name, target);
             
-            // Disable controls during animation
             isAnimating = true;
             
-            // Get current position
-            const start = {
-                x: camera.position.x,
-                y: camera.position.y,
-                z: camera.position.z
-            };
+            // Dispose old controls first
+            if (controls && controls.dispose) {
+                controls.dispose();
+                controls = null;
+            }
             
-            // Animate
-            gsap.to(start, {
-                x: target.x,
-                y: target.y,
-                z: target.z,
-                duration: 0.6,
-                ease: 'power2.out',
-                onUpdate: () => {
-                    // Directly set camera position each frame
-                    camera.position.x = start.x;
-                    camera.position.y = start.y;
-                    camera.position.z = start.z;
-                },
-                onComplete: () => {
-                    // Final position set
-                    camera.position.x = target.x;
-                    camera.position.y = target.y;
-                    camera.position.z = target.z;
-                    
-                    // Recreate controls to sync with new camera position
-                    controls.dispose && controls.dispose();
-                    controls = new SPLAT.OrbitControls(camera, canvas);
-                    
-                    isAnimating = false;
-                    console.log('[SIREN] Animation complete, controls recreated');
-                }
-            });
+            // Set camera position directly
+            camera.position.x = target.x;
+            camera.position.y = target.y;
+            camera.position.z = target.z;
+            
+            // Create fresh controls from new position
+            controls = new SPLAT.OrbitControls(camera, canvas);
+            
+            console.log('[SIREN] Camera set to:', camera.position.x, camera.position.y, camera.position.z);
+            
+            isAnimating = false;
             
             // Update UI
             document.querySelectorAll('.angle-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
@@ -901,10 +883,7 @@
             
             // Render loop
             const frame = () => {
-                // Skip controls update during camera animation
-                if (!isAnimating) {
-                    controls.update();
-                }
+                if (controls) controls.update();
                 renderer.render(scene, camera);
                 updateHotspots();
                 requestAnimationFrame(frame);
