@@ -409,7 +409,7 @@
     </div>
     
     <!-- 3D Canvas -->
-    <canvas id="canvas" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+    <canvas id="canvas" style="position:absolute;inset:0;width:100%;height:100%;display:block;background:#000;"></canvas>
     
     <!-- Angle Indicator -->
     <div class="angle-indicator" id="angleIndicator">
@@ -424,7 +424,7 @@
                 <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
             <div class="title-info">
-                <h1 id="sceneTitle">Tree Stump</h1>
+                <h1 id="sceneTitle">Kitchen</h1>
                 <span>Gaussian Splat • Drag orbit, Scroll zoom, Right-drag pan</span>
             </div>
             <div class="mode-badge">
@@ -460,19 +460,19 @@
     <script type="module">
         import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
         
-        // Scene configurations - from dylanebert's Hugging Face 3dgs dataset
+        // Scene configurations - interior scenes from dylanebert's Hugging Face 3dgs dataset
         const SCENES = {
-            stump: {
-                name: 'Tree Stump',
-                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/stump/stump-7k.splat'
+            kitchen: {
+                name: 'Kitchen',
+                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/kitchen/kitchen-7k.splat'
             },
-            garden: {
-                name: 'Garden',
-                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/garden/garden-7k.splat'
+            room: {
+                name: 'Room',
+                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/room/room-7k.splat'
             },
-            bonsai: {
-                name: 'Bonsai',
-                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/bonsai/bonsai-7k.splat'
+            playroom: {
+                name: 'Playroom',
+                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/playroom/playroom-7k.splat'
             }
         };
         
@@ -489,7 +489,7 @@
         ];
         
         // State
-        let currentScene = 'stump';
+        let currentScene = 'kitchen';
         let currentAngle = 0;
         let renderer, scene, camera, controls, currentSplat;
         
@@ -658,7 +658,7 @@
             initSceneSelector();
             initAngleSelectors();
             
-            await loadScene('stump');
+            await loadScene('kitchen');
             
             // Render loop
             const frame = () => {
