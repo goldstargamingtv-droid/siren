@@ -5144,7 +5144,7 @@ subscribeBtn.addEventListener('click', () => {
     <!-- Mobile Header -->
     <header class="mobile-landing-header">
         <div class="mobile-landing-logo">SIREN</div>
-        <button class="mobile-landing-signin" onclick="openAuthModal('signin')">Sign In</button>
+        <button class="mobile-landing-signin" onclick="window.afterAuthRedirect='browse/index.html'; openAuthModal('signin')">Sign In</button>
     </header>
     
     <!-- Swipeable Pages -->
@@ -5216,7 +5216,7 @@ subscribeBtn.addEventListener('click', () => {
     </div>
     
     <!-- Get Started Button -->
-    <button class="mobile-landing-cta" onclick="openAuthModal('signup')">Get Started</button>
+    <button class="mobile-landing-cta" onclick="window.afterAuthRedirect='browse/index.html'; openAuthModal('signup')">Get Started</button>
     
     <!-- Carousel Dots -->
     <div class="mobile-landing-dots" id="mobileLandingDots">
