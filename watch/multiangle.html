@@ -424,7 +424,7 @@
                 <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
             <div class="title-info">
-                <h1 id="sceneTitle">Truck</h1>
+                <h1 id="sceneTitle">Bonsai</h1>
                 <span>Gaussian Splat • Drag orbit, Scroll zoom, Right-drag pan</span>
             </div>
             <div class="mode-badge">
@@ -460,19 +460,19 @@
     <script type="module">
         import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
         
-        // Scene configurations - full URLs to antimatter15's hosted files
+        // Scene configurations - from VladKobranov's Hugging Face library
         const SCENES = {
-            plush: {
-                name: 'Plush Toy',
-                url: 'https://antimatter15.com/splat/plush.splat'
+            bonsai: {
+                name: 'Bonsai',
+                url: 'https://huggingface.co/VladKobranov/splats/resolve/main/bonsai.splat'
             },
-            truck: {
-                name: 'Truck',
-                url: 'https://antimatter15.com/splat/truck.splat'
+            bicycle: {
+                name: 'Bicycle',
+                url: 'https://huggingface.co/VladKobranov/splats/resolve/main/bicycle-noroad.splat'
             },
-            stump: {
-                name: 'Tree Stump',
-                url: 'https://antimatter15.com/splat/stump.splat'
+            car: {
+                name: 'Toyota Car',
+                url: 'https://huggingface.co/VladKobranov/splats/resolve/main/car-toyota-white.splat'
             }
         };
         
@@ -489,7 +489,7 @@
         ];
         
         // State
-        let currentScene = 'truck';
+        let currentScene = 'bonsai';
         let currentAngle = 0;
         let renderer, scene, camera, controls, currentSplat;
         
@@ -655,7 +655,7 @@
             initSceneSelector();
             initAngleSelectors();
             
-            await loadScene('truck');
+            await loadScene('bonsai');
             
             // Render loop
             const frame = () => {
