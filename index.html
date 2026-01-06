@@ -4956,48 +4956,70 @@
     <!-- Age Gate Script -->
     <script>
         const AGE_KEY = 'siren_age_verified';
+        const isMobile = window.innerWidth <= 768;
         
         // Check if already verified
         if (localStorage.getItem(AGE_KEY) === 'true') {
             document.getElementById('ageGate').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('blurred');
         } else {
-            // Animate age gate entrance
-            gsap.fromTo('.age-gate-logo', 
-                { opacity: 0, y: -30, scale: 0.9 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out', delay: 0.3 }
-            );
-            gsap.fromTo('.age-gate-content', 
-                { opacity: 0, y: 30 },
-                { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.5 }
-            );
-            gsap.fromTo('.age-gate .age-buttons .age-btn', 
-                { opacity: 0, filter: 'blur(12px)', y: 8 },
-                { opacity: 1, filter: 'blur(0px)', y: 0, duration: 1, stagger: 0.2, ease: 'power3.out', delay: 0.9 }
-            );
-            gsap.fromTo('.age-gate-terms', 
-                { opacity: 0 },
-                { opacity: 1, duration: 0.6, ease: 'power2.out', delay: 1.1 }
-            );
+            // Add class to body so CSS knows age gate is active
+            if (isMobile) {
+                document.body.classList.add('age-gate-active');
+            }
+            
+            // Animate age gate entrance (skip on mobile for performance)
+            if (!isMobile) {
+                gsap.fromTo('.age-gate-logo', 
+                    { opacity: 0, y: -30, scale: 0.9 },
+                    { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power3.out', delay: 0.3 }
+                );
+                gsap.fromTo('.age-gate-content', 
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.5 }
+                );
+                gsap.fromTo('.age-gate .age-buttons .age-btn', 
+                    { opacity: 0, filter: 'blur(12px)', y: 8 },
+                    { opacity: 1, filter: 'blur(0px)', y: 0, duration: 1, stagger: 0.2, ease: 'power3.out', delay: 0.9 }
+                );
+                gsap.fromTo('.age-gate-terms', 
+                    { opacity: 0 },
+                    { opacity: 1, duration: 0.6, ease: 'power2.out', delay: 1.1 }
+                );
+            } else {
+                // Just show everything immediately on mobile
+                document.querySelector('.age-gate-logo').style.opacity = 1;
+                document.querySelector('.age-gate-content').style.opacity = 1;
+                document.querySelector('.age-gate-terms').style.opacity = 1;
+            }
         }
         
         function enterSite() {
             localStorage.setItem(AGE_KEY, 'true');
             
-            // Show loader FIRST (behind age gate)
-            document.getElementById('siteLoader').style.display = 'flex';
+            const isMobileDevice = window.innerWidth <= 768;
             
-            // Then fade out age gate
-            gsap.to('.age-gate', {
-                opacity: 0,
-                duration: 0.6,
-                ease: 'power2.inOut',
-                onComplete: () => {
-                    document.getElementById('ageGate').classList.add('hidden');
-                    // Now start the loader animation
-                    startLoader();
-                }
-            });
+            if (isMobileDevice) {
+                // Simple fade out on mobile
+                document.getElementById('ageGate').classList.add('hidden');
+                document.body.classList.remove('age-gate-active');
+                // Skip loader on mobile, go straight to landing
+            } else {
+                // Show loader FIRST (behind age gate)
+                document.getElementById('siteLoader').style.display = 'flex';
+                
+                // Then fade out age gate
+                gsap.to('.age-gate', {
+                    opacity: 0,
+                    duration: 0.6,
+                    ease: 'power2.inOut',
+                    onComplete: () => {
+                        document.getElementById('ageGate').classList.add('hidden');
+                        // Now start the loader animation
+                        startLoader();
+                    }
+                });
+            }
         }
         
         function exitSite() {
@@ -5359,14 +5381,7 @@ subscribeBtn.addEventListener('click', () => {
             </linearGradient>
         </defs>
     </svg>
-    <a href="index.html" class="mobile-nav-item active">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-        <span>Home</span>
-    </a>
-    <a href="browse/index.html" class="mobile-nav-item">
+    <a href="browse/index.html" class="mobile-nav-item active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
             <line x1="7" y1="2" x2="7" y2="22"/>
@@ -5375,19 +5390,28 @@ subscribeBtn.addEventListener('click', () => {
         </svg>
         <span>Browse</span>
     </a>
+    <a href="#" class="mobile-nav-item" onclick="alert('My List coming soon!'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span>My List</span>
+    </a>
+    <a href="#" class="mobile-nav-item" onclick="alert('VR content coming soon!'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M21 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/>
+            <circle cx="8" cy="10" r="2"/>
+            <circle cx="16" cy="10" r="2"/>
+            <path d="M10 10h4"/>
+            <path d="M2 10h1M21 10h1"/>
+        </svg>
+        <span>VR</span>
+    </a>
     <a href="#" class="mobile-nav-item" onclick="alert('Clips coming soon!'); return false;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <polygon points="23 7 16 12 23 17 23 7"/>
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
         </svg>
         <span>Clips</span>
-    </a>
-    <a href="#" class="mobile-nav-item" onclick="alert('Search coming soon!'); return false;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <span>Search</span>
     </a>
     <a href="#" class="mobile-nav-item" onclick="goToProfile(event)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
