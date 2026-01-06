@@ -5008,31 +5008,55 @@
         }
         
         async function enterSite() {
+            console.log('[SIREN] enterSite() called');
             try {
                 localStorage.setItem(AGE_KEY, 'true');
                 var ageGate = document.getElementById('ageGate');
+                var mainContent = document.getElementById('mainContent');
+                
+                // Remove age gate
                 if (ageGate) {
+                    console.log('[SIREN] Removing age gate');
                     ageGate.parentNode.removeChild(ageGate);
                 }
+                
+                // CRITICAL: Remove blurred class to enable pointer-events
+                if (mainContent) {
+                    console.log('[SIREN] Removing blurred class from mainContent');
+                    mainContent.classList.remove('blurred');
+                }
+                
                 document.body.classList.remove('age-gate-active');
+                console.log('[SIREN] Removed age-gate-active from body');
                 
                 // Check auth state
-                if (supabaseClient) {
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    console.log('[SIREN] Checking auth state...');
                     const { data: { session } } = await supabaseClient.auth.getSession();
                     
                     if (session) {
+                        console.log('[SIREN] User has session, redirecting to browse');
                         window.location.href = 'browse/';
                     } else {
+                        console.log('[SIREN] No session');
                         const hasAccount = localStorage.getItem('siren_user_email');
                         if (hasAccount) {
+                            console.log('[SIREN] Has saved email, showing sign in modal');
                             window.afterAuthRedirect = 'browse/index.html';
                             openAuthModal('signin');
+                        } else {
+                            console.log('[SIREN] No account, showing landing page');
                         }
                         // No account → Landing carousel shows via CSS
                     }
+                } else {
+                    console.log('[SIREN] No supabaseClient, just showing landing');
                 }
             } catch(err) {
-                console.error('enterSite error:', err);
+                console.error('[SIREN] enterSite error:', err);
+                // Still remove blurred on error so page is usable
+                var mainContent = document.getElementById('mainContent');
+                if (mainContent) mainContent.classList.remove('blurred');
             }
         }
         

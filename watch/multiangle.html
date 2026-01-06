@@ -26,6 +26,15 @@
             color: #fff;
         }
         
+        #viewer-container {
+            position: absolute;
+            inset: 0;
+        }
+        
+        #viewer-container canvas {
+            display: block;
+        }
+        
         /* Loader */
         .site-loader {
             position: fixed;
@@ -126,28 +135,12 @@
             transition: width 0.3s ease;
         }
         
-        /* Splat Viewer Container */
-        .viewer-wrapper {
-            position: absolute;
-            inset: 0;
-        }
-        .splat-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        
         /* Controls Overlay */
         .controls-overlay {
             position: absolute;
             inset: 0;
             z-index: 10;
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .controls-overlay.visible {
-            opacity: 1;
         }
         .controls-overlay > * {
             pointer-events: auto;
@@ -160,10 +153,11 @@
             left: 0;
             right: 0;
             padding: 20px 24px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            pointer-events: auto;
         }
         .back-btn {
             width: 44px;
@@ -201,15 +195,26 @@
         }
         .mode-badge svg { width: 16px; height: 16px; }
         
+        /* Bottom Controls */
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 24px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        
         /* Scene Selector */
         .scene-selector {
-            position: absolute;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
             display: flex;
             gap: 8px;
-            padding: 8px 12px;
+            padding: 6px 10px;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border-radius: 30px;
@@ -235,134 +240,94 @@
             color: #fff;
         }
         
-        /* Desktop Angle Selector */
-        .angle-selector-desktop {
+        /* Controls Hint */
+        .controls-hint {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+        }
+        .controls-hint span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .controls-hint kbd {
+            padding: 3px 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        
+        /* Angle Selector */
+        .angle-selector {
             position: absolute;
-            right: 24px;
+            right: 20px;
             top: 50%;
             transform: translateY(-50%);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 8px;
+            gap: 6px;
+            z-index: 20;
         }
-        .angle-wheel { display: flex; flex-direction: column; gap: 6px; }
-        .angle-item {
-            position: relative;
+        .angle-btn {
             width: 80px;
-            height: 45px;
+            height: 40px;
             border-radius: 8px;
-            overflow: hidden;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-            opacity: 0.6;
             background: var(--glass-bg);
             backdrop-filter: blur(5px);
+            border: 2px solid transparent;
+            color: rgba(255,255,255,0.7);
+            font-family: inherit;
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            opacity: 0.7;
         }
-        .angle-item:hover { opacity: 0.9; transform: scale(1.05); }
-        .angle-item.active {
+        .angle-btn:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        .angle-btn.active {
             border-color: var(--siren-red);
             opacity: 1;
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
         }
-        .angle-item-inner {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.6rem;
-            font-weight: 500;
-            color: rgba(255,255,255,0.8);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .angle-item-number {
-            position: absolute;
-            top: 4px;
-            left: 4px;
+        .angle-btn .num {
             width: 18px;
             height: 18px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.5);
             border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 600;
         }
-        .angle-item.active .angle-item-number { background: var(--siren-gradient); }
+        .angle-btn.active .num {
+            background: var(--siren-gradient);
+        }
         .angle-label {
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.5);
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.4);
             text-transform: uppercase;
             letter-spacing: 0.1em;
             writing-mode: vertical-rl;
             transform: rotate(180deg);
-            margin-top: 8px;
+            margin-top: 10px;
+            text-align: center;
         }
-        
-        /* Mobile Angle Selector */
-        .angle-selector-mobile {
-            display: none;
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            padding: 0 16px;
-        }
-        .angle-strip {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 12px 0;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-        .angle-strip::-webkit-scrollbar { display: none; }
-        .angle-strip-item {
-            flex-shrink: 0;
-            width: 70px;
-            height: 50px;
-            border-radius: 8px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-            scroll-snap-align: center;
-            position: relative;
-            background: var(--glass-bg);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .angle-strip-item.active {
-            border-color: var(--siren-red);
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
-        }
-        .angle-strip-item span { font-size: 0.55rem; color: rgba(255,255,255,0.8); text-transform: uppercase; }
-        .angle-strip-number {
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            width: 18px;
-            height: 18px;
-            background: rgba(0,0,0,0.8);
-            border-radius: 50%;
-            font-size: 0.65rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .angle-strip-item.active .angle-strip-number { background: var(--siren-gradient); }
         
         /* Angle Indicator */
         .angle-indicator {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -371,9 +336,9 @@
             backdrop-filter: blur(10px);
             border-radius: 12px;
             border: 1px solid var(--glass-border);
-            pointer-events: none;
-            z-index: 30;
+            z-index: 100;
             opacity: 0;
+            pointer-events: none;
             transition: opacity 0.3s;
         }
         .angle-indicator.visible { opacity: 1; }
@@ -392,55 +357,46 @@
             -webkit-text-fill-color: transparent;
         }
         
-        /* Controls Hint */
-        .controls-hint {
-            position: absolute;
-            bottom: 160px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
+        /* Mobile Angle Strip */
+        .angle-strip-mobile {
+            display: none;
+            width: 100%;
+            overflow-x: auto;
+            padding: 8px 0;
+            scrollbar-width: none;
+        }
+        .angle-strip-mobile::-webkit-scrollbar { display: none; }
+        .angle-strip-inner {
+            display: flex;
+            gap: 8px;
+            padding: 0 16px;
+        }
+        .angle-strip-btn {
+            flex-shrink: 0;
+            padding: 8px 14px;
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 8px;
-            border: 1px solid var(--glass-border);
-            font-size: 0.75rem;
+            border: 2px solid transparent;
+            border-radius: 20px;
             color: rgba(255,255,255,0.7);
+            font-family: inherit;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
             white-space: nowrap;
         }
-        .controls-hint kbd {
-            display: inline-block;
-            padding: 2px 6px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 4px;
-            margin: 0 4px;
-            font-family: inherit;
+        .angle-strip-btn.active {
+            border-color: var(--siren-red);
+            color: #fff;
         }
-        
-        /* Free Look Badge */
-        .free-look-badge {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 6px 14px;
-            background: rgba(34, 197, 94, 0.2);
-            border: 1px solid rgba(34, 197, 94, 0.5);
-            border-radius: 20px;
-            font-size: 0.7rem;
-            color: #22c55e;
-            display: none;
-        }
-        .free-look-badge.visible { display: block; }
         
         /* Mobile */
         @media (max-width: 768px) {
-            .angle-selector-desktop { display: none; }
-            .angle-selector-mobile { display: block; }
-            .controls-hint { display: none; }
+            .angle-selector { display: none; }
+            .angle-strip-mobile { display: block; }
             .top-bar { padding: 16px; }
             .title-info h1 { font-size: 0.9rem; }
             .mode-badge { padding: 6px 10px; font-size: 0.7rem; }
-            .scene-selector { bottom: 90px; }
+            .controls-hint { display: none; }
         }
     </style>
 </head>
@@ -462,10 +418,8 @@
         </div>
     </div>
     
-    <!-- Splat Viewer (iframe to antimatter15 viewer) -->
-    <div class="viewer-wrapper">
-        <iframe id="splatViewer" class="splat-iframe" allowfullscreen></iframe>
-    </div>
+    <!-- 3D Viewer Container -->
+    <div id="viewer-container"></div>
     
     <!-- Angle Indicator -->
     <div class="angle-indicator" id="angleIndicator">
@@ -473,186 +427,226 @@
         <div class="angle-indicator-name" id="angleIndicatorName">Front</div>
     </div>
     
-    <!-- Free Look Badge -->
-    <div class="free-look-badge" id="freeLookBadge">FREE LOOK MODE - Drag to explore</div>
-    
     <!-- Controls Overlay -->
-    <div class="controls-overlay visible" id="controlsOverlay">
+    <div class="controls-overlay" id="controlsOverlay">
         <div class="top-bar">
             <button class="back-btn" onclick="window.location.href='../browse/'">
                 <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
             <div class="title-info">
-                <h1 id="sceneTitle">Garden Scene</h1>
-                <span>Gaussian Splat • Move around freely</span>
+                <h1 id="sceneTitle">Bonsai</h1>
+                <span>Gaussian Splat • Drag to orbit, Scroll to zoom</span>
             </div>
             <div class="mode-badge">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
-                3D SPLAT
+                3D
             </div>
         </div>
         
-        <!-- Scene Selector -->
-        <div class="scene-selector">
-            <button class="scene-btn active" data-scene="garden">Garden</button>
-            <button class="scene-btn" data-scene="bicycle">Bicycle</button>
-            <button class="scene-btn" data-scene="stump">Stump</button>
-            <button class="scene-btn" data-scene="truck">Truck</button>
-        </div>
-        
-        <!-- Controls Hint -->
-        <div class="controls-hint">
-            <kbd>WASD</kbd> Look around
-            <kbd>Arrows</kbd> Move
-            <kbd>Click+Drag</kbd> Orbit
-            <kbd>1-8</kbd> Preset angles
-        </div>
-        
         <!-- Desktop Angle Selector -->
-        <div class="angle-selector-desktop" id="angleSelectorDesktop">
-            <div class="angle-wheel" id="angleWheel"></div>
-            <div class="angle-label">ANGLES</div>
-        </div>
+        <div class="angle-selector" id="angleSelector"></div>
         
-        <!-- Mobile Angle Selector -->
-        <div class="angle-selector-mobile" id="angleSelectorMobile">
-            <div class="angle-strip" id="angleStrip"></div>
+        <div class="bottom-bar">
+            <!-- Mobile Angle Strip -->
+            <div class="angle-strip-mobile" id="angleStripMobile">
+                <div class="angle-strip-inner" id="angleStripInner"></div>
+            </div>
+            
+            <!-- Scene Selector -->
+            <div class="scene-selector" id="sceneSelector"></div>
+            
+            <!-- Controls Hint -->
+            <div class="controls-hint">
+                <span><kbd>Drag</kbd> Orbit</span>
+                <span><kbd>Scroll</kbd> Zoom</span>
+                <span><kbd>Right-drag</kbd> Pan</span>
+                <span><kbd>1-8</kbd> Angles</span>
+            </div>
         </div>
     </div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     
-    <script>
-        // Scene configurations with different splat files
+    <script type="module">
+        // Import GaussianSplats3D from CDN
+        import * as GaussianSplats3D from 'https://cdn.jsdelivr.net/npm/@mkkellogg/gaussian-splats-3d@0.4.6/build/gaussian-splats-3d.module.min.js';
+        
+        // Scene configurations with .ksplat files (smaller, faster loading)
         const SCENES = {
-            garden: {
-                name: 'Garden Scene',
-                url: 'garden.splat',
-                angles: [
-                    { name: 'Front', hash: '[1,0,0,0,0,1,0,0,0,0,1,0,0,0,5,1]' },
-                    { name: 'Left', hash: '[0,0,1,0,0,1,0,0,-1,0,0,0,-5,0,0,1]' },
-                    { name: 'Right', hash: '[0,0,-1,0,0,1,0,0,1,0,0,0,5,0,0,1]' },
-                    { name: 'Back', hash: '[-1,0,0,0,0,1,0,0,0,0,-1,0,0,0,-5,1]' },
-                    { name: 'Above', hash: '[1,0,0,0,0,0.5,0.87,0,0,-0.87,0.5,0,0,3,4,1]' },
-                    { name: 'Low', hash: '[1,0,0,0,0,0.87,-0.5,0,0,0.5,0.87,0,0,-2,4,1]' },
-                    { name: 'Corner L', hash: '[0.7,0,0.7,0,0,1,0,0,-0.7,0,0.7,0,-3,0,3,1]' },
-                    { name: 'Corner R', hash: '[0.7,0,-0.7,0,0,1,0,0,0.7,0,0.7,0,3,0,3,1]' }
-                ]
+            bonsai: {
+                name: 'Bonsai',
+                url: 'https://projects.markkellogg.org/downloads/gaussian_splat_data/bonsai/bonsai_trimmed.ksplat',
+                position: [0, 1, 0],
+                cameraPosition: [0, 2, 5],
+                cameraTarget: [0, 1, 0]
             },
-            bicycle: {
-                name: 'Bicycle',
-                url: 'bicycle.splat',
-                angles: [
-                    { name: 'Front', hash: '[1,0,0,0,0,1,0,0,0,0,1,0,0,-0.5,3,1]' },
-                    { name: 'Left', hash: '[0,0,1,0,0,1,0,0,-1,0,0,0,-3,-0.5,0,1]' },
-                    { name: 'Right', hash: '[0,0,-1,0,0,1,0,0,1,0,0,0,3,-0.5,0,1]' },
-                    { name: 'Back', hash: '[-1,0,0,0,0,1,0,0,0,0,-1,0,0,-0.5,-3,1]' },
-                    { name: 'Above', hash: '[1,0,0,0,0,0.3,0.95,0,0,-0.95,0.3,0,0,2,2,1]' },
-                    { name: 'Low', hash: '[1,0,0,0,0,0.95,-0.3,0,0,0.3,0.95,0,0,-1.5,3,1]' },
-                    { name: 'Corner L', hash: '[0.7,0,0.7,0,0,1,0,0,-0.7,0,0.7,0,-2,-0.5,2,1]' },
-                    { name: 'Corner R', hash: '[0.7,0,-0.7,0,0,1,0,0,0.7,0,0.7,0,2,-0.5,2,1]' }
-                ]
+            guitar: {
+                name: 'Guitar',
+                url: 'https://projects.markkellogg.org/downloads/gaussian_splat_data/guitar/guitar.ksplat',
+                position: [0, 0, 0],
+                cameraPosition: [0, 0, 4],
+                cameraTarget: [0, 0, 0]
             },
             stump: {
-                name: 'Tree Stump',
-                url: 'stump.splat',
-                angles: [
-                    { name: 'Front', hash: '[-0.86,-0.23,0.45,0,0.27,0.54,0.8,0,-0.43,0.81,-0.4,0,0.92,-2.02,4.1,1]' },
-                    { name: 'Left', hash: '[0.45,-0.23,-0.86,0,0.8,0.54,0.27,0,-0.4,0.81,0.43,0,-4,-2,0,1]' },
-                    { name: 'Right', hash: '[-0.45,-0.23,0.86,0,-0.8,0.54,-0.27,0,0.4,0.81,-0.43,0,4,-2,0,1]' },
-                    { name: 'Back', hash: '[0.86,-0.23,-0.45,0,-0.27,0.54,-0.8,0,0.43,0.81,0.4,0,-0.92,-2.02,-4.1,1]' },
-                    { name: 'Above', hash: '[1,0,0,0,0,0.2,0.98,0,0,-0.98,0.2,0,0,4,2,1]' },
-                    { name: 'Close', hash: '[-0.86,-0.23,0.45,0,0.27,0.54,0.8,0,-0.43,0.81,-0.4,0,0.5,-1,2,1]' },
-                    { name: 'Corner L', hash: '[-0.5,-0.23,0.84,0,0.6,0.54,0.6,0,-0.6,0.81,-0.1,0,-2,-2,3,1]' },
-                    { name: 'Corner R', hash: '[-0.84,-0.23,-0.5,0,-0.1,0.54,0.84,0,-0.54,0.81,-0.23,0,3,-2,2,1]' }
-                ]
-            },
-            truck: {
-                name: 'Truck',
-                url: 'truck.splat',
-                angles: [
-                    { name: 'Front', hash: '[1,0,0,0,0,1,0,0,0,0,1,0,0,0,5,1]' },
-                    { name: 'Left', hash: '[0,0,1,0,0,1,0,0,-1,0,0,0,-5,0,0,1]' },
-                    { name: 'Right', hash: '[0,0,-1,0,0,1,0,0,1,0,0,0,5,0,0,1]' },
-                    { name: 'Back', hash: '[-1,0,0,0,0,1,0,0,0,0,-1,0,0,0,-5,1]' },
-                    { name: 'Above', hash: '[1,0,0,0,0,0.3,0.95,0,0,-0.95,0.3,0,0,4,3,1]' },
-                    { name: 'Low', hash: '[1,0,0,0,0,0.95,-0.3,0,0,0.3,0.95,0,0,-1,5,1]' },
-                    { name: 'Corner L', hash: '[0.7,0,0.7,0,0,1,0,0,-0.7,0,0.7,0,-3,0,3,1]' },
-                    { name: 'Corner R', hash: '[0.7,0,-0.7,0,0,1,0,0,0.7,0,0.7,0,3,0,3,1]' }
-                ]
+                name: 'Stump',
+                url: 'https://projects.markkellogg.org/downloads/gaussian_splat_data/stump/stump.ksplat',
+                position: [0, 0, 0],
+                cameraPosition: [2, 2, 5],
+                cameraTarget: [0, 0, 0]
             }
         };
         
+        // Camera angles for each scene
+        const CAMERA_ANGLES = [
+            { name: 'Front', offset: [0, 0, 5] },
+            { name: 'Left', offset: [-5, 0, 0] },
+            { name: 'Right', offset: [5, 0, 0] },
+            { name: 'Back', offset: [0, 0, -5] },
+            { name: 'Above', offset: [0, 5, 3] },
+            { name: 'Low', offset: [0, -1, 4] },
+            { name: 'Corner L', offset: [-3.5, 2, 3.5] },
+            { name: 'Corner R', offset: [3.5, 2, 3.5] }
+        ];
+        
         // State
-        let currentScene = 'garden';
+        let currentScene = 'bonsai';
         let currentAngle = 0;
-        let isFreeLook = false;
+        let viewer = null;
         
         // Elements
+        const container = document.getElementById('viewer-container');
         const siteLoader = document.getElementById('siteLoader');
         const loaderProgress = document.getElementById('loaderProgress');
         const loaderStatus = document.getElementById('loaderStatus');
-        const splatViewer = document.getElementById('splatViewer');
         const sceneTitle = document.getElementById('sceneTitle');
         const angleIndicator = document.getElementById('angleIndicator');
         const angleIndicatorName = document.getElementById('angleIndicatorName');
-        const freeLookBadge = document.getElementById('freeLookBadge');
-        const angleWheel = document.getElementById('angleWheel');
-        const angleStrip = document.getElementById('angleStrip');
-        
-        // Loader
-        const loaderMsgs = ['Initializing 3D...', 'Loading Gaussian splats...', 'Building point cloud...', 'Rendering scene...', 'Almost ready...'];
-        let loadProg = 0, msgIdx = 0;
-        
-        function hideLoader() {
-            siteLoader.classList.add('hidden');
-        }
-        
-        function updateLoader() {
-            loadProg += Math.random() * 12 + 4;
-            if (loadProg > 100) loadProg = 100;
-            loaderProgress.style.width = loadProg + '%';
-            
-            if (loadProg < 100) {
-                const newIdx = Math.floor((loadProg / 100) * (loaderMsgs.length - 1));
-                if (newIdx !== msgIdx) {
-                    msgIdx = newIdx;
-                    loaderStatus.textContent = loaderMsgs[msgIdx];
-                }
-                setTimeout(updateLoader, 200 + Math.random() * 300);
-            } else {
-                loaderStatus.textContent = 'Enjoy';
-                setTimeout(hideLoader, 500);
-            }
-        }
+        const angleSelector = document.getElementById('angleSelector');
+        const angleStripInner = document.getElementById('angleStripInner');
+        const sceneSelector = document.getElementById('sceneSelector');
         
         // Initialize angle selectors
         function initAngleSelectors() {
-            angleWheel.innerHTML = '';
-            angleStrip.innerHTML = '';
+            angleSelector.innerHTML = '';
+            angleStripInner.innerHTML = '';
             
-            const scene = SCENES[currentScene];
-            scene.angles.forEach((angle, i) => {
-                // Desktop
-                const item = document.createElement('div');
-                item.className = 'angle-item' + (i === 0 ? ' active' : '');
-                item.innerHTML = `<div class="angle-item-inner">${angle.name}</div><div class="angle-item-number">${i + 1}</div>`;
-                item.addEventListener('click', () => switchAngle(i));
-                angleWheel.appendChild(item);
+            CAMERA_ANGLES.forEach((angle, i) => {
+                // Desktop button
+                const btn = document.createElement('button');
+                btn.className = 'angle-btn' + (i === 0 ? ' active' : '');
+                btn.innerHTML = `<span class="num">${i + 1}</span>${angle.name}`;
+                btn.addEventListener('click', () => switchAngle(i));
+                angleSelector.appendChild(btn);
                 
-                // Mobile
-                const mobileItem = document.createElement('div');
-                mobileItem.className = 'angle-strip-item' + (i === 0 ? ' active' : '');
-                mobileItem.innerHTML = `<span>${angle.name}</span><div class="angle-strip-number">${i + 1}</div>`;
-                mobileItem.addEventListener('click', () => switchAngle(i));
-                angleStrip.appendChild(mobileItem);
+                // Mobile button
+                const mobileBtn = document.createElement('button');
+                mobileBtn.className = 'angle-strip-btn' + (i === 0 ? ' active' : '');
+                mobileBtn.textContent = `${i + 1}. ${angle.name}`;
+                mobileBtn.addEventListener('click', () => switchAngle(i));
+                angleStripInner.appendChild(mobileBtn);
+            });
+            
+            // Add label
+            const label = document.createElement('div');
+            label.className = 'angle-label';
+            label.textContent = 'ANGLES';
+            angleSelector.appendChild(label);
+        }
+        
+        // Initialize scene selector
+        function initSceneSelector() {
+            sceneSelector.innerHTML = '';
+            Object.keys(SCENES).forEach(key => {
+                const btn = document.createElement('button');
+                btn.className = 'scene-btn' + (key === currentScene ? ' active' : '');
+                btn.textContent = SCENES[key].name;
+                btn.addEventListener('click', () => loadScene(key));
+                sceneSelector.appendChild(btn);
+            });
+        }
+        
+        // Show angle indicator
+        function showAngleIndicator(name) {
+            angleIndicatorName.textContent = name;
+            angleIndicator.classList.add('visible');
+            clearTimeout(window.indicatorTimeout);
+            window.indicatorTimeout = setTimeout(() => {
+                angleIndicator.classList.remove('visible');
+            }, 1500);
+        }
+        
+        // Switch camera angle
+        function switchAngle(index) {
+            if (!viewer) return;
+            
+            currentAngle = index;
+            const angle = CAMERA_ANGLES[index];
+            const scene = SCENES[currentScene];
+            const target = scene.cameraTarget || [0, 0, 0];
+            
+            // Calculate new camera position
+            const newPos = [
+                target[0] + angle.offset[0],
+                target[1] + angle.offset[1],
+                target[2] + angle.offset[2]
+            ];
+            
+            // Animate camera
+            const camera = viewer.camera;
+            const controls = viewer.controls;
+            
+            gsap.to(camera.position, {
+                x: newPos[0],
+                y: newPos[1],
+                z: newPos[2],
+                duration: 0.8,
+                ease: 'power2.inOut',
+                onUpdate: () => {
+                    controls.update();
+                }
+            });
+            
+            // Update controls target
+            gsap.to(controls.target, {
+                x: target[0],
+                y: target[1],
+                z: target[2],
+                duration: 0.8,
+                ease: 'power2.inOut'
+            });
+            
+            // Update UI
+            updateAngleUI();
+            showAngleIndicator(angle.name);
+        }
+        
+        // Update angle UI
+        function updateAngleUI() {
+            document.querySelectorAll('.angle-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === currentAngle);
+            });
+            document.querySelectorAll('.angle-strip-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === currentAngle);
+                if (i === currentAngle) {
+                    btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
             });
         }
         
         // Load scene
-        function loadScene(sceneName) {
+        async function loadScene(sceneName) {
             const scene = SCENES[sceneName];
             if (!scene) return;
+            
+            // Show loader
+            siteLoader.classList.remove('hidden');
+            loaderProgress.style.width = '0%';
+            loaderStatus.textContent = 'Loading ' + scene.name + '...';
             
             currentScene = sceneName;
             currentAngle = 0;
@@ -660,92 +654,91 @@
             // Update UI
             sceneTitle.textContent = scene.name;
             document.querySelectorAll('.scene-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.scene === sceneName);
+                btn.classList.toggle('active', btn.textContent === scene.name);
             });
+            updateAngleUI();
             
-            // Reinitialize angle selectors
-            initAngleSelectors();
+            // Dispose old viewer
+            if (viewer) {
+                viewer.dispose();
+                container.innerHTML = '';
+            }
             
-            // Load the splat viewer with the scene
-            const baseUrl = 'https://antimatter15.com/splat/';
-            const hash = scene.angles[0].hash;
-            splatViewer.src = `${baseUrl}?url=${scene.url}#${hash}`;
-            
-            showAngleIndicator(scene.angles[0].name);
-        }
-        
-        // Switch to preset angle
-        function switchAngle(index) {
-            const scene = SCENES[currentScene];
-            if (index < 0) index = scene.angles.length - 1;
-            if (index >= scene.angles.length) index = 0;
-            
-            currentAngle = index;
-            isFreeLook = false;
-            freeLookBadge.classList.remove('visible');
-            
-            const angle = scene.angles[index];
-            
-            // Update iframe URL with new camera position
-            const baseUrl = 'https://antimatter15.com/splat/';
-            splatViewer.src = `${baseUrl}?url=${scene.url}#${angle.hash}`;
-            
-            // Update UI
-            updateAngleSelectors();
-            showAngleIndicator(angle.name);
-        }
-        
-        function updateAngleSelectors() {
-            document.querySelectorAll('.angle-item').forEach((item, i) => {
-                item.classList.toggle('active', i === currentAngle && !isFreeLook);
-            });
-            document.querySelectorAll('.angle-strip-item').forEach((item, i) => {
-                item.classList.toggle('active', i === currentAngle && !isFreeLook);
-                if (i === currentAngle) item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            });
-        }
-        
-        function showAngleIndicator(name) {
-            angleIndicatorName.textContent = name;
-            angleIndicator.classList.add('visible');
-            clearTimeout(window.indicatorTimeout);
-            window.indicatorTimeout = setTimeout(() => angleIndicator.classList.remove('visible'), 1500);
+            // Create new viewer
+            try {
+                viewer = new GaussianSplats3D.Viewer({
+                    'cameraUp': [0, 1, 0],
+                    'initialCameraPosition': scene.cameraPosition,
+                    'initialCameraLookAt': scene.cameraTarget,
+                    'rootElement': container,
+                    'sharedMemoryForWorkers': false,
+                    'dynamicScene': false
+                });
+                
+                // Progress callback
+                let lastProgress = 0;
+                const progressCallback = (progress, message) => {
+                    const pct = Math.round(progress * 100);
+                    if (pct > lastProgress) {
+                        lastProgress = pct;
+                        loaderProgress.style.width = pct + '%';
+                        if (pct < 30) loaderStatus.textContent = 'Downloading splats...';
+                        else if (pct < 60) loaderStatus.textContent = 'Processing geometry...';
+                        else if (pct < 90) loaderStatus.textContent = 'Building scene...';
+                        else loaderStatus.textContent = 'Almost ready...';
+                    }
+                };
+                
+                await viewer.addSplatScene(scene.url, {
+                    'showLoadingUI': false,
+                    'progressiveLoad': true,
+                    'onProgress': progressCallback
+                });
+                
+                viewer.start();
+                
+                // Configure controls for intuitive navigation
+                if (viewer.controls) {
+                    viewer.controls.enableDamping = true;
+                    viewer.controls.dampingFactor = 0.1;
+                    viewer.controls.rotateSpeed = 0.5;
+                    viewer.controls.zoomSpeed = 1.2;
+                    viewer.controls.panSpeed = 0.8;
+                    viewer.controls.minDistance = 1;
+                    viewer.controls.maxDistance = 20;
+                }
+                
+                loaderProgress.style.width = '100%';
+                loaderStatus.textContent = 'Enjoy';
+                
+                setTimeout(() => {
+                    siteLoader.classList.add('hidden');
+                }, 500);
+                
+            } catch (err) {
+                console.error('Error loading scene:', err);
+                loaderStatus.textContent = 'Error loading - try another scene';
+                setTimeout(() => {
+                    siteLoader.classList.add('hidden');
+                }, 2000);
+            }
         }
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key >= '1' && e.key <= '8') {
                 switchAngle(parseInt(e.key) - 1);
-            } else if (e.key === 'ArrowLeft' && e.shiftKey) {
-                switchAngle(currentAngle - 1);
-            } else if (e.key === 'ArrowRight' && e.shiftKey) {
-                switchAngle(currentAngle + 1);
+            } else if (e.key === 'ArrowLeft') {
+                switchAngle((currentAngle - 1 + CAMERA_ANGLES.length) % CAMERA_ANGLES.length);
+            } else if (e.key === 'ArrowRight') {
+                switchAngle((currentAngle + 1) % CAMERA_ANGLES.length);
             }
-        });
-        
-        // Scene selector buttons
-        document.querySelectorAll('.scene-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                loadScene(btn.dataset.scene);
-            });
-        });
-        
-        // Track when user is in free look mode (interacting with iframe)
-        splatViewer.addEventListener('load', () => {
-            // After a short delay, consider free look active if user interacts
         });
         
         // Initialize
         initAngleSelectors();
-        loadScene('garden');
-        setTimeout(updateLoader, 300);
-        
-        // Failsafe loader hide
-        setTimeout(() => {
-            if (!siteLoader.classList.contains('hidden')) {
-                hideLoader();
-            }
-        }, 8000);
+        initSceneSelector();
+        loadScene('bonsai');
     </script>
 </body>
 </html>
