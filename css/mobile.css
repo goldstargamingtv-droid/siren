@@ -107,6 +107,21 @@
         display: none !important;
     }
 
+    /* CRITICAL: Allow vertical scroll on all elements */
+    .content-card,
+    .card-image,
+    .content-row,
+    .hero-carousel-item,
+    .category-card {
+        touch-action: pan-y !important;
+    }
+
+    /* Disable row drag on mobile - use native scroll */
+    .content-row {
+        cursor: default !important;
+        transform: none !important;
+    }
+
     /* Auth modal */
     .auth-modal-overlay {
         z-index: 9999999 !important;

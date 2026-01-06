@@ -143,6 +143,11 @@ function closeAuthModal() {
         modal.classList.remove('active');
         document.body.style.overflow = '';
         clearAuthErrors();
+        
+        // If on account page and user didn't login, redirect home
+        if (window.accountRequiresAuth) {
+            window.location.href = window.location.pathname.includes('/account/') ? '../' : '/';
+        }
     }
 }
 
@@ -230,8 +235,15 @@ async function handleSignIn(e) {
         if (result.error) {
             showAuthError('signin', result.error.message);
         } else {
+            window.accountRequiresAuth = false; // Clear flag before redirect
             closeAuthModal();
-            window.location.reload();
+            // Redirect to intended page or reload
+            if (window.afterAuthRedirect) {
+                window.location.href = window.afterAuthRedirect;
+                window.afterAuthRedirect = null;
+            } else {
+                window.location.reload();
+            }
         }
     } catch (err) {
         console.error('Sign in exception:', err);
@@ -280,7 +292,13 @@ async function handleSignUp(e) {
             document.getElementById('signupForm').reset();
         } else {
             closeAuthModal();
-            window.location.reload();
+            // Redirect to intended page or reload
+            if (window.afterAuthRedirect) {
+                window.location.href = window.afterAuthRedirect;
+                window.afterAuthRedirect = null;
+            } else {
+                window.location.reload();
+            }
         }
     } catch (err) {
         console.error('Sign up exception:', err);

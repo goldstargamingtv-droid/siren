@@ -5731,6 +5731,9 @@
 
         // ========== DRAG TO SCROLL ==========
         function initDragScroll() {
+            // Skip on mobile - use native touch scroll
+            if (window.innerWidth <= 768) return;
+            
             document.querySelectorAll('.content-row').forEach(row => {
                 let isDown = false;
                 let startX;
@@ -6783,7 +6786,7 @@ subscribeBtn.addEventListener('click', () => {
         </svg>
         <span>Search</span>
     </a>
-    <a href="../account/index.html" class="mobile-nav-item">
+    <a href="#" class="mobile-nav-item" onclick="goToProfile(event)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
@@ -6792,6 +6795,21 @@ subscribeBtn.addEventListener('click', () => {
     </a>
 </nav>
 <script>
+// Profile auth check
+function goToProfile(e) {
+    e.preventDefault();
+    if (typeof SIREN !== 'undefined' && SIREN.getCurrentUser && SIREN.getCurrentUser()) {
+        window.location.href = '../account/index.html';
+    } else {
+        if (typeof openAuthModal === 'function') {
+            window.afterAuthRedirect = '../account/index.html';
+            openAuthModal('signin');
+        } else {
+            window.location.href = '../account/index.html';
+        }
+    }
+}
+
 (function(){
     var nav = document.getElementById('mobileNav');
     function showMobileNav() {

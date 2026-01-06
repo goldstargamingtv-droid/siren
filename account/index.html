@@ -1678,12 +1678,17 @@
             if (!user) {
                 // Show sign-in modal if not logged in
                 if (typeof openAuthModal === 'function') {
+                    // Set flag so we know user needs to login to be here
+                    window.accountRequiresAuth = true;
                     openAuthModal('signin');
                 } else {
                     window.location.href = '../';
                 }
                 return;
             }
+            
+            // Clear flag if user is logged in
+            window.accountRequiresAuth = false;
             
             // Update sidebar
             const email = profile?.email || user.email;
