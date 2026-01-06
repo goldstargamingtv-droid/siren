@@ -6,9 +6,6 @@
     <title>SIREN | 4D Gaussian Experience</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <!-- Load Three.js FIRST as global -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/examples/js/controls/OrbitControls.js"></script>
     <style>
         :root {
             --siren-red: #ef4444;
@@ -126,35 +123,53 @@
     </div>
 
     <script type="module">
-        console.log('%c[SIREN 4D v2.1.1 - DropInViewer]', 'background:#ef4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
+        console.log('%c[SIREN 4D v2.2.0 - gsplat Manual Camera]', 'background:#ef4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         
-        // Import GaussianSplats3D DropInViewer
-        const { DropInViewer } = await import('https://cdn.jsdelivr.net/npm/@mkkellogg/gaussian-splats-3d@0.4.6/build/gaussian-splats-3d.module.js');
-        
-        console.log('[SIREN] THREE:', typeof THREE !== 'undefined');
-        console.log('[SIREN] DropInViewer:', DropInViewer);
+        import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
         
         const SCENES = {
             stump: { name: 'Tree Stump', url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/stump/stump-7k.splat' },
             bonsai: { name: 'Bonsai', url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/bonsai/bonsai-7k.splat' }
         };
         
+        // Camera angles as spherical coords (theta=horizontal, phi=vertical, radius)
         const CAMERA_ANGLES = [
-            { name: 'Front', pos: new THREE.Vector3(0, 0.5, 4) },
-            { name: 'Left', pos: new THREE.Vector3(4, 0.5, 0) },
-            { name: 'Right', pos: new THREE.Vector3(-4, 0.5, 0) },
-            { name: 'Back', pos: new THREE.Vector3(0, 0.5, -4) },
-            { name: 'Above', pos: new THREE.Vector3(0, 5, 2) },
-            { name: 'Low', pos: new THREE.Vector3(0, -0.5, 4) },
-            { name: 'Corner L', pos: new THREE.Vector3(3, 1.5, 3) },
-            { name: 'Corner R', pos: new THREE.Vector3(-3, 1.5, 3) }
+            { name: 'Front', theta: 0, phi: 0.4, r: 5 },
+            { name: 'Left', theta: Math.PI/2, phi: 0.4, r: 5 },
+            { name: 'Right', theta: -Math.PI/2, phi: 0.4, r: 5 },
+            { name: 'Back', theta: Math.PI, phi: 0.4, r: 5 },
+            { name: 'Above', theta: 0, phi: 1.2, r: 5 },
+            { name: 'Low', theta: 0, phi: 0.1, r: 5 },
+            { name: 'Corner L', theta: Math.PI/4, phi: 0.5, r: 5 },
+            { name: 'Corner R', theta: -Math.PI/4, phi: 0.5, r: 5 }
         ];
         
-        // Hotspot 3D positions - ring around center
-        const HOTSPOT_3D = CAMERA_ANGLES.map(a => a.pos.clone().multiplyScalar(0.5));
+        // Hotspot screen positions (fixed on screen, not 3D projected)
+        const HOTSPOT_POSITIONS = [
+            { x: 50, y: 50 },   // Front - center
+            { x: 15, y: 50 },   // Left
+            { x: 85, y: 50 },   // Right
+            { x: 50, y: 85 },   // Back - bottom
+            { x: 50, y: 15 },   // Above - top
+            { x: 50, y: 70 },   // Low
+            { x: 25, y: 30 },   // Corner L
+            { x: 75, y: 30 }    // Corner R
+        ];
         
-        let viewer, threeScene, camera, controls, renderer;
-        let currentScene = 'stump', currentAngle = 0, hotspotEls = [];
+        let renderer, scene, camera, currentSplat;
+        let currentScene = 'stump', currentAngle = 0;
+        
+        // Manual orbit state
+        let orbitTheta = 0;
+        let orbitPhi = 0.4;
+        let orbitRadius = 5;
+        let targetTheta = 0;
+        let targetPhi = 0.4;
+        let targetRadius = 5;
+        
+        // Drag state
+        let isDragging = false;
+        let lastX = 0, lastY = 0;
         
         const canvas = document.getElementById('canvas');
         const siteLoader = document.getElementById('siteLoader');
@@ -166,55 +181,43 @@
         const sceneSelector = document.getElementById('sceneSelector');
         const sceneTitle = document.getElementById('sceneTitle');
         
-        // Setup Three.js
-        function initThree() {
-            threeScene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 500);
-            camera.position.set(0, 0.5, 4);
-            
-            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            
-            controls = new THREE.OrbitControls(camera, canvas);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.1;
-            controls.target.set(0, 0, 0);
-            
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
+        // Convert spherical to cartesian
+        function sphericalToCartesian(theta, phi, r) {
+            return {
+                x: r * Math.sin(phi) * Math.sin(theta),
+                y: r * Math.cos(phi),
+                z: r * Math.sin(phi) * Math.cos(theta)
+            };
         }
         
-        // Create hotspots
+        // Update camera from orbit state
+        function updateCamera() {
+            // Smooth interpolation
+            orbitTheta += (targetTheta - orbitTheta) * 0.1;
+            orbitPhi += (targetPhi - orbitPhi) * 0.1;
+            orbitRadius += (targetRadius - orbitRadius) * 0.1;
+            
+            // Clamp phi
+            orbitPhi = Math.max(0.1, Math.min(Math.PI - 0.1, orbitPhi));
+            
+            const pos = sphericalToCartesian(orbitTheta, orbitPhi, orbitRadius);
+            camera.position.x = pos.x;
+            camera.position.y = pos.y;
+            camera.position.z = pos.z;
+        }
+        
+        // Create hotspots (fixed screen positions)
         function createHotspots() {
             hotspotsContainer.innerHTML = '';
-            hotspotEls = [];
             CAMERA_ANGLES.forEach((angle, i) => {
+                const pos = HOTSPOT_POSITIONS[i];
                 const el = document.createElement('div');
                 el.className = 'hotspot' + (i === 0 ? ' active' : '');
+                el.style.left = pos.x + '%';
+                el.style.top = pos.y + '%';
                 el.innerHTML = `<div class="hotspot-ring"></div><div class="hotspot-ring hotspot-ring-2"></div><div class="hotspot-dot"></div><div class="hotspot-num">${i+1}</div><div class="hotspot-label">${angle.name}</div>`;
                 el.onclick = () => switchAngle(i);
                 hotspotsContainer.appendChild(el);
-                hotspotEls.push({ el, pos: HOTSPOT_3D[i] });
-            });
-        }
-        
-        // Update hotspot positions
-        function updateHotspots() {
-            hotspotEls.forEach(hs => {
-                const p = hs.pos.clone().project(camera);
-                const x = (p.x * 0.5 + 0.5) * window.innerWidth;
-                const y = (-p.y * 0.5 + 0.5) * window.innerHeight;
-                const dir = new THREE.Vector3();
-                camera.getWorldDirection(dir);
-                const toHs = hs.pos.clone().sub(camera.position).normalize();
-                const visible = dir.dot(toHs) > 0 && x > 0 && x < window.innerWidth && y > 0 && y < window.innerHeight;
-                hs.el.style.display = visible ? 'block' : 'none';
-                hs.el.style.left = x + 'px';
-                hs.el.style.top = y + 'px';
             });
         }
         
@@ -222,10 +225,15 @@
         function switchAngle(i) {
             currentAngle = i;
             const angle = CAMERA_ANGLES[i];
-            gsap.to(camera.position, { x: angle.pos.x, y: angle.pos.y, z: angle.pos.z, duration: 0.7, ease: 'power2.inOut' });
-            gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 0.7, ease: 'power2.inOut' });
+            
+            // Set target (will smoothly interpolate)
+            targetTheta = angle.theta;
+            targetPhi = angle.phi;
+            targetRadius = angle.r;
+            
             document.querySelectorAll('.hotspot').forEach((el, j) => el.classList.toggle('active', j === i));
             showIndicator(angle.name);
+            console.log('[SIREN] Switching to', angle.name);
         }
         
         function showIndicator(name) {
@@ -260,35 +268,29 @@
             document.querySelectorAll('.scene-btn').forEach(b => b.classList.toggle('active', b.textContent === sc.name));
             
             try {
-                // Remove old viewer
-                if (viewer) {
-                    viewer.dispose();
-                    viewer = null;
+                if (currentSplat) {
+                    scene.removeObject(currentSplat);
+                    currentSplat = null;
                 }
                 
-                loaderProgress.style.width = '30%';
-                loaderStatus.textContent = 'Creating viewer...';
-                
-                // Create DropInViewer with our Three.js scene
-                viewer = new DropInViewer({
-                    gpuAcceleratedSort: true,
-                    sharedMemoryForWorkers: false
+                currentSplat = await SPLAT.Loader.LoadAsync(sc.url, scene, (p) => {
+                    loaderProgress.style.width = (p * 100) + '%';
+                    if (p < 0.3) loaderStatus.textContent = 'Downloading...';
+                    else if (p < 0.7) loaderStatus.textContent = 'Processing...';
+                    else loaderStatus.textContent = 'Almost ready...';
                 });
                 
-                viewer.addSplatScenes([{
-                    path: sc.url,
-                    splatAlphaRemovalThreshold: 5
-                }], true).then(() => {
-                    console.log('[SIREN] Splat loaded!');
-                    loaderProgress.style.width = '100%';
-                    loaderStatus.textContent = 'Enjoy!';
-                    setTimeout(() => siteLoader.classList.add('hidden'), 300);
-                });
+                // Reset to front angle
+                targetTheta = 0;
+                targetPhi = 0.4;
+                targetRadius = 5;
+                orbitTheta = targetTheta;
+                orbitPhi = targetPhi;
+                orbitRadius = targetRadius;
                 
-                threeScene.add(viewer);
-                
-                loaderProgress.style.width = '50%';
-                loaderStatus.textContent = 'Loading splats...';
+                loaderProgress.style.width = '100%';
+                loaderStatus.textContent = 'Enjoy!';
+                setTimeout(() => siteLoader.classList.add('hidden'), 300);
                 
             } catch (err) {
                 console.error('[SIREN] Error:', err);
@@ -296,26 +298,85 @@
             }
         }
         
-        // Render loop
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            if (viewer) viewer.update();
-            updateHotspots();
-            renderer.render(threeScene, camera);
+        // Mouse/touch controls
+        function initControls() {
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                lastX = e.clientX;
+                lastY = e.clientY;
+            });
+            
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - lastX;
+                const dy = e.clientY - lastY;
+                targetTheta -= dx * 0.005;
+                targetPhi += dy * 0.005;
+                targetPhi = Math.max(0.1, Math.min(Math.PI - 0.1, targetPhi));
+                lastX = e.clientX;
+                lastY = e.clientY;
+            });
+            
+            window.addEventListener('mouseup', () => isDragging = false);
+            
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                targetRadius += e.deltaY * 0.01;
+                targetRadius = Math.max(2, Math.min(15, targetRadius));
+            }, { passive: false });
+            
+            // Touch
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    lastX = e.touches[0].clientX;
+                    lastY = e.touches[0].clientY;
+                }
+            });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                if (!isDragging || e.touches.length !== 1) return;
+                const dx = e.touches[0].clientX - lastX;
+                const dy = e.touches[0].clientY - lastY;
+                targetTheta -= dx * 0.005;
+                targetPhi += dy * 0.005;
+                targetPhi = Math.max(0.1, Math.min(Math.PI - 0.1, targetPhi));
+                lastX = e.touches[0].clientX;
+                lastY = e.touches[0].clientY;
+            });
+            
+            canvas.addEventListener('touchend', () => isDragging = false);
         }
         
         // Keyboard
-        document.addEventListener('keydown', e => {
+        document.addEventListener('keydown', (e) => {
             if (e.key >= '1' && e.key <= '8') switchAngle(parseInt(e.key) - 1);
         });
         
         // Init
-        initThree();
-        createHotspots();
-        initSceneSelector();
-        animate();
-        loadScene('stump');
+        async function init() {
+            renderer = new SPLAT.WebGLRenderer(canvas);
+            scene = new SPLAT.Scene();
+            camera = new SPLAT.Camera();
+            
+            initControls();
+            createHotspots();
+            initSceneSelector();
+            
+            await loadScene('stump');
+            
+            // Render loop - NO OrbitControls, we control camera manually
+            function frame() {
+                updateCamera();
+                renderer.render(scene, camera);
+                requestAnimationFrame(frame);
+            }
+            frame();
+            
+            window.addEventListener('resize', () => renderer.setSize(window.innerWidth, window.innerHeight));
+        }
+        
+        init();
     </script>
 </body>
 </html>
