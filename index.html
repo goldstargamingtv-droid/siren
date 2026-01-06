@@ -3627,7 +3627,7 @@
 </head>
 <body>
     <!-- VERSION INDICATOR -->
-    <div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">V.1</div>
+    <div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">V.2</div>
     
     <!-- Age Gate Overlay -->
     <div class="age-gate" id="ageGate">
@@ -5010,7 +5010,29 @@
         
         function enterSite() {
             localStorage.setItem(AGE_KEY, 'true');
-            window.location.href = './browse/index.html';
+            
+            // Check if user is logged in
+            const isLoggedIn = typeof SIREN !== 'undefined' && SIREN.getCurrentUser && SIREN.getCurrentUser();
+            
+            // Check if user has an account (has signed in before)
+            const hasAccount = localStorage.getItem('siren_has_account') === 'true';
+            
+            if (isLoggedIn) {
+                // Signed in - go to browse
+                window.location.href = './browse/index.html';
+            } else if (hasAccount) {
+                // Has account but not signed in - show auth modal
+                document.getElementById('ageGate').style.display = 'none';
+                document.body.classList.remove('age-gate-active');
+                if (typeof openAuthModal === 'function') {
+                    window.afterAuthRedirect = './browse/index.html';
+                    openAuthModal('signin');
+                }
+            } else {
+                // No account - show landing carousel
+                document.getElementById('ageGate').style.display = 'none';
+                document.body.classList.remove('age-gate-active');
+            }
         }
         
         function exitSite() {
