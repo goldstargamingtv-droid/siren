@@ -5009,16 +5009,16 @@
         // Track which cards are 3D (first 2 in continue watching)
         let totalCardsCreated = 0;
 
-        function createContentCard(index, type = 'default', rank = null) {
+        function createContentCard(index, type = 'default', rank = null, rowIndex = 0) {
             const content = getNextContent();
             const name = content.title;
             const duration = durations[index % durations.length];
             const performer = performerNames[index % performerNames.length];
             const progress = type === 'continue' ? Math.floor(Math.random() * 70 + 15) : 0;
             
-            // First card is 3D, second is multi-angle
-            const is3D = (type === 'continue' && totalCardsCreated === 0);
-            const isMultiAngle = (type === 'continue' && totalCardsCreated === 1);
+            // First card in continue row is 3D, second is multi-angle
+            const is3D = (type === 'continue' && rowIndex === 0);
+            const isMultiAngle = (type === 'continue' && rowIndex === 1);
             totalCardsCreated++;
 
             const card = document.createElement('div');
@@ -5039,11 +5039,14 @@
             // Mark special cards
             if (is3D) {
                 card.dataset.is3d = 'true';
-                console.log('[SIREN] Created 3D card:', name);
+                console.log('[SIREN] Created 3D card:', name, 'rowIndex:', rowIndex);
             }
             if (isMultiAngle) {
                 card.dataset.multiangle = 'true';
-                console.log('[SIREN] Created multiangle card:', name);
+                console.log('[SIREN] Created multiangle card:', name, 'rowIndex:', rowIndex);
+            }
+            if (type === 'continue') {
+                console.log('[SIREN] Continue card created:', { name, rowIndex, is3D, isMultiAngle, dataset: { is3d: card.dataset.is3d, multiangle: card.dataset.multiangle } });
             }
             
             // Store data for expanded card to use
@@ -5220,9 +5223,9 @@
                     container.innerHTML = '';
                     for (let i = 0; i < row.count; i++) {
                         if (row.type === 'top10') {
-                            container.appendChild(createContentCard(i + Math.floor(Math.random() * 10), row.type, i + 1));
+                            container.appendChild(createContentCard(i + Math.floor(Math.random() * 10), row.type, i + 1, i));
                         } else {
-                            container.appendChild(createContentCard(i + Math.floor(Math.random() * 10), row.type));
+                            container.appendChild(createContentCard(i + Math.floor(Math.random() * 10), row.type, null, i));
                         }
                     }
                 }
