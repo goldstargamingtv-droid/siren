@@ -5229,23 +5229,38 @@ subscribeBtn.addEventListener('click', () => {
 </div>
 
 <script>
-// Mobile Landing Carousel
+// Mobile Landing Carousel - Buttery Smooth
 (function() {
     const carousel = document.getElementById('mobileLandingCarousel');
     const dots = document.querySelectorAll('.mobile-landing-dot');
     const pages = document.querySelectorAll('.mobile-landing-page');
     
-    if (!carousel) return;
+    if (!carousel || window.innerWidth > 768) return;
     
     let currentPage = 0;
     let startX = 0;
+    let startY = 0;
+    let currentX = 0;
     let isDragging = false;
+    let isHorizontal = null;
     
-    function goToPage(index) {
+    const totalPages = pages.length;
+    const threshold = 50; // Min swipe distance
+    const velocityThreshold = 0.3;
+    let startTime = 0;
+    
+    function goToPage(index, animate = true) {
         if (index < 0) index = 0;
-        if (index >= pages.length) index = pages.length - 1;
+        if (index >= totalPages) index = totalPages - 1;
         
         currentPage = index;
+        
+        if (animate) {
+            carousel.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        } else {
+            carousel.style.transition = 'none';
+        }
+        
         carousel.style.transform = `translateX(-${currentPage * 100}%)`;
         
         dots.forEach((dot, i) => {
@@ -5253,41 +5268,84 @@ subscribeBtn.addEventListener('click', () => {
         });
     }
     
-    // Touch events
-    carousel.addEventListener('touchstart', (e) => {
+    function handleTouchStart(e) {
         startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        startTime = Date.now();
         isDragging = true;
+        isHorizontal = null;
         carousel.style.transition = 'none';
-    }, { passive: true });
+    }
     
-    carousel.addEventListener('touchmove', (e) => {
+    function handleTouchMove(e) {
         if (!isDragging) return;
-        const diff = e.touches[0].clientX - startX;
-        const offset = -currentPage * 100 + (diff / window.innerWidth) * 100;
-        carousel.style.transform = `translateX(${offset}%)`;
-    }, { passive: true });
+        
+        currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const diffX = currentX - startX;
+        const diffY = currentY - startY;
+        
+        // Determine direction on first significant move
+        if (isHorizontal === null && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
+            isHorizontal = Math.abs(diffX) > Math.abs(diffY);
+        }
+        
+        // Only handle horizontal swipes
+        if (isHorizontal) {
+            e.preventDefault();
+            
+            // Add resistance at edges
+            let offset = diffX;
+            if ((currentPage === 0 && diffX > 0) || (currentPage === totalPages - 1 && diffX < 0)) {
+                offset = diffX * 0.3; // Rubber band effect
+            }
+            
+            const translateX = -currentPage * window.innerWidth + offset;
+            const percent = (translateX / window.innerWidth) * 100;
+            carousel.style.transform = `translateX(${percent}%)`;
+        }
+    }
     
-    carousel.addEventListener('touchend', (e) => {
+    function handleTouchEnd(e) {
         if (!isDragging) return;
         isDragging = false;
-        carousel.style.transition = 'transform 0.3s ease-out';
         
-        const diff = e.changedTouches[0].clientX - startX;
-        if (Math.abs(diff) > 50) {
-            if (diff > 0) {
+        if (!isHorizontal) {
+            goToPage(currentPage);
+            return;
+        }
+        
+        const diff = currentX - startX;
+        const elapsed = Date.now() - startTime;
+        const velocity = Math.abs(diff) / elapsed;
+        
+        // Determine if we should change page
+        if (Math.abs(diff) > threshold || velocity > velocityThreshold) {
+            if (diff > 0 && currentPage > 0) {
                 goToPage(currentPage - 1);
-            } else {
+            } else if (diff < 0 && currentPage < totalPages - 1) {
                 goToPage(currentPage + 1);
+            } else {
+                goToPage(currentPage);
             }
         } else {
             goToPage(currentPage);
         }
-    });
+    }
+    
+    // Touch events
+    carousel.addEventListener('touchstart', handleTouchStart, { passive: true });
+    carousel.addEventListener('touchmove', handleTouchMove, { passive: false });
+    carousel.addEventListener('touchend', handleTouchEnd, { passive: true });
+    carousel.addEventListener('touchcancel', handleTouchEnd, { passive: true });
     
     // Dot clicks
     dots.forEach((dot, i) => {
         dot.addEventListener('click', () => goToPage(i));
     });
+    
+    // Initialize
+    goToPage(0, false);
 })();
 </script>
 

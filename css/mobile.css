@@ -117,7 +117,6 @@
         background: #08080c;
         z-index: 1000;
         overflow: hidden;
-        touch-action: pan-x;
     }
 
     /* Lock body scroll when mobile landing is visible */
@@ -169,13 +168,11 @@
         cursor: pointer;
     }
 
-    /* Carousel Container */
+    /* Carousel Container - SMOOTH */
     .mobile-landing-carousel {
         display: flex;
         flex: 1;
-        transition: transform 0.3s ease-out;
-        touch-action: pan-x;
-        overflow: hidden;
+        will-change: transform;
     }
 
     /* Each Page */
@@ -188,8 +185,7 @@
         justify-content: flex-end;
         padding: 0 24px 180px;
         position: relative;
-        overflow: hidden;
-        touch-action: pan-x;
+        flex-shrink: 0;
     }
 
     /* Background Image */
@@ -223,7 +219,6 @@
         position: relative;
         z-index: 1;
         text-align: center;
-        overflow: hidden;
     }
 
     .mobile-landing-icon {
@@ -317,11 +312,19 @@
        AGE GATE - APP STYLE (OPTIMIZED)
        ========================================== */
     .age-gate {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
         padding: 20px !important;
-        padding-top: 60px !important;
+        padding-top: calc(20px + var(--safe-area-top)) !important;
+        padding-bottom: calc(20px + var(--safe-area-bottom)) !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
         z-index: 10002 !important; /* Above mobile landing */
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        box-sizing: border-box !important;
     }
 
     /* Disable ALL animations on age gate */
@@ -339,8 +342,9 @@
     }
 
     .age-gate-logo {
-        font-size: 1.6rem !important;
-        margin-bottom: 24px !important;
+        font-size: 1.4rem !important;
+        margin-bottom: 16px !important;
+        flex-shrink: 0 !important;
     }
 
     .age-gate-logo::before,
@@ -351,23 +355,28 @@
     .age-gate-content {
         opacity: 1 !important;
         max-width: 100% !important;
-        padding-bottom: 100px !important;
+        width: 100% !important;
+        flex-shrink: 0 !important;
     }
 
     .age-gate-box {
-        padding: 24px 20px !important;
-        border-radius: 20px !important;
+        padding: 20px 16px !important;
+        border-radius: 16px !important;
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
         background: rgba(20, 20, 25, 0.95) !important;
     }
 
     .age-gate h2 {
-        font-size: 1rem !important;
+        font-size: 0.85rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 12px !important;
     }
 
     .age-gate p {
-        font-size: 0.8rem !important;
+        font-size: 0.75rem !important;
+        line-height: 1.5 !important;
+        margin-bottom: 16px !important;
     }
 
     .age-buttons {
@@ -379,24 +388,41 @@
         width: 100% !important;
         padding: 14px !important;
         border-radius: 12px !important;
-        font-size: 0.95rem !important;
+        font-size: 0.9rem !important;
     }
 
     .age-gate-terms {
-        margin-top: 20px !important;
+        margin-top: 12px !important;
         opacity: 1 !important;
+        flex-shrink: 0 !important;
+    }
+
+    .age-gate-terms-title {
+        font-size: 0.6rem !important;
+        margin-bottom: 6px !important;
+    }
+
+    .age-gate-terms > p {
+        font-size: 0.65rem !important;
+        margin-bottom: 6px !important;
     }
 
     /* Terms scroll area - needs to scroll independently */
     .age-gate-terms-scroll {
-        max-height: 200px !important;
+        max-height: 100px !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
         touch-action: pan-y !important;
-        font-size: 0.75rem !important;
-        padding: 10px !important;
+        font-size: 0.65rem !important;
+        padding: 8px !important;
         background: rgba(0,0,0,0.2) !important;
         border-radius: 8px !important;
+    }
+
+    .age-gate-terms-scroll li {
+        font-size: 0.6rem !important;
+        margin-bottom: 4px !important;
+        line-height: 1.4 !important;
     }
 
     /* ==========================================
