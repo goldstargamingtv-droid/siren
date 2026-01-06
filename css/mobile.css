@@ -1,43 +1,53 @@
-/* SIREN Mobile Styles - Simple Fix */
+/* ============================================
+   SIREN Mobile App Experience
+   Only applies to screens <= 768px
+   Desktop remains unchanged
+   ============================================ */
 
 :root {
-    --mobile-nav-height: 70px;
+    --mobile-nav-height: 65px;
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-top: env(safe-area-inset-top, 0px);
 }
 
-/* Bottom Navigation */
+/* ============================================
+   BOTTOM NAVIGATION BAR
+   ============================================ */
 .mobile-nav {
     display: none;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     height: var(--mobile-nav-height);
-    background: #050510 !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    z-index: 999999 !important;
+    background: linear-gradient(180deg, rgba(10,10,15,0.95) 0%, rgba(5,5,10,0.98) 100%);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    z-index: 999999;
     justify-content: space-around;
     align-items: center;
-    padding: 8px 0;
+    padding: 6px 0;
+    padding-bottom: var(--safe-area-bottom);
 }
 
 .mobile-nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.65rem;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.6rem;
     font-weight: 500;
-    padding: 8px 12px;
+    letter-spacing: 0.02em;
+    padding: 6px 14px;
     -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease;
 }
 
 .mobile-nav-item svg {
-    width: 24px;
-    height: 24px;
-    stroke-width: 1.5;
+    width: 22px;
+    height: 22px;
+    stroke-width: 1.8;
 }
 
 .mobile-nav-item.active {
@@ -48,99 +58,616 @@
     stroke: #ef4444;
 }
 
-/* Mobile Only */
+/* ============================================
+   MOBILE BREAKPOINT - ALL APP STYLES
+   ============================================ */
 @media (max-width: 768px) {
+    
+    /* Show mobile nav */
     .mobile-nav {
         display: flex !important;
     }
 
-    /* FIX SCROLLING */
+    /* ==========================================
+       GLOBAL MOBILE FIXES
+       ========================================== */
     html {
         overflow-x: hidden;
-        overflow-y: scroll !important;
-        height: auto !important;
+        overflow-y: auto !important;
     }
-    
+
     body {
         overflow-x: hidden;
-        overflow-y: visible !important;
-        height: auto !important;
-        min-height: 100vh;
-        padding-bottom: 90px !important;
+        overflow-y: auto !important;
+        padding-bottom: calc(var(--mobile-nav-height) + var(--safe-area-bottom) + 10px) !important;
         -webkit-overflow-scrolling: touch;
     }
 
-    /* Prevent text zoom */
+    /* Prevent zoom on inputs */
     input, select, textarea {
         font-size: 16px !important;
     }
 
-    /* Browse page - sidebar overlay */
-    .sidebar {
-        position: fixed !important;
-        z-index: 99998 !important;
+    /* Allow vertical scroll everywhere */
+    * {
+        touch-action: pan-y pinch-zoom;
     }
 
-    .submenu-panel,
-    .nav-item-with-submenu .nav-arrow {
+    /* ==========================================
+       LANDING PAGE - APP STYLE
+       ========================================== */
+    
+    /* Hide desktop header */
+    .main-content > header {
         display: none !important;
     }
 
+    /* Hide all sections except hero */
+    .trending-section,
+    .angle-demo-section,
+    .immersive-section,
+    .section-dark,
+    .channels-section,
+    .devices-section,
+    .cta-section,
+    footer {
+        display: none !important;
+    }
+
+    /* Full screen hero */
+    .hero {
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-end !important;
+        padding-bottom: calc(var(--mobile-nav-height) + 30px) !important;
+    }
+
+    /* Hero background - full cover */
+    .hero-bg {
+        position: fixed !important;
+        inset: 0 !important;
+    }
+
+    .hero-grid {
+        opacity: 0.4 !important;
+    }
+
+    /* Hero content - centered and simplified */
+    .hero-content {
+        position: relative !important;
+        z-index: 10 !important;
+        text-align: center !important;
+        padding: 0 24px !important;
+        max-width: 100% !important;
+    }
+
+    /* App-style logo at top */
+    .hero::before {
+        content: 'SIREN';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 16px;
+        padding-top: calc(16px + var(--safe-area-top));
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: 0.25em;
+        text-align: center;
+        background: linear-gradient(180deg, rgba(5,5,10,0.9) 0%, transparent 100%);
+        background: linear-gradient(135deg, #ef4444, #f97316);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        z-index: 100;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem !important;
+        line-height: 1.15 !important;
+        margin-bottom: 12px !important;
+    }
+
+    .hero-content p {
+        font-size: 0.95rem !important;
+        color: rgba(255,255,255,0.7) !important;
+        margin-bottom: 28px !important;
+        max-width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* App-style buttons */
+    .hero-buttons {
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
+        max-width: 300px !important;
+        margin: 0 auto !important;
+    }
+
+    .hero-buttons .btn {
+        width: 100% !important;
+        padding: 16px 24px !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        border-radius: 14px !important;
+        justify-content: center !important;
+    }
+
+    .hero-buttons .btn-primary {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        box-shadow: 0 4px 20px rgba(239,68,68,0.3) !important;
+    }
+
+    .hero-buttons .btn-ghost {
+        background: rgba(255,255,255,0.08) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+    }
+
+    /* Hide extra hero elements */
+    .hero-float,
+    .hero-badge,
+    .hero-scroll,
+    .scroll-hint,
+    .nav-menu-wrapper {
+        display: none !important;
+    }
+
+    /* ==========================================
+       AGE GATE - APP STYLE
+       ========================================== */
+    .age-gate {
+        padding: 20px !important;
+        padding-top: calc(60px + var(--safe-area-top)) !important;
+        align-items: flex-start !important;
+    }
+
+    .age-gate-logo {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        padding: 16px !important;
+        padding-top: calc(16px + var(--safe-area-top)) !important;
+        text-align: center !important;
+        font-size: 1.4rem !important;
+        background: linear-gradient(180deg, rgba(10,10,12,0.95) 0%, transparent 100%) !important;
+        z-index: 10 !important;
+    }
+
+    .age-gate-content {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .age-gate-box {
+        padding: 24px 20px !important;
+        border-radius: 20px !important;
+    }
+
+    .age-gate h2 {
+        font-size: 0.85rem !important;
+    }
+
+    .age-gate p {
+        font-size: 0.8rem !important;
+    }
+
+    .age-buttons {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .age-btn {
+        width: 100% !important;
+        padding: 14px !important;
+        border-radius: 12px !important;
+        font-size: 0.95rem !important;
+    }
+
+    .age-gate-terms {
+        margin-top: 20px !important;
+    }
+
+    .age-gate-terms-scroll {
+        max-height: 120px !important;
+    }
+
+    /* ==========================================
+       BROWSE PAGE - APP STYLE
+       ========================================== */
+    
+    /* Hide sidebar completely */
+    .sidebar,
+    .sidebar-glow,
+    .submenu-panel {
+        display: none !important;
+    }
+
+    /* Full width content */
     .main-content {
         margin-left: 0 !important;
-        padding: 0 12px !important;
+        padding: 0 !important;
         width: 100% !important;
     }
 
-    /* Touch scroll for content rows */
+    /* App header for browse */
+    .browse-header,
+    .main-content > header {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 56px !important;
+        padding: 0 16px !important;
+        padding-top: var(--safe-area-top) !important;
+        background: linear-gradient(180deg, rgba(10,10,15,0.98) 0%, rgba(10,10,15,0.9) 100%) !important;
+        z-index: 9999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    /* Hero section in browse */
+    .hero-section {
+        height: 50vh !important;
+        min-height: 320px !important;
+        margin-top: calc(56px + var(--safe-area-top)) !important;
+    }
+
+    .hero-carousel-item {
+        padding: 20px !important;
+        padding-bottom: 80px !important;
+    }
+
+    .hero-title {
+        font-size: 1.5rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .hero-description {
+        font-size: 0.85rem !important;
+        -webkit-line-clamp: 2 !important;
+    }
+
+    .hero-buttons .btn {
+        padding: 12px 20px !important;
+        font-size: 0.9rem !important;
+        border-radius: 10px !important;
+    }
+
+    .hero-meta {
+        font-size: 0.75rem !important;
+    }
+
+    .hero-nav {
+        bottom: 16px !important;
+    }
+
+    /* Content sections */
+    .content-section {
+        padding: 20px 0 !important;
+    }
+
+    .section-header {
+        padding: 0 16px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .section-header h2 {
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+    }
+
+    /* Touch scrolling rows */
     .slider-mask {
         overflow-x: auto !important;
+        overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none;
+        scrollbar-width: none !important;
+        padding: 0 16px !important;
     }
 
     .slider-mask::-webkit-scrollbar {
-        display: none;
-    }
-
-    .row-scroll-btn {
         display: none !important;
     }
 
-    /* CRITICAL: Allow vertical scroll on all elements */
-    .content-card,
-    .card-image,
-    .content-row,
-    .hero-carousel-item,
-    .category-card {
-        touch-action: pan-y !important;
-    }
-
-    /* Disable row drag on mobile - use native scroll */
     .content-row {
+        gap: 10px !important;
+        touch-action: pan-x !important;
         cursor: default !important;
         transform: none !important;
     }
 
-    /* Auth modal */
+    /* Hide scroll buttons */
+    .row-scroll-btn {
+        display: none !important;
+    }
+
+    /* Cards - larger for touch */
+    .content-card {
+        width: 140px !important;
+        min-width: 140px !important;
+        flex-shrink: 0 !important;
+        touch-action: pan-y !important;
+    }
+
+    .card-image {
+        height: 200px !important;
+        border-radius: 10px !important;
+    }
+
+    .card-title {
+        font-size: 0.8rem !important;
+    }
+
+    .card-meta {
+        font-size: 0.65rem !important;
+    }
+
+    /* Hide card hover effects on mobile */
+    .card-overlay,
+    .card-play-btn {
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* Category grid */
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        padding: 0 16px !important;
+    }
+
+    .category-card {
+        height: 100px !important;
+        border-radius: 12px !important;
+    }
+
+    .category-glow {
+        display: none !important;
+    }
+
+    /* ==========================================
+       WATCH PAGE - APP STYLE
+       ========================================== */
+    .video-container {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 56vw !important;
+        min-height: 200px !important;
+        max-height: 40vh !important;
+        z-index: 100 !important;
+    }
+
+    .video-info {
+        margin-top: 40vh !important;
+        padding: 16px !important;
+    }
+
+    .video-title {
+        font-size: 1.1rem !important;
+    }
+
+    .video-meta {
+        font-size: 0.8rem !important;
+    }
+
+    .video-actions {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 8px !important;
+        margin-top: 16px !important;
+    }
+
+    .video-actions .btn {
+        padding: 10px 8px !important;
+        font-size: 0.7rem !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+
+    /* ==========================================
+       ACCOUNT PAGE - APP STYLE (iOS Settings)
+       ========================================== */
+    .account-layout {
+        flex-direction: column !important;
+        padding-top: calc(56px + var(--safe-area-top)) !important;
+    }
+
+    .account-sidebar {
+        width: 100% !important;
+        padding: 20px 16px !important;
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+        position: relative !important;
+    }
+
+    .account-nav {
+        display: flex !important;
+        overflow-x: auto !important;
+        gap: 8px !important;
+        padding-bottom: 8px !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .account-nav-item {
+        white-space: nowrap !important;
+        padding: 10px 16px !important;
+        border-radius: 20px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .account-content {
+        padding: 16px !important;
+        width: 100% !important;
+    }
+
+    .settings-section {
+        background: rgba(255,255,255,0.03) !important;
+        border-radius: 14px !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        margin-bottom: 20px !important;
+    }
+
+    .settings-item {
+        padding: 14px 16px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+    }
+
+    .settings-item:last-child {
+        border-bottom: none !important;
+    }
+
+    .form-group {
+        margin-bottom: 16px !important;
+    }
+
+    .form-group label {
+        font-size: 0.8rem !important;
+        margin-bottom: 6px !important;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 14px 16px !important;
+        border-radius: 10px !important;
+        font-size: 16px !important;
+    }
+
+    /* ==========================================
+       AUTH MODAL - APP STYLE
+       ========================================== */
     .auth-modal-overlay {
-        z-index: 9999999 !important;
-        padding: 20px !important;
-        align-items: flex-start !important;
-        padding-top: 60px !important;
+        padding: 0 !important;
+        align-items: flex-end !important;
+        background: rgba(0,0,0,0.6) !important;
     }
 
     .auth-modal {
         width: 100% !important;
         max-width: 100% !important;
+        margin: 0 !important;
+        padding: 24px 20px !important;
+        padding-bottom: calc(24px + var(--safe-area-bottom)) !important;
+        border-radius: 24px 24px 0 0 !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+        background: #121218 !important;
         transform: none !important;
-        background: #14141c !important;
+        border: none !important;
+        border-top: 1px solid rgba(255,255,255,0.1) !important;
+    }
+
+    .auth-modal-overlay.active .auth-modal {
+        transform: none !important;
+    }
+
+    .auth-modal-close {
+        top: 16px !important;
+        right: 16px !important;
+    }
+
+    /* Drag indicator */
+    .auth-modal::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 36px;
+        height: 4px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 2px;
+    }
+
+    .auth-modal-header {
+        margin-top: 12px !important;
+    }
+
+    .auth-logo {
+        font-size: 1.5rem !important;
+    }
+
+    .auth-tabs {
+        margin-bottom: 20px !important;
+    }
+
+    .auth-tab {
+        padding: 12px 16px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .auth-form-group input {
+        padding: 16px !important;
+        font-size: 16px !important;
+        border-radius: 12px !important;
+    }
+
+    .auth-submit {
+        padding: 16px !important;
+        font-size: 1rem !important;
+        border-radius: 12px !important;
+        margin-top: 8px !important;
+    }
+
+    /* ==========================================
+       LOADER - SIMPLIFIED
+       ========================================== */
+    .site-loader {
+        background: #08080c !important;
+    }
+
+    .loader-orb,
+    .loader-particle {
+        display: none !important;
+    }
+
+    .loader-rings {
+        transform: scale(0.8) !important;
+    }
+
+    /* ==========================================
+       PERFORMANCE OPTIMIZATIONS
+       ========================================== */
+    
+    /* Reduce blur effects */
+    .sidebar,
+    .mobile-nav {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* Disable hover states */
+    .content-card:hover,
+    .btn:hover,
+    .category-card:hover {
+        transform: none !important;
     }
 }
 
-/* Safe area */
+/* ============================================
+   SAFE AREA SUPPORT
+   ============================================ */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
     .mobile-nav {
         padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* ============================================
+   DARK MODE SCROLLBAR (matches app feel)
+   ============================================ */
+@media (max-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 0;
+        height: 0;
     }
 }
