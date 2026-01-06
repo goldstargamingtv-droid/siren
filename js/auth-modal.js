@@ -26,7 +26,7 @@ function injectAuthModal() {
             </div>
             
             <!-- Sign In Form -->
-            <form class="auth-form" id="signinForm" onsubmit="handleSignIn(event)">
+            <form class="auth-form" id="signinForm">
                 <div class="auth-form-group">
                     <label for="signin-email">Email</label>
                     <input type="email" id="signin-email" required placeholder="your@email.com">
@@ -54,7 +54,7 @@ function injectAuthModal() {
             </form>
             
             <!-- Sign Up Form -->
-            <form class="auth-form" id="signupForm" style="display: none;" onsubmit="handleSignUp(event)">
+            <form class="auth-form" id="signupForm" style="display: none;">
                 <div class="auth-form-group">
                     <label for="signup-email">Email</label>
                     <input type="email" id="signup-email" required placeholder="your@email.com">
@@ -91,7 +91,7 @@ function injectAuthModal() {
             </form>
             
             <!-- Forgot Password Form -->
-            <form class="auth-form" id="forgotForm" style="display: none;" onsubmit="handleForgotPassword(event)">
+            <form class="auth-form" id="forgotForm" style="display: none;">
                 <p class="auth-form-info">Enter your email and we'll send you a link to reset your password.</p>
                 
                 <div class="auth-form-group">
@@ -116,6 +116,8 @@ function injectAuthModal() {
     `;
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+    // Setup form listeners after modal is injected
+    setupAuthFormListeners();
 }
 
 // Get max DOB (18 years ago)
@@ -220,12 +222,29 @@ function setAuthLoading(formId, loading) {
 
 // Handle sign in
 async function handleSignIn(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    
+    // Prevent double submission
+    const btn = document.getElementById('signinSubmit');
+    if (btn && btn.disabled) return;
+    
+    // Check if SIREN client is available
+    if (typeof SIREN === 'undefined' || !SIREN.signIn) {
+        showAuthError('signin', 'Authentication service not ready. Please try again.');
+        return;
+    }
+    
     clearAuthErrors();
     setAuthLoading('signin', true);
     
     const email = document.getElementById('signin-email').value;
     const password = document.getElementById('signin-password').value;
+    
+    if (!email || !password) {
+        setAuthLoading('signin', false);
+        showAuthError('signin', 'Please enter email and password');
+        return;
+    }
     
     try {
         const result = await SIREN.signIn(email, password);
@@ -250,13 +269,18 @@ async function handleSignIn(e) {
     } catch (err) {
         console.error('Sign in exception:', err);
         setAuthLoading('signin', false);
-        showAuthError('signin', 'An unexpected error occurred');
+        showAuthError('signin', 'An unexpected error occurred. Please try again.');
     }
 }
 
 // Handle sign up
 async function handleSignUp(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    
+    // Prevent double submission
+    const btn = document.getElementById('signupSubmit');
+    if (btn && btn.disabled) return;
+    
     clearAuthErrors();
     
     const email = document.getElementById('signup-email').value;
@@ -346,6 +370,36 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Setup form event listeners (mobile-friendly)
+function setupAuthFormListeners() {
+    const signinForm = document.getElementById('signinForm');
+    const signupForm = document.getElementById('signupForm');
+    const forgotForm = document.getElementById('forgotForm');
+    
+    if (signinForm && !signinForm.hasAttribute('data-listener')) {
+        signinForm.setAttribute('data-listener', 'true');
+        signinForm.addEventListener('submit', handleSignIn);
+    }
+    
+    if (signupForm && !signupForm.hasAttribute('data-listener')) {
+        signupForm.setAttribute('data-listener', 'true');
+        signupForm.addEventListener('submit', handleSignUp);
+    }
+    
+    if (forgotForm && !forgotForm.hasAttribute('data-listener')) {
+        forgotForm.setAttribute('data-listener', 'true');
+        forgotForm.addEventListener('submit', handleForgotPassword);
+    }
+}
+
+// Initialize after DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupAuthFormListeners);
+} else {
+    // DOM already loaded, setup now (but modal may not be injected yet)
+    setTimeout(setupAuthFormListeners, 100);
+}
+
 // Expose functions globally
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
@@ -354,3 +408,4 @@ window.showForgotPassword = showForgotPassword;
 window.handleSignIn = handleSignIn;
 window.handleSignUp = handleSignUp;
 window.handleForgotPassword = handleForgotPassword;
+window.setupAuthFormListeners = setupAuthFormListeners;
