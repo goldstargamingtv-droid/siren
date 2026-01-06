@@ -130,6 +130,9 @@ async function signUp(email, password, dateOfBirth) {
         
         if (error) return { error };
         
+        // Save email so we know user has an account
+        localStorage.setItem('siren_user_email', email);
+        
         // Profile is auto-created by database trigger
         if (data.user && !data.session) {
             return { 
@@ -165,6 +168,9 @@ async function signIn(email, password) {
         
         // Update last login
         if (data.user) {
+            // Save email so we know user has an account
+            localStorage.setItem('siren_user_email', email);
+            
             await supabaseClient
                 .from('profiles')
                 .update({ last_login_at: new Date().toISOString() })
