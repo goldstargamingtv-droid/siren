@@ -236,6 +236,8 @@ async function handleSignIn(e) {
             showAuthError('signin', result.error.message);
         } else {
             window.accountRequiresAuth = false; // Clear flag before redirect
+            // Mark that user has an account
+            localStorage.setItem('siren_has_account', 'true');
             closeAuthModal();
             // Redirect to intended page or reload
             if (window.afterAuthRedirect) {
@@ -288,9 +290,13 @@ async function handleSignUp(e) {
         if (result.error) {
             showAuthError('signup', result.error.message);
         } else if (result.confirmEmail) {
+            // Mark account even if email confirmation needed
+            localStorage.setItem('siren_has_account', 'true');
             showAuthSuccess('signup', result.message || 'Account created! Check your email to verify.');
             document.getElementById('signupForm').reset();
         } else {
+            // Mark that user has an account
+            localStorage.setItem('siren_has_account', 'true');
             closeAuthModal();
             // Redirect to intended page or reload
             if (window.afterAuthRedirect) {

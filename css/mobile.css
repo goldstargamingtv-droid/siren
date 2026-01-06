@@ -1,7 +1,7 @@
 /* ============================================
    SIREN Mobile App Experience
    Only applies to screens <= 768px
-   Desktop remains unchanged
+   Desktop remains completely unchanged
    ============================================ */
 
 :root {
@@ -20,8 +20,8 @@
     left: 0;
     right: 0;
     height: var(--mobile-nav-height);
-    background: linear-gradient(180deg, rgba(10,10,15,0.95) 0%, rgba(5,5,10,0.98) 100%);
-    border-top: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgba(10,10,15,0.98) 0%, rgba(5,5,10,1) 100%);
+    border-top: 1px solid rgba(255,255,255,0.08);
     z-index: 999999;
     justify-content: space-around;
     align-items: center;
@@ -94,127 +94,171 @@
     }
 
     /* ==========================================
-       LANDING PAGE - APP STYLE
+       LANDING PAGE - APP STYLED
        ========================================== */
     
-    /* Hide desktop header */
-    .main-content > header {
+    /* Simplified header */
+    .main-content > header .nav {
+        padding: 12px 16px !important;
+    }
+
+    .nav-logo {
+        font-size: 1.3rem !important;
+    }
+
+    .nav-buttons .btn {
+        padding: 10px 14px !important;
+        font-size: 0.8rem !important;
+    }
+
+    .nav-menu-wrapper {
         display: none !important;
     }
 
-    /* Hide all sections except hero */
-    .trending-section,
-    .angle-demo-section,
-    .immersive-section,
-    .section-dark,
-    .channels-section,
-    .devices-section,
-    .cta-section,
-    footer {
-        display: none !important;
-    }
-
-    /* Full screen hero */
+    /* Hero section - full screen feel */
     .hero {
-        min-height: 100vh !important;
-        min-height: 100dvh !important;
-        padding: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: flex-end !important;
-        padding-bottom: calc(var(--mobile-nav-height) + 30px) !important;
+        min-height: 90vh !important;
+        padding: 80px 20px 40px !important;
     }
 
-    /* Hero background - full cover */
-    .hero-bg {
-        position: fixed !important;
-        inset: 0 !important;
-    }
-
-    .hero-grid {
-        opacity: 0.4 !important;
-    }
-
-    /* Hero content - centered and simplified */
     .hero-content {
-        position: relative !important;
-        z-index: 10 !important;
         text-align: center !important;
-        padding: 0 24px !important;
         max-width: 100% !important;
-    }
-
-    /* App-style logo at top */
-    .hero::before {
-        content: 'SIREN';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        padding: 16px;
-        padding-top: calc(16px + var(--safe-area-top));
-        font-size: 1.4rem;
-        font-weight: 800;
-        letter-spacing: 0.25em;
-        text-align: center;
-        background: linear-gradient(180deg, rgba(5,5,10,0.9) 0%, transparent 100%);
-        background: linear-gradient(135deg, #ef4444, #f97316);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        z-index: 100;
     }
 
     .hero-content h1 {
         font-size: 2rem !important;
         line-height: 1.15 !important;
-        margin-bottom: 12px !important;
+        margin-bottom: 16px !important;
     }
 
     .hero-content p {
         font-size: 0.95rem !important;
-        color: rgba(255,255,255,0.7) !important;
-        margin-bottom: 28px !important;
-        max-width: 320px;
-        margin-left: auto;
-        margin-right: auto;
+        margin-bottom: 24px !important;
+        opacity: 0.8;
     }
 
-    /* App-style buttons */
     .hero-buttons {
         flex-direction: column !important;
         gap: 12px !important;
         width: 100% !important;
-        max-width: 300px !important;
-        margin: 0 auto !important;
     }
 
     .hero-buttons .btn {
         width: 100% !important;
-        padding: 16px 24px !important;
+        padding: 16px !important;
         font-size: 1rem !important;
-        font-weight: 600 !important;
-        border-radius: 14px !important;
+        border-radius: 12px !important;
         justify-content: center !important;
     }
 
-    .hero-buttons .btn-primary {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-        box-shadow: 0 4px 20px rgba(239,68,68,0.3) !important;
-    }
-
-    .hero-buttons .btn-ghost {
-        background: rgba(255,255,255,0.08) !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
-    }
-
-    /* Hide extra hero elements */
     .hero-float,
-    .hero-badge,
-    .hero-scroll,
-    .scroll-hint,
-    .nav-menu-wrapper {
+    .hero-badge {
         display: none !important;
+    }
+
+    .hero-grid {
+        opacity: 0.3 !important;
+    }
+
+    /* Sections - clean mobile layout */
+    section {
+        padding: 50px 20px !important;
+    }
+
+    .section-header {
+        text-align: center !important;
+        margin-bottom: 30px !important;
+    }
+
+    .section-title {
+        font-size: 1.5rem !important;
+        line-height: 1.25 !important;
+    }
+
+    .section-subtitle {
+        font-size: 0.9rem !important;
+    }
+
+    .section-label {
+        font-size: 0.75rem !important;
+    }
+
+    /* Feature cards - stack vertically */
+    .features-grid,
+    .tech-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .feature-card {
+        padding: 24px 20px !important;
+        border-radius: 16px !important;
+    }
+
+    .feature-icon {
+        width: 48px !important;
+        height: 48px !important;
+    }
+
+    .feature-title {
+        font-size: 1.1rem !important;
+    }
+
+    .feature-desc {
+        font-size: 0.85rem !important;
+    }
+
+    /* Trending section */
+    .trending-slider {
+        padding: 0 16px !important;
+    }
+
+    .trending-card {
+        width: 160px !important;
+        min-width: 160px !important;
+    }
+
+    /* Channel logos */
+    .channels-section .channels-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    /* Devices section */
+    .devices-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    .device-card {
+        padding: 20px 16px !important;
+    }
+
+    /* CTA section */
+    .cta-section {
+        padding: 60px 20px !important;
+        text-align: center !important;
+    }
+
+    .cta-section h2 {
+        font-size: 1.6rem !important;
+    }
+
+    .cta-section .btn {
+        width: 100% !important;
+        max-width: 300px !important;
+    }
+
+    /* Footer */
+    footer {
+        padding: 40px 20px 100px !important;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 30px !important;
+        text-align: center !important;
     }
 
     /* ==========================================
@@ -222,26 +266,12 @@
        ========================================== */
     .age-gate {
         padding: 20px !important;
-        padding-top: calc(60px + var(--safe-area-top)) !important;
-        align-items: flex-start !important;
+        padding-top: 60px !important;
     }
 
     .age-gate-logo {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        padding: 16px !important;
-        padding-top: calc(16px + var(--safe-area-top)) !important;
-        text-align: center !important;
-        font-size: 1.4rem !important;
-        background: linear-gradient(180deg, rgba(10,10,12,0.95) 0%, transparent 100%) !important;
-        z-index: 10 !important;
-    }
-
-    .age-gate-content {
-        width: 100% !important;
-        max-width: 100% !important;
+        font-size: 1.6rem !important;
+        margin-bottom: 24px !important;
     }
 
     .age-gate-box {
@@ -250,7 +280,7 @@
     }
 
     .age-gate h2 {
-        font-size: 0.85rem !important;
+        font-size: 1rem !important;
     }
 
     .age-gate p {
@@ -275,16 +305,15 @@
 
     .age-gate-terms-scroll {
         max-height: 120px !important;
+        font-size: 0.75rem !important;
     }
 
     /* ==========================================
        BROWSE PAGE - APP STYLE
        ========================================== */
     
-    /* Hide sidebar completely */
-    .sidebar,
-    .sidebar-glow,
-    .submenu-panel {
+    /* Hide sidebar completely on mobile */
+    .sidebar {
         display: none !important;
     }
 
@@ -295,37 +324,19 @@
         width: 100% !important;
     }
 
-    /* App header for browse */
-    .browse-header,
-    .main-content > header {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        height: 56px !important;
-        padding: 0 16px !important;
-        padding-top: var(--safe-area-top) !important;
-        background: linear-gradient(180deg, rgba(10,10,15,0.98) 0%, rgba(10,10,15,0.9) 100%) !important;
-        z-index: 9999 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-    }
-
-    /* Hero section in browse */
+    /* Hero carousel */
     .hero-section {
-        height: 50vh !important;
-        min-height: 320px !important;
-        margin-top: calc(56px + var(--safe-area-top)) !important;
+        height: 55vh !important;
+        min-height: 350px !important;
     }
 
     .hero-carousel-item {
         padding: 20px !important;
-        padding-bottom: 80px !important;
+        padding-bottom: 90px !important;
     }
 
     .hero-title {
-        font-size: 1.5rem !important;
+        font-size: 1.6rem !important;
         line-height: 1.2 !important;
     }
 
@@ -334,32 +345,26 @@
         -webkit-line-clamp: 2 !important;
     }
 
-    .hero-buttons .btn {
-        padding: 12px 20px !important;
-        font-size: 0.9rem !important;
-        border-radius: 10px !important;
-    }
-
     .hero-meta {
         font-size: 0.75rem !important;
     }
 
     .hero-nav {
-        bottom: 16px !important;
+        bottom: 20px !important;
     }
 
     /* Content sections */
     .content-section {
-        padding: 20px 0 !important;
+        padding: 24px 0 !important;
     }
 
     .section-header {
         padding: 0 16px !important;
-        margin-bottom: 12px !important;
+        margin-bottom: 14px !important;
     }
 
     .section-header h2 {
-        font-size: 1.1rem !important;
+        font-size: 1.15rem !important;
         font-weight: 700 !important;
     }
 
@@ -377,7 +382,7 @@
     }
 
     .content-row {
-        gap: 10px !important;
+        gap: 12px !important;
         touch-action: pan-x !important;
         cursor: default !important;
         transform: none !important;
@@ -403,17 +408,17 @@
 
     .card-title {
         font-size: 0.8rem !important;
+        margin-top: 8px !important;
     }
 
     .card-meta {
         font-size: 0.65rem !important;
     }
 
-    /* Hide card hover effects on mobile */
+    /* Hide hover effects on mobile */
     .card-overlay,
     .card-play-btn {
-        opacity: 0 !important;
-        pointer-events: none !important;
+        display: none !important;
     }
 
     /* Category grid */
@@ -436,18 +441,13 @@
        WATCH PAGE - APP STYLE
        ========================================== */
     .video-container {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
+        position: relative !important;
+        width: 100% !important;
         height: 56vw !important;
         min-height: 200px !important;
-        max-height: 40vh !important;
-        z-index: 100 !important;
     }
 
     .video-info {
-        margin-top: 40vh !important;
         padding: 16px !important;
     }
 
@@ -471,14 +471,14 @@
         font-size: 0.7rem !important;
         flex-direction: column !important;
         gap: 4px !important;
+        border-radius: 10px !important;
     }
 
     /* ==========================================
-       ACCOUNT PAGE - APP STYLE (iOS Settings)
+       ACCOUNT PAGE - APP STYLE
        ========================================== */
     .account-layout {
         flex-direction: column !important;
-        padding-top: calc(56px + var(--safe-area-top)) !important;
     }
 
     .account-sidebar {
@@ -495,6 +495,11 @@
         gap: 8px !important;
         padding-bottom: 8px !important;
         -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+    }
+
+    .account-nav::-webkit-scrollbar {
+        display: none !important;
     }
 
     .account-nav-item {
@@ -502,31 +507,20 @@
         padding: 10px 16px !important;
         border-radius: 20px !important;
         font-size: 0.85rem !important;
+        flex-shrink: 0 !important;
     }
 
     .account-content {
-        padding: 16px !important;
+        padding: 20px 16px !important;
         width: 100% !important;
     }
 
-    .settings-section {
-        background: rgba(255,255,255,0.03) !important;
-        border-radius: 14px !important;
-        padding: 0 !important;
-        overflow: hidden !important;
-        margin-bottom: 20px !important;
-    }
-
-    .settings-item {
-        padding: 14px 16px !important;
-        border-bottom: 1px solid rgba(255,255,255,0.06) !important;
-    }
-
-    .settings-item:last-child {
-        border-bottom: none !important;
+    .form-row {
+        flex-direction: column !important;
     }
 
     .form-group {
+        width: 100% !important;
         margin-bottom: 16px !important;
     }
 
@@ -543,20 +537,21 @@
     }
 
     /* ==========================================
-       AUTH MODAL - APP STYLE
+       AUTH MODAL - BOTTOM SHEET STYLE
        ========================================== */
     .auth-modal-overlay {
         padding: 0 !important;
         align-items: flex-end !important;
         background: rgba(0,0,0,0.6) !important;
+        z-index: 9999999 !important;
     }
 
     .auth-modal {
         width: 100% !important;
         max-width: 100% !important;
         margin: 0 !important;
-        padding: 24px 20px !important;
-        padding-bottom: calc(24px + var(--safe-area-bottom)) !important;
+        padding: 28px 24px !important;
+        padding-bottom: calc(28px + var(--safe-area-bottom)) !important;
         border-radius: 24px 24px 0 0 !important;
         max-height: 90vh !important;
         overflow-y: auto !important;
@@ -570,16 +565,11 @@
         transform: none !important;
     }
 
-    .auth-modal-close {
-        top: 16px !important;
-        right: 16px !important;
-    }
-
     /* Drag indicator */
     .auth-modal::before {
         content: '';
         position: absolute;
-        top: 8px;
+        top: 10px;
         left: 50%;
         transform: translateX(-50%);
         width: 36px;
@@ -594,15 +584,6 @@
 
     .auth-logo {
         font-size: 1.5rem !important;
-    }
-
-    .auth-tabs {
-        margin-bottom: 20px !important;
-    }
-
-    .auth-tab {
-        padding: 12px 16px !important;
-        font-size: 0.9rem !important;
     }
 
     .auth-form-group input {
@@ -638,18 +619,19 @@
        PERFORMANCE OPTIMIZATIONS
        ========================================== */
     
-    /* Reduce blur effects */
-    .sidebar,
-    .mobile-nav {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-    }
-
-    /* Disable hover states */
+    /* Disable hover transforms on touch devices */
     .content-card:hover,
     .btn:hover,
-    .category-card:hover {
+    .category-card:hover,
+    .feature-card:hover {
         transform: none !important;
+    }
+
+    /* Reduce animations */
+    .sidebar-glow,
+    .category-glow,
+    .card-glow {
+        display: none !important;
     }
 }
 
@@ -663,7 +645,7 @@
 }
 
 /* ============================================
-   DARK MODE SCROLLBAR (matches app feel)
+   HIDE SCROLLBARS ON MOBILE
    ============================================ */
 @media (max-width: 768px) {
     ::-webkit-scrollbar {

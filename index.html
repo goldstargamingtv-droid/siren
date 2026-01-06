@@ -3432,6 +3432,194 @@
             .mobile-nav { display: flex !important; }
             body { padding-bottom: 80px !important; }
         }
+
+        /* Welcome Back Screen */
+        .welcome-back-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: #08080c;
+        }
+        .welcome-back-screen.active {
+            display: flex;
+        }
+        .welcome-back-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+        .welcome-back-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.15;
+            filter: blur(20px);
+            transform: scale(1.1);
+        }
+        .welcome-back-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(8,8,12,0.8) 0%, rgba(8,8,12,0.95) 50%, rgba(8,8,12,1) 100%);
+            z-index: 1;
+        }
+        .welcome-back-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 380px;
+            padding: 40px 24px;
+            text-align: center;
+        }
+        .welcome-back-logo {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 32px;
+        }
+        .welcome-back-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .welcome-back-subtitle {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 32px;
+        }
+        .welcome-back-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .welcome-back-input-group input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .welcome-back-input-group input:focus {
+            outline: none;
+            border-color: #ef4444;
+            background: rgba(255,255,255,0.08);
+        }
+        .welcome-back-input-group input::placeholder {
+            color: rgba(255,255,255,0.35);
+        }
+        .welcome-back-error {
+            color: #f87171;
+            font-size: 0.85rem;
+            text-align: left;
+            display: none;
+        }
+        .welcome-back-error.show {
+            display: block;
+        }
+        .welcome-back-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 6px;
+        }
+        .welcome-back-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(239,68,68,0.3);
+        }
+        .welcome-back-btn:active {
+            transform: translateY(0);
+        }
+        .welcome-back-btn.loading span {
+            display: none;
+        }
+        .welcome-back-btn.loading .welcome-back-spinner {
+            display: block;
+        }
+        .welcome-back-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .welcome-back-links {
+            margin-top: 20px;
+        }
+        .welcome-back-links a {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .welcome-back-links a:hover {
+            color: #ef4444;
+        }
+        .welcome-back-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 28px 0;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.8rem;
+        }
+        .welcome-back-divider::before,
+        .welcome-back-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+        .welcome-back-btn-secondary {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .welcome-back-btn-secondary:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.25);
+        }
+
+        /* Mobile Welcome Back */
+        @media (max-width: 768px) {
+            .welcome-back-content {
+                padding: 60px 24px 100px;
+            }
+            .welcome-back-logo {
+                font-size: 1.8rem;
+            }
+            .welcome-back-title {
+                font-size: 1.5rem;
+            }
+        }
     </style>
     <link rel="stylesheet" href="css/auth-modal.css">
     <link rel="stylesheet" href="css/mobile.css">
@@ -3465,6 +3653,45 @@
                     </ul>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Welcome Back Screen (for returning users with accounts) -->
+    <div class="welcome-back-screen" id="welcomeBackScreen">
+        <div class="welcome-back-bg">
+            <div class="welcome-back-gradient"></div>
+            <img src="images/1.jpg" alt="" class="welcome-back-img">
+        </div>
+        <div class="welcome-back-content">
+            <div class="welcome-back-logo">SIREN</div>
+            <h1 class="welcome-back-title">Welcome Back</h1>
+            <p class="welcome-back-subtitle">Sign in to continue to your personalized experience</p>
+            
+            <form class="welcome-back-form" id="welcomeBackForm" onsubmit="handleWelcomeSignIn(event)">
+                <div class="welcome-back-input-group">
+                    <input type="email" id="welcomeEmail" placeholder="Email address" required>
+                </div>
+                <div class="welcome-back-input-group">
+                    <input type="password" id="welcomePassword" placeholder="Password" required>
+                </div>
+                <div class="welcome-back-error" id="welcomeError"></div>
+                <button type="submit" class="welcome-back-btn" id="welcomeSubmitBtn">
+                    <span>Sign In</span>
+                    <div class="welcome-back-spinner"></div>
+                </button>
+            </form>
+            
+            <div class="welcome-back-links">
+                <a href="#" onclick="openAuthModal('forgot'); hideWelcomeBack(); return false;">Forgot password?</a>
+            </div>
+            
+            <div class="welcome-back-divider">
+                <span>Not you?</span>
+            </div>
+            
+            <button class="welcome-back-btn-secondary" onclick="hideWelcomeBack()">
+                View as New Visitor
+            </button>
         </div>
     </div>
 
@@ -4975,6 +5202,140 @@ function goToProfile(e) {
         }
     }
 }
+
+// ==========================================
+// WELCOME BACK SCREEN LOGIC
+// ==========================================
+
+// Check if user has an account (has signed in before)
+function hasExistingAccount() {
+    return localStorage.getItem('siren_has_account') === 'true';
+}
+
+// Mark that user has an account
+function markHasAccount() {
+    localStorage.setItem('siren_has_account', 'true');
+}
+
+// Show welcome back screen
+function showWelcomeBack() {
+    const screen = document.getElementById('welcomeBackScreen');
+    if (screen) {
+        screen.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Hide welcome back screen
+function hideWelcomeBack() {
+    const screen = document.getElementById('welcomeBackScreen');
+    if (screen) {
+        screen.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+// Handle sign in from welcome back screen
+async function handleWelcomeSignIn(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('welcomeEmail').value;
+    const password = document.getElementById('welcomePassword').value;
+    const errorEl = document.getElementById('welcomeError');
+    const btn = document.getElementById('welcomeSubmitBtn');
+    
+    // Clear error
+    errorEl.textContent = '';
+    errorEl.classList.remove('show');
+    
+    // Show loading
+    btn.classList.add('loading');
+    btn.disabled = true;
+    
+    try {
+        if (typeof SIREN === 'undefined' || !SIREN.signIn) {
+            throw new Error('Authentication system not loaded');
+        }
+        
+        const result = await SIREN.signIn(email, password);
+        
+        if (result.error) {
+            errorEl.textContent = result.error.message;
+            errorEl.classList.add('show');
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        } else {
+            // Success - redirect to browse
+            markHasAccount();
+            window.location.href = 'browse/index.html';
+        }
+    } catch (err) {
+        console.error('Welcome sign in error:', err);
+        errorEl.textContent = err.message || 'An error occurred. Please try again.';
+        errorEl.classList.add('show');
+        btn.classList.remove('loading');
+        btn.disabled = false;
+    }
+}
+
+// Check on page load if returning user
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for auth system to initialize
+    setTimeout(function() {
+        // If user is already logged in, redirect to browse
+        if (typeof SIREN !== 'undefined' && SIREN.getCurrentUser && SIREN.getCurrentUser()) {
+            window.location.href = 'browse/index.html';
+            return;
+        }
+        
+        // If user has account but not logged in, show welcome back
+        if (hasExistingAccount()) {
+            // Only show after age gate is passed
+            const ageGate = document.getElementById('ageGate');
+            if (ageGate && !ageGate.classList.contains('hidden')) {
+                // Wait for age gate to be passed
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.target.classList.contains('hidden')) {
+                            showWelcomeBack();
+                            observer.disconnect();
+                        }
+                    });
+                });
+                observer.observe(ageGate, { attributes: true, attributeFilter: ['class'] });
+            } else {
+                showWelcomeBack();
+            }
+        }
+    }, 500);
+});
+
+// Hook into auth modal to mark account when user signs up or signs in
+(function() {
+    // Override form submissions to mark has account
+    const originalHandleSignIn = window.handleSignIn;
+    const originalHandleSignUp = window.handleSignUp;
+    
+    if (typeof originalHandleSignIn === 'function') {
+        window.handleSignIn = async function(e) {
+            const result = await originalHandleSignIn(e);
+            // Mark account after successful sign in
+            if (typeof SIREN !== 'undefined' && SIREN.getCurrentUser && SIREN.getCurrentUser()) {
+                markHasAccount();
+            }
+            return result;
+        };
+    }
+    
+    if (typeof originalHandleSignUp === 'function') {
+        window.handleSignUp = async function(e) {
+            const result = await originalHandleSignUp(e);
+            // Mark account after successful sign up
+            markHasAccount();
+            return result;
+        };
+    }
+})();
 
 // Force mobile nav on small screens - bypasses CSS issues
 (function(){
