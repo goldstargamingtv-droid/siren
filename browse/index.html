@@ -4705,6 +4705,7 @@
                 <button class="mobile-tab active" data-category="all">All</button>
                 <button class="mobile-tab" data-category="trending">Trending</button>
                 <button class="mobile-tab" data-category="new">New</button>
+                <button class="mobile-tab" data-category="performers">Performers</button>
                 <button class="mobile-tab" data-category="popular">Popular</button>
                 <button class="mobile-tab" data-category="vr">VR</button>
             </div>
@@ -5769,10 +5770,27 @@
             
             if (!grid) return;
             
+            // Generate performer items
+            function generatePerformers(count) {
+                const items = [];
+                for (let i = 0; i < count; i++) {
+                    const imgNum = (i % 13) + 1;
+                    items.push({
+                        id: `performer-${i}`,
+                        img: `../images/${imgNum}.jpg`,
+                        name: performerNames[i % performerNames.length],
+                        videos: Math.floor(Math.random() * 50) + 10,
+                        isPerformer: true
+                    });
+                }
+                return items;
+            }
+            
             // Content data for grid
             const mobileContent = {
                 all: [
                     { section: 'Continue Watching', items: generateItems(4, 'continue') },
+                    { section: 'Top Performers', items: generatePerformers(6), isPerformerSection: true },
                     { section: 'Trending Now', items: generateItems(6, 'trending') },
                     { section: 'New Releases', items: generateItems(6, 'new') },
                     { section: 'Popular', items: generateItems(4, 'popular') }
@@ -5782,6 +5800,9 @@
                 ],
                 new: [
                     { section: null, items: generateItems(12, 'new') }
+                ],
+                performers: [
+                    { section: null, items: generatePerformers(16), isPerformerSection: true }
                 ],
                 popular: [
                     { section: null, items: generateItems(12, 'popular') }
@@ -5832,7 +5853,30 @@
                         grid.appendChild(header);
                     }
                     
-                    // Cards
+                    // Performer section - different layout
+                    if (section.isPerformerSection) {
+                        const performerRow = document.createElement('div');
+                        performerRow.className = 'mobile-performer-row';
+                        
+                        section.items.forEach(item => {
+                            const card = document.createElement('a');
+                            card.href = '#';
+                            card.className = 'mobile-performer-card';
+                            card.innerHTML = `
+                                <div class="mobile-performer-img">
+                                    <img src="${item.img}" alt="${item.name}" loading="lazy">
+                                </div>
+                                <div class="mobile-performer-name">${item.name}</div>
+                                <div class="mobile-performer-count">${item.videos} videos</div>
+                            `;
+                            performerRow.appendChild(card);
+                        });
+                        
+                        grid.appendChild(performerRow);
+                        return;
+                    }
+                    
+                    // Regular cards
                     section.items.forEach(item => {
                         const card = document.createElement('a');
                         card.href = '../watch/index.html';
@@ -5856,6 +5900,14 @@
                 tab.addEventListener('click', () => {
                     tabs.forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
+                    
+                    // Add class for full performer grid view
+                    if (tab.dataset.category === 'performers') {
+                        grid.classList.add('performers-full-view');
+                    } else {
+                        grid.classList.remove('performers-full-view');
+                    }
+                    
                     renderGrid(tab.dataset.category);
                 });
             });

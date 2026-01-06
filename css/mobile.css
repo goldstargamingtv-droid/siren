@@ -11,6 +11,13 @@
 }
 
 /* ============================================
+   MOBILE LANDING - Hidden on desktop
+   ============================================ */
+.mobile-landing {
+    display: none;
+}
+
+/* ============================================
    BOTTOM NAVIGATION BAR
    ============================================ */
 .mobile-nav {
@@ -98,171 +105,198 @@
     }
 
     /* ==========================================
-       LANDING PAGE - APP STYLED
+       LANDING PAGE - SWIPEABLE CAROUSEL
        ========================================== */
     
-    /* Simplified header */
-    .main-content > header .nav {
-        padding: 12px 16px !important;
+    /* Show mobile landing (covers entire screen) */
+    .mobile-landing {
+        display: flex !important;
+        flex-direction: column;
+        position: fixed;
+        inset: 0;
+        background: #08080c;
+        z-index: 1000;
+        overflow: hidden;
     }
 
-    .nav-logo {
-        font-size: 1.3rem !important;
-    }
-
-    .nav-buttons .btn {
-        padding: 10px 14px !important;
-        font-size: 0.8rem !important;
-    }
-
-    .nav-menu-wrapper {
+    /* Hide mobile nav on landing page - JS will show it after login */
+    body.landing-page .mobile-nav {
         display: none !important;
     }
 
-    /* Hero section - full screen feel */
-    .hero {
-        min-height: 90vh !important;
-        padding: 80px 20px 40px !important;
+    /* Mobile Landing Header */
+    .mobile-landing-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        padding-top: calc(16px + var(--safe-area-top));
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        background: linear-gradient(180deg, rgba(8,8,12,0.9) 0%, transparent 100%);
     }
 
-    .hero-content {
-        text-align: center !important;
-        max-width: 100% !important;
+    .mobile-landing-logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+        background: linear-gradient(135deg, #ef4444, #f97316);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
-    .hero-content h1 {
-        font-size: 2rem !important;
-        line-height: 1.15 !important;
-        margin-bottom: 16px !important;
+    .mobile-landing-signin {
+        padding: 10px 20px;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 6px;
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
     }
 
-    .hero-content p {
-        font-size: 0.95rem !important;
-        margin-bottom: 24px !important;
-        opacity: 0.8;
+    /* Carousel Container */
+    .mobile-landing-carousel {
+        display: flex;
+        flex: 1;
+        transition: transform 0.3s ease-out;
     }
 
-    .hero-buttons {
-        flex-direction: column !important;
-        gap: 12px !important;
-        width: 100% !important;
+    /* Each Page */
+    .mobile-landing-page {
+        min-width: 100%;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 0 24px 180px;
+        position: relative;
     }
 
-    .hero-buttons .btn {
-        width: 100% !important;
-        padding: 16px !important;
-        font-size: 1rem !important;
-        border-radius: 12px !important;
-        justify-content: center !important;
+    /* Background Image */
+    .mobile-landing-bg {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
     }
 
-    .hero-float,
-    .hero-badge {
-        display: none !important;
+    .mobile-landing-bg img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
-    .hero-grid {
-        opacity: 0.3 !important;
+    .mobile-landing-bg-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            0deg,
+            rgba(8,8,12,1) 0%,
+            rgba(8,8,12,0.95) 20%,
+            rgba(8,8,12,0.7) 50%,
+            rgba(8,8,12,0.4) 70%,
+            rgba(8,8,12,0.6) 100%
+        );
     }
 
-    /* Sections - clean mobile layout */
-    section {
-        padding: 50px 20px !important;
+    /* Content */
+    .mobile-landing-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
     }
 
-    .section-header {
-        text-align: center !important;
-        margin-bottom: 30px !important;
+    .mobile-landing-icon {
+        font-size: 2.5rem;
+        margin-bottom: 16px;
     }
 
-    .section-title {
-        font-size: 1.5rem !important;
-        line-height: 1.25 !important;
+    .mobile-landing-content h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: #fff;
+        margin-bottom: 12px;
     }
 
-    .section-subtitle {
-        font-size: 0.9rem !important;
+    .mobile-landing-content h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: #fff;
+        margin-bottom: 12px;
     }
 
-    .section-label {
-        font-size: 0.75rem !important;
+    .mobile-landing-content p {
+        font-size: 0.95rem;
+        color: rgba(255,255,255,0.7);
+        line-height: 1.5;
     }
 
-    /* Feature cards - stack vertically */
-    .features-grid,
-    .tech-grid {
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
+    .mobile-landing-price {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-top: 16px;
     }
 
-    .feature-card {
-        padding: 24px 20px !important;
-        border-radius: 16px !important;
+    .mobile-landing-price span {
+        font-size: 1rem;
+        font-weight: 400;
+        color: rgba(255,255,255,0.5);
     }
 
-    .feature-icon {
-        width: 48px !important;
-        height: 48px !important;
+    /* CTA Button */
+    .mobile-landing-cta {
+        position: absolute;
+        bottom: 100px;
+        left: 24px;
+        right: 24px;
+        padding: 16px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        border: none;
+        border-radius: 12px;
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        z-index: 10;
     }
 
-    .feature-title {
-        font-size: 1.1rem !important;
+    .mobile-landing-cta:active {
+        transform: scale(0.98);
     }
 
-    .feature-desc {
-        font-size: 0.85rem !important;
+    /* Dots */
+    .mobile-landing-dots {
+        position: absolute;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 10;
     }
 
-    /* Trending section */
-    .trending-slider {
-        padding: 0 16px !important;
+    .mobile-landing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.3);
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
 
-    .trending-card {
-        width: 160px !important;
-        min-width: 160px !important;
-    }
-
-    /* Channel logos */
-    .channels-section .channels-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px !important;
-    }
-
-    /* Devices section */
-    .devices-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px !important;
-    }
-
-    .device-card {
-        padding: 20px 16px !important;
-    }
-
-    /* CTA section */
-    .cta-section {
-        padding: 60px 20px !important;
-        text-align: center !important;
-    }
-
-    .cta-section h2 {
-        font-size: 1.6rem !important;
-    }
-
-    .cta-section .btn {
-        width: 100% !important;
-        max-width: 300px !important;
-    }
-
-    /* Footer */
-    footer {
-        padding: 40px 20px 100px !important;
-    }
-
-    .footer-grid {
-        grid-template-columns: 1fr !important;
-        gap: 30px !important;
-        text-align: center !important;
+    .mobile-landing-dot.active {
+        width: 24px;
+        border-radius: 4px;
+        background: #ef4444;
     }
 
     /* ==========================================
@@ -273,6 +307,7 @@
         padding-top: 60px !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
+        z-index: 10002 !important; /* Above mobile landing */
     }
 
     /* Disable ALL animations on age gate */
@@ -402,6 +437,9 @@
 
     .carousel-dots {
         bottom: 12px !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
     }
 
     /* ==========================================
@@ -548,6 +586,95 @@
     /* Hide category grid section on mobile */
     .category-grid-section {
         display: none !important;
+    }
+
+    /* ==========================================
+       PERFORMER CARDS - Horizontal scroll row
+       ========================================== */
+    .mobile-performer-row {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 8px 0 16px;
+        margin: 0 -16px;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .mobile-performer-row::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mobile-performer-card {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        width: 80px;
+    }
+
+    .mobile-performer-img {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid rgba(239, 68, 68, 0.5);
+        padding: 2px;
+        background: linear-gradient(135deg, #ef4444, #f97316);
+    }
+
+    .mobile-performer-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .mobile-performer-name {
+        margin-top: 8px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 80px;
+    }
+
+    .mobile-performer-count {
+        font-size: 0.6rem;
+        color: rgba(255,255,255,0.5);
+        text-align: center;
+    }
+
+    /* Full grid view for performers tab */
+    .mobile-content-grid.performers-full-view {
+        display: block !important;
+    }
+
+    .mobile-content-grid.performers-full-view .mobile-performer-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        overflow-x: visible;
+        margin: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .mobile-content-grid.performers-full-view .mobile-performer-card {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .mobile-content-grid.performers-full-view .mobile-performer-img {
+        width: 60px;
+        height: 60px;
     }
 
     /* ==========================================

@@ -5139,6 +5139,158 @@ subscribeBtn.addEventListener('click', () => {
 <script src="js/auth-modal.js"></script>
 <script src="js/mobile.js"></script>
 
+<!-- Mobile Landing Carousel (App-style, hidden on desktop) -->
+<div class="mobile-landing" id="mobileLanding">
+    <!-- Mobile Header -->
+    <header class="mobile-landing-header">
+        <div class="mobile-landing-logo">SIREN</div>
+        <button class="mobile-landing-signin" onclick="openAuthModal('signin')">Sign In</button>
+    </header>
+    
+    <!-- Swipeable Pages -->
+    <div class="mobile-landing-carousel" id="mobileLandingCarousel">
+        <!-- Page 1: Hero -->
+        <div class="mobile-landing-page" data-page="0">
+            <div class="mobile-landing-bg">
+                <img src="images/1.jpg" alt="">
+                <div class="mobile-landing-bg-overlay"></div>
+            </div>
+            <div class="mobile-landing-content">
+                <h1>Experience Adult Entertainment Like Never Before</h1>
+                <p>Immersive 3D content powered by cutting-edge technology. Premium quality. Ultimate privacy.</p>
+            </div>
+        </div>
+        
+        <!-- Page 2: Features -->
+        <div class="mobile-landing-page" data-page="1">
+            <div class="mobile-landing-bg">
+                <img src="images/5.jpg" alt="">
+                <div class="mobile-landing-bg-overlay"></div>
+            </div>
+            <div class="mobile-landing-content">
+                <div class="mobile-landing-icon">✨</div>
+                <h2>Premium 4K & VR Content</h2>
+                <p>Stream in stunning 4K Ultra HD or dive into immersive VR experiences. New content added daily from top studios.</p>
+            </div>
+        </div>
+        
+        <!-- Page 3: Technology -->
+        <div class="mobile-landing-page" data-page="2">
+            <div class="mobile-landing-bg">
+                <img src="images/8.jpg" alt="">
+                <div class="mobile-landing-bg-overlay"></div>
+            </div>
+            <div class="mobile-landing-content">
+                <div class="mobile-landing-icon">🔮</div>
+                <h2>Revolutionary 3D Technology</h2>
+                <p>Gaussian Splatting creates photorealistic 3D scenes you can explore. The future of adult entertainment is here.</p>
+            </div>
+        </div>
+        
+        <!-- Page 4: Devices -->
+        <div class="mobile-landing-page" data-page="3">
+            <div class="mobile-landing-bg">
+                <img src="images/11.jpg" alt="">
+                <div class="mobile-landing-bg-overlay"></div>
+            </div>
+            <div class="mobile-landing-content">
+                <div class="mobile-landing-icon">📱</div>
+                <h2>Watch Anywhere</h2>
+                <p>Stream on your phone, tablet, computer, TV, or VR headset. Your content syncs across all devices.</p>
+            </div>
+        </div>
+        
+        <!-- Page 5: CTA -->
+        <div class="mobile-landing-page" data-page="4">
+            <div class="mobile-landing-bg">
+                <img src="images/3.jpg" alt="">
+                <div class="mobile-landing-bg-overlay"></div>
+            </div>
+            <div class="mobile-landing-content">
+                <div class="mobile-landing-icon">🔥</div>
+                <h2>Start Your Free Trial</h2>
+                <p>Join thousands of members enjoying the most advanced adult platform. Cancel anytime.</p>
+                <div class="mobile-landing-price">$19.99<span>/month</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Get Started Button -->
+    <button class="mobile-landing-cta" onclick="openAuthModal('signup')">Get Started</button>
+    
+    <!-- Carousel Dots -->
+    <div class="mobile-landing-dots" id="mobileLandingDots">
+        <span class="mobile-landing-dot active" data-page="0"></span>
+        <span class="mobile-landing-dot" data-page="1"></span>
+        <span class="mobile-landing-dot" data-page="2"></span>
+        <span class="mobile-landing-dot" data-page="3"></span>
+        <span class="mobile-landing-dot" data-page="4"></span>
+    </div>
+</div>
+
+<script>
+// Mobile Landing Carousel
+(function() {
+    const carousel = document.getElementById('mobileLandingCarousel');
+    const dots = document.querySelectorAll('.mobile-landing-dot');
+    const pages = document.querySelectorAll('.mobile-landing-page');
+    
+    if (!carousel) return;
+    
+    let currentPage = 0;
+    let startX = 0;
+    let isDragging = false;
+    
+    function goToPage(index) {
+        if (index < 0) index = 0;
+        if (index >= pages.length) index = pages.length - 1;
+        
+        currentPage = index;
+        carousel.style.transform = `translateX(-${currentPage * 100}%)`;
+        
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentPage);
+        });
+    }
+    
+    // Touch events
+    carousel.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+        carousel.style.transition = 'none';
+    }, { passive: true });
+    
+    carousel.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const diff = e.touches[0].clientX - startX;
+        const offset = -currentPage * 100 + (diff / window.innerWidth) * 100;
+        carousel.style.transform = `translateX(${offset}%)`;
+    }, { passive: true });
+    
+    carousel.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        carousel.style.transition = 'transform 0.3s ease-out';
+        
+        const diff = e.changedTouches[0].clientX - startX;
+        if (Math.abs(diff) > 50) {
+            if (diff > 0) {
+                goToPage(currentPage - 1);
+            } else {
+                goToPage(currentPage + 1);
+            }
+        } else {
+            goToPage(currentPage);
+        }
+    });
+    
+    // Dot clicks
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => goToPage(i));
+    });
+})();
+</script>
+
 <!-- Mobile Navigation (fallback) -->
 <nav class="mobile-nav" id="mobileNav" style="display:none;">
     <svg width="0" height="0" style="position:absolute">
@@ -5339,12 +5491,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Force mobile nav on small screens - bypasses CSS issues
 (function(){
+    // Mark body as landing page
+    document.body.classList.add('landing-page');
+    
     var nav = document.getElementById('mobileNav');
-    if(nav && window.innerWidth <= 768) {
+    var mobileLanding = document.getElementById('mobileLanding');
+    
+    // On landing page, don't show mobile nav (it's an app-style experience)
+    // Mobile nav only shows on browse/watch/account pages
+    if (mobileLanding && window.innerWidth <= 768) {
+        // Hide mobile nav on landing
+        if (nav) nav.style.display = 'none';
+        
+        // If user is logged in, hide mobile landing and show desktop version
+        // Or redirect to browse
+        setTimeout(function() {
+            if (typeof SIREN !== 'undefined' && SIREN.getCurrentUser && SIREN.getCurrentUser()) {
+                // User is logged in - hide mobile landing, show regular page
+                mobileLanding.style.display = 'none';
+                document.body.classList.add('user-logged-in');
+            }
+        }, 500);
+    } else if (nav && window.innerWidth <= 768) {
+        // Other pages - show mobile nav normally
         nav.style.cssText = 'display:flex!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;height:70px;background:rgba(5,5,10,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.08);z-index:999999;justify-content:space-around;align-items:center;padding:8px 0;';
     }
+    
     window.addEventListener('resize', function(){
-        if(nav && window.innerWidth <= 768) {
+        if (mobileLanding && window.innerWidth <= 768) {
+            // Landing page mobile - no nav
+            if (nav) nav.style.display = 'none';
+        } else if(nav && window.innerWidth <= 768) {
             nav.style.cssText = 'display:flex!important;position:fixed!important;bottom:0!important;left:0!important;right:0!important;height:70px;background:rgba(5,5,10,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.08);z-index:999999;justify-content:space-around;align-items:center;padding:8px 0;';
         } else if(nav) {
             nav.style.display = 'none';
