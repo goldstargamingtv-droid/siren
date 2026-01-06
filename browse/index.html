@@ -5031,6 +5031,10 @@
             // Set card class based on type
             if (type === 'performer') {
                 card.className = 'content-card performer-card';
+                card.dataset.performer = 'true';
+                // Generate slug from performer name
+                const performerSlug = performerNames[index % performerNames.length].toLowerCase().replace(/\s+/g, '-');
+                card.dataset.performerSlug = performerSlug;
             } else if (type === 'portrait') {
                 card.className = 'content-card portrait-card';
             } else if (type === 'large') {
@@ -5158,7 +5162,10 @@
                 const distY = Math.abs(touch.clientY - cardTouchStartY);
                 
                 if (timeDiff < 300 && distX < 10 && distY < 10) {
-                    if (card.dataset.is3d === 'true') {
+                    if (card.dataset.performer === 'true') {
+                        const performerSlug = card.dataset.performerSlug || 'scarlett-luxe';
+                        window.location.href = `../performer/?id=${performerSlug}`;
+                    } else if (card.dataset.is3d === 'true') {
                         window.location.href = '../watch/?type=3d';
                     } else if (card.dataset.multiangle === 'true') {
                         window.location.href = '../multiangle/';
@@ -5189,11 +5196,16 @@
                 console.log('[SIREN] Card clicked:', {
                     is3d: card.dataset.is3d,
                     multiangle: card.dataset.multiangle,
+                    performer: card.dataset.performer,
                     title: card.dataset.title
                 });
                 
                 // Check content type
-                if (card.dataset.is3d === 'true') {
+                if (card.dataset.performer === 'true') {
+                    const performerSlug = card.dataset.performerSlug || 'scarlett-luxe';
+                    console.log('[SIREN] Navigating to performer profile');
+                    window.location.href = `../performer/?id=${performerSlug}`;
+                } else if (card.dataset.is3d === 'true') {
                     console.log('[SIREN] Navigating to 3D splat viewer');
                     window.location.href = '../watch/?type=3d';
                 } else if (card.dataset.multiangle === 'true') {
@@ -6084,7 +6096,8 @@
                         
                         section.items.forEach(item => {
                             const card = document.createElement('a');
-                            card.href = '#';
+                            const performerSlug = item.name.toLowerCase().replace(/\s+/g, '-');
+                            card.href = `../performer/?id=${performerSlug}`;
                             card.className = 'mobile-performer-card';
                             card.innerHTML = `
                                 <div class="mobile-performer-img">
@@ -7008,7 +7021,10 @@
                 
                 // Only navigate if it was a tap (not drag)
                 if (timeDiff < 300 && distX < 10 && distY < 10) {
-                    if (card.dataset.is3d === 'true') {
+                    if (card.dataset.performer === 'true') {
+                        const performerSlug = card.dataset.performerSlug || 'scarlett-luxe';
+                        window.location.href = `../performer/?id=${performerSlug}`;
+                    } else if (card.dataset.is3d === 'true') {
                         window.location.href = '../watch/?type=3d';
                     } else if (card.dataset.multiangle === 'true') {
                         window.location.href = '../multiangle/';
@@ -7042,7 +7058,10 @@
                 if (timeDiff > 200 || distX > 5 || distY > 5) return;
                 
                 // Check content type
-                if (card.dataset.is3d === 'true') {
+                if (card.dataset.performer === 'true') {
+                    const performerSlug = card.dataset.performerSlug || 'scarlett-luxe';
+                    window.location.href = `../performer/?id=${performerSlug}`;
+                } else if (card.dataset.is3d === 'true') {
                     window.location.href = '../watch/?type=3d';
                 } else if (card.dataset.multiangle === 'true') {
                     window.location.href = '../multiangle/';
