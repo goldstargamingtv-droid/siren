@@ -3349,6 +3349,416 @@
             display: none;
         }
 
+        /* ==========================================
+           MORE INFO MODAL (Netflix Style)
+           ========================================== */
+        .info-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9500;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2rem;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .info-modal-backdrop.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .info-modal {
+            position: relative;
+            width: 100%;
+            max-width: 850px;
+            background: #181818;
+            border-radius: 8px;
+            overflow: hidden;
+            transform: scale(0.95) translateY(20px);
+            transition: transform 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .info-modal-backdrop.open .info-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .info-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #181818;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.2s ease;
+        }
+
+        .info-modal-close:hover {
+            background: #282828;
+        }
+
+        .info-modal-close svg {
+            width: 20px;
+            height: 20px;
+            stroke: #ffffff;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .info-modal-preview {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .info-modal-preview-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, #181818 0%, rgba(24,24,24,0.6) 30%, transparent 60%);
+        }
+
+        .info-modal-preview-content {
+            position: absolute;
+            bottom: 2rem;
+            left: 3rem;
+            right: 3rem;
+        }
+
+        .info-modal-logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            background: linear-gradient(135deg, #ffffff, #e5e5e5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .info-modal-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .info-modal-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .info-modal-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .info-modal-btn.play {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .info-modal-btn.play:hover {
+            background: rgba(255,255,255,0.8);
+        }
+
+        .info-modal-btn.icon-only {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            background: rgba(42,42,42,0.6);
+            border: 2px solid rgba(255,255,255,0.5);
+            justify-content: center;
+        }
+
+        .info-modal-btn.icon-only svg {
+            width: 20px;
+            height: 20px;
+            stroke: #ffffff;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .info-modal-btn.icon-only:hover {
+            background: rgba(42,42,42,0.9);
+            border-color: #ffffff;
+        }
+
+        .info-modal-sound {
+            position: absolute;
+            bottom: 2rem;
+            right: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .info-modal-sound-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .info-modal-sound-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: #ffffff;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .info-modal-rating {
+            padding: 0.25rem 0.75rem;
+            background: rgba(51,51,51,0.6);
+            border-left: 3px solid #dcdcdc;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .info-modal-body {
+            padding: 1.5rem 3rem 2rem;
+        }
+
+        .info-modal-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .info-modal-match {
+            color: #46d369;
+            font-weight: 600;
+        }
+
+        .info-modal-year, .info-modal-duration {
+            color: #bcbcbc;
+        }
+
+        .info-modal-quality {
+            padding: 0 0.4rem;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .info-modal-badges {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .info-modal-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.2rem 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            font-size: 0.75rem;
+        }
+
+        .info-modal-badge svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .info-modal-badge.badge-4d {
+            background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(99,102,241,0.3));
+            color: #c4b5fd;
+        }
+
+        .info-modal-badge.badge-vr {
+            background: linear-gradient(135deg, rgba(6,182,212,0.3), rgba(59,130,246,0.3));
+            color: #7dd3fc;
+        }
+
+        .info-modal-badge.badge-premium {
+            background: linear-gradient(135deg, rgba(239,68,68,0.3), rgba(249,115,22,0.3));
+            color: #fca5a5;
+        }
+
+        .info-modal-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .info-modal-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d2d2d2;
+        }
+
+        .info-modal-info-item {
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .info-modal-info-label {
+            color: #777;
+        }
+
+        .info-modal-info-value {
+            color: #fff;
+        }
+
+        .info-modal-info-value a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .info-modal-info-value a:hover {
+            text-decoration: underline;
+        }
+
+        .info-modal-section {
+            padding: 1rem 3rem 2rem;
+            border-top: 1px solid #404040;
+        }
+
+        .info-modal-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .info-modal-related-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .info-related-card {
+            border-radius: 4px;
+            overflow: hidden;
+            background: #2f2f2f;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .info-related-card:hover {
+            background: #3f3f3f;
+            transform: scale(1.02);
+        }
+
+        .info-related-card img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+
+        .info-related-card-content {
+            padding: 1rem;
+        }
+
+        .info-related-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-related-card-meta {
+            font-size: 0.75rem;
+            color: #46d369;
+            font-weight: 600;
+        }
+
+        .info-related-card-duration {
+            font-size: 0.75rem;
+            color: #bcbcbc;
+        }
+
+        .info-related-card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .info-related-card-description {
+            font-size: 0.8rem;
+            color: #a1a1aa;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .info-modal {
+                max-width: 100%;
+                border-radius: 0;
+                margin-top: 0;
+            }
+
+            .info-modal-preview-content {
+                left: 1.5rem;
+                right: 1.5rem;
+                bottom: 1.5rem;
+            }
+
+            .info-modal-logo {
+                font-size: 1.5rem;
+            }
+
+            .info-modal-body {
+                padding: 1rem 1.5rem;
+            }
+
+            .info-modal-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .info-modal-section {
+                padding: 1rem 1.5rem;
+            }
+
+            .info-modal-related-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-modal-sound {
+                right: 1.5rem;
+                bottom: 1.5rem;
+            }
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .content-card {
@@ -4203,6 +4613,7 @@
             <div class="submenu-header">
                 <div class="submenu-header-top">
                     <div class="submenu-title">Browse Categories</div>
+                    <a href="../categories/" class="submenu-view-all" style="margin-left:auto;font-size:0.8rem;color:#a1a1aa;text-decoration:none;display:flex;align-items:center;gap:4px;transition:color 0.2s;">View All <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;"><polyline points="9 18 15 12 9 6"/></svg></a>
                 </div>
                 <div class="submenu-tabs">
                     <div class="submenu-tab active">All</div>
@@ -4550,7 +4961,7 @@
                                 </svg>
                                 Play
                             </button>
-                            <button class="btn btn-more">More Info</button>
+                            <button class="btn btn-more" onclick="openInfoModal({img:'../images/1.jpg',title:'Midnight Rendezvous',desc:'Experience an intimate evening like never before. Full 360° immersion with complete freedom of movement in stunning volumetric detail.',match:98,year:2024,duration:'45 min',cast:['Aria Valentine','Luna Rose'],genres:'Romantic, Immersive, 4D'})">More Info</button>
                         </div>
                     </div>
                 </div>
@@ -4946,6 +5357,90 @@
         </div>
     </div>
 
+    <!-- More Info Modal -->
+    <div class="info-modal-backdrop" id="infoModalBackdrop">
+        <div class="info-modal" onclick="event.stopPropagation()">
+            <button class="info-modal-close" onclick="closeInfoModal()">
+                <svg viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <div class="info-modal-preview" id="infoModalPreview">
+                <div class="info-modal-preview-gradient"></div>
+                <div class="info-modal-preview-content">
+                    <div class="info-modal-logo" id="infoModalTitle">Midnight Whispers</div>
+                    <div class="info-modal-actions">
+                        <button class="info-modal-btn play" onclick="window.location.href='../watch/'">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            Play
+                        </button>
+                        <button class="info-modal-btn icon-only" title="Add to My List">
+                            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <button class="info-modal-btn icon-only" title="I like this">
+                            <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                        </button>
+                        <button class="info-modal-btn icon-only" title="Not for me">
+                            <svg viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="info-modal-sound">
+                    <button class="info-modal-sound-btn">
+                        <svg viewBox="0 0 24 24">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                        </svg>
+                    </button>
+                    <span class="info-modal-rating">18+</span>
+                </div>
+            </div>
+            <div class="info-modal-body">
+                <div class="info-modal-meta">
+                    <span class="info-modal-match" id="infoModalMatch">98% Match</span>
+                    <span class="info-modal-year" id="infoModalYear">2024</span>
+                    <span class="info-modal-duration" id="infoModalDuration">45m</span>
+                    <span class="info-modal-quality">4K</span>
+                    <span class="info-modal-quality">HDR</span>
+                </div>
+                <div class="info-modal-badges" id="infoModalBadges">
+                    <span class="info-modal-badge badge-4d">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        4D Available
+                    </span>
+                    <span class="info-modal-badge badge-vr">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        VR 180°
+                    </span>
+                </div>
+                <div class="info-modal-grid">
+                    <div class="info-modal-description" id="infoModalDesc">
+                        An intimate evening unfolds as two souls connect in the city that never sleeps. Shot in stunning 4K with immersive 4D technology, experience every moment as if you were there. Features award-winning cinematography and a passionate storyline that will leave you breathless.
+                    </div>
+                    <div class="info-modal-info">
+                        <div class="info-modal-info-item">
+                            <span class="info-modal-info-label">Starring: </span>
+                            <span class="info-modal-info-value" id="infoModalCast"><a href="../performer/">Aria Valentine</a>, <a href="../performer/">Luna Rose</a></span>
+                        </div>
+                        <div class="info-modal-info-item">
+                            <span class="info-modal-info-label">Genres: </span>
+                            <span class="info-modal-info-value" id="infoModalGenres">Romantic, Sensual, Couples</span>
+                        </div>
+                        <div class="info-modal-info-item">
+                            <span class="info-modal-info-label">This movie is: </span>
+                            <span class="info-modal-info-value">Passionate, Intimate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="info-modal-section">
+                <h3 class="info-modal-section-title">More Like This</h3>
+                <div class="info-modal-related-grid" id="infoModalRelated"></div>
+            </div>
+        </div>
+    </div>
+
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         console.log('%c[SIREN BROWSE v1.1.1]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         // Global mobile check - disable heavy animations
@@ -5060,7 +5555,7 @@
             
             // Store data for expanded card to use
             card.dataset.title = name;
-            card.dataset.performer = performer;
+            card.dataset.performerName = performer;
             
             if (type === 'performer') {
                 // Performers keep the old layout with name
@@ -5197,6 +5692,7 @@
                     is3d: card.dataset.is3d,
                     multiangle: card.dataset.multiangle,
                     performer: card.dataset.performer,
+                    performerSlug: card.dataset.performerSlug,
                     title: card.dataset.title
                 });
                 
@@ -5518,7 +6014,7 @@
         function updateExpandedContent(card) {
             // Get data from card's data attributes or card-info as fallback
             const title = card.dataset.title || card.querySelector('.card-info h3')?.textContent || 'Untitled';
-            const performer = card.dataset.performer || card.querySelector('.card-info p')?.textContent || '';
+            const performer = card.dataset.performerName || card.querySelector('.card-info p')?.textContent || '';
             
             // Randomize some data
             expandedMatch.textContent = Math.floor(Math.random() * 15 + 85) + '% Match';
@@ -7248,6 +7744,143 @@ document.addEventListener('keydown', (e) => {
 subscribeBtn.addEventListener('click', () => {
     // TODO: Integrate with Stripe checkout
     console.log('Subscribe clicked - integrate payment here');
+});
+
+// ==========================================
+// INFO MODAL (More Info) FUNCTIONS
+// ==========================================
+const infoModalBackdrop = document.getElementById('infoModalBackdrop');
+const infoModalDescriptions = [
+    "An intimate evening unfolds as two souls connect in the city that never sleeps. Shot in stunning 4K with immersive 4D technology, experience every moment as if you were there.",
+    "Experience the passion and chemistry between two incredible performers in this award-winning production. Features breathtaking cinematography and stunning visuals.",
+    "A sensual journey through desire and connection, where every touch tells a story. Captured in crystal clear quality with immersive sound design.",
+    "Exclusive behind-the-scenes footage combined with the main feature creates an unforgettable experience you won't find anywhere else."
+];
+
+const infoModalGenres = [
+    "Romantic, Sensual, Couples",
+    "Passionate, Intimate, Solo",
+    "Glamour, Fantasy, Premium",
+    "Amateur, Authentic, Real"
+];
+
+function openInfoModal(data = {}) {
+    const preview = document.getElementById('infoModalPreview');
+    const title = document.getElementById('infoModalTitle');
+    const desc = document.getElementById('infoModalDesc');
+    const match = document.getElementById('infoModalMatch');
+    const year = document.getElementById('infoModalYear');
+    const duration = document.getElementById('infoModalDuration');
+    const cast = document.getElementById('infoModalCast');
+    const genres = document.getElementById('infoModalGenres');
+    const related = document.getElementById('infoModalRelated');
+    
+    // Set data
+    if (data.img) preview.style.backgroundImage = `url('${data.img}')`;
+    if (data.title) title.textContent = data.title;
+    if (data.desc) desc.textContent = data.desc;
+    if (data.match) match.textContent = data.match + '% Match';
+    if (data.year) year.textContent = data.year;
+    if (data.duration) duration.textContent = data.duration;
+    if (data.cast) cast.innerHTML = data.cast.map(p => `<a href="../performer/">${p}</a>`).join(', ');
+    if (data.genres) genres.textContent = data.genres;
+    
+    // Populate related content
+    const relatedHtml = contentData.slice(0, 6).map((item, i) => `
+        <div class="info-related-card" onclick="openInfoModal({
+            img: '${item.img}',
+            title: '${item.title}',
+            desc: infoModalDescriptions[${i % 4}],
+            match: ${85 + Math.floor(Math.random() * 13)},
+            year: ${2023 + Math.floor(Math.random() * 2)},
+            duration: '${durations[i % durations.length]}',
+            cast: ['${performerNames[i % performerNames.length]}', '${performerNames[(i + 3) % performerNames.length]}'],
+            genres: infoModalGenres[${i % 4}]
+        })">
+            <img src="${item.img}" alt="${item.title}">
+            <div class="info-related-card-content">
+                <div class="info-related-card-header">
+                    <span class="info-related-card-meta">${85 + Math.floor(Math.random() * 13)}% Match</span>
+                    <span class="info-related-card-duration">${durations[i % durations.length]}</span>
+                </div>
+                <div class="info-related-card-title">${item.title}</div>
+                <p class="info-related-card-description">${infoModalDescriptions[i % 4].substring(0, 80)}...</p>
+            </div>
+        </div>
+    `).join('');
+    related.innerHTML = relatedHtml;
+    
+    // Open modal
+    infoModalBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    
+    // Animate in
+    gsap.fromTo('.info-modal', 
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+    );
+}
+
+function closeInfoModal() {
+    infoModalBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+// Close on backdrop click
+if (infoModalBackdrop) {
+    infoModalBackdrop.addEventListener('click', (e) => {
+        if (e.target === infoModalBackdrop) {
+            closeInfoModal();
+        }
+    });
+}
+
+// Close on escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && infoModalBackdrop && infoModalBackdrop.classList.contains('open')) {
+        closeInfoModal();
+    }
+});
+
+// Hook up btn-more (down arrow) in expanded card to open info modal
+document.addEventListener('click', (e) => {
+    const moreBtn = e.target.closest('.btn-more');
+    if (moreBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Get data from expanded card or nearest card
+        const expandedCard = document.getElementById('cardExpanded');
+        const expandedLogo = expandedCard?.querySelector('.card-expanded-logo')?.textContent || 'Midnight Whispers';
+        const expandedDuration = document.getElementById('expandedDuration')?.textContent || '45 min';
+        
+        // Find the current card's image
+        let cardImg = '../images/1.jpg';
+        const activeCard = document.querySelector('.content-card:hover, .content-card.expanded');
+        if (activeCard) {
+            const img = activeCard.querySelector('.card-thumbnail-inner');
+            if (img) {
+                const style = img.style.background;
+                const match = style.match(/url\(['"]?([^'"]+)['"]?\)/);
+                if (match) cardImg = match[1];
+            }
+        }
+        
+        // Get expanded card data
+        const dataIndex = Math.floor(Math.random() * contentData.length);
+        const data = contentData[dataIndex] || contentData[0];
+        
+        openInfoModal({
+            img: cardImg || data.img,
+            title: expandedLogo || data.title,
+            desc: infoModalDescriptions[dataIndex % 4],
+            match: 85 + Math.floor(Math.random() * 13),
+            year: 2023 + Math.floor(Math.random() * 2),
+            duration: expandedDuration,
+            cast: [performerNames[dataIndex % performerNames.length], performerNames[(dataIndex + 3) % performerNames.length]],
+            genres: infoModalGenres[dataIndex % 4]
+        });
+    }
 });
 </script>
 <script src="../js/mobile.js"></script>

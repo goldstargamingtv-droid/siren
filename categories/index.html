@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Categories - SIREN</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --accent-primary: #ef4444;
+            --accent-secondary: #f97316;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --glass-bg: rgba(18, 18, 24, 0.85);
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+        /* Fixed Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            padding: 0 4%;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0.7) 50%, transparent 100%);
+            transition: background 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .header-logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: 0.3em;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            margin-right: 2.5rem;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-nav a {
+            color: #e5e5e5;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .header-nav a:hover {
+            color: #b3b3b3;
+        }
+
+        .header-nav a.active {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .header-icon {
+            width: 24px;
+            height: 24px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .header-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .header-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .header-avatar svg {
+            width: 18px;
+            height: 18px;
+            color: white;
+        }
+
+        /* Page Title & Genre Dropdown */
+        .page-controls {
+            padding: 88px 4% 20px;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .genre-dropdown {
+            position: relative;
+        }
+
+        .genre-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 4px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .genre-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        .genre-btn svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .genre-btn.open svg {
+            transform: rotate(180deg);
+        }
+
+        .genre-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 600px;
+            background: rgba(20, 20, 20, 0.98);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 4px;
+            padding: 1rem;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        .genre-menu.open {
+            display: block;
+        }
+
+        .genre-columns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.25rem 2rem;
+        }
+
+        .genre-item {
+            padding: 0.5rem 0.75rem;
+            color: #a1a1aa;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .genre-item:hover {
+            color: #ffffff;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .genre-item.active {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* View Toggle */
+        .view-toggle {
+            margin-left: auto;
+            display: flex;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: 0.5rem 0.75rem;
+            background: transparent;
+            border: none;
+            color: #71717a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .view-btn:first-child {
+            border-right: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .view-btn.active {
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+        }
+
+        .view-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 56vw;
+            max-height: 650px;
+            min-height: 400px;
+            margin-top: -68px;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center 20%;
+            transition: opacity 0.5s ease;
+        }
+
+        .hero-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, var(--bg-primary) 0%, transparent 50%, rgba(10,10,10,0.4) 100%),
+                        linear-gradient(90deg, rgba(10,10,10,0.8) 0%, transparent 50%);
+        }
+
+        .hero-content {
+            position: absolute;
+            bottom: 25%;
+            left: 4%;
+            max-width: 40%;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            color: #e5e5e5;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .hero-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .hero-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .hero-btn.play {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .hero-btn.play:hover {
+            background: rgba(255,255,255,0.8);
+        }
+
+        .hero-btn.info {
+            background: rgba(109, 109, 110, 0.7);
+            color: #ffffff;
+        }
+
+        .hero-btn.info:hover {
+            background: rgba(109, 109, 110, 0.5);
+        }
+
+        .hero-rating {
+            position: absolute;
+            bottom: 25%;
+            right: 4%;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(51, 51, 51, 0.6);
+            border-left: 3px solid #dcdcdc;
+        }
+
+        .hero-rating span {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Content Grid */
+        .content-section {
+            padding: 0 4% 3rem;
+            position: relative;
+            z-index: 5;
+            margin-top: -8rem;
+        }
+
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #e5e5e5;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .content-grid.list-view {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        /* Content Card */
+        .content-card {
+            position: relative;
+            aspect-ratio: 16/9;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .content-card:hover {
+            transform: scale(1.05);
+            z-index: 10;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+        }
+
+        .content-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0.75rem;
+        }
+
+        .content-card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.7rem;
+            color: #a1a1aa;
+        }
+
+        .card-badge {
+            padding: 0.15rem 0.4rem;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            border-radius: 3px;
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
+
+        .card-actions {
+            position: absolute;
+            bottom: 0.5rem;
+            right: 0.5rem;
+            display: flex;
+            gap: 0.35rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.2s ease;
+        }
+
+        .content-card:hover .card-actions {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(30,30,30,0.9);
+            border: 2px solid rgba(255,255,255,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .card-action-btn:hover {
+            background: #ffffff;
+            border-color: #ffffff;
+        }
+
+        .card-action-btn:hover svg {
+            stroke: #000000;
+        }
+
+        .card-action-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: #ffffff;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .card-action-btn.play-btn {
+            background: #ffffff;
+            border-color: #ffffff;
+        }
+
+        .card-action-btn.play-btn svg {
+            stroke: none;
+            fill: #000000;
+        }
+
+        .card-action-btn.info-btn svg {
+            stroke-width: 2.5;
+        }
+
+        /* List View Card */
+        .content-grid.list-view .content-card {
+            display: flex;
+            aspect-ratio: unset;
+            height: 130px;
+            border-radius: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .content-grid.list-view .content-card:hover {
+            transform: none;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .content-grid.list-view .content-card img {
+            width: 230px;
+            height: 100%;
+            flex-shrink: 0;
+        }
+
+        .content-grid.list-view .card-overlay {
+            position: relative;
+            inset: unset;
+            flex: 1;
+            opacity: 1;
+            background: transparent;
+            padding: 1rem 1.5rem;
+            justify-content: center;
+        }
+
+        .content-grid.list-view .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-grid.list-view .card-description {
+            font-size: 0.85rem;
+            color: #a1a1aa;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-grid.list-view .card-actions {
+            position: relative;
+            bottom: unset;
+            right: unset;
+            opacity: 1;
+            transform: none;
+            margin-left: auto;
+            align-self: center;
+            padding-right: 1rem;
+        }
+
+        /* More Info Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2rem;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-backdrop.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            position: relative;
+            width: 100%;
+            max-width: 850px;
+            background: #181818;
+            border-radius: 8px;
+            overflow: hidden;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-backdrop.open .modal {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #181818;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #282828;
+        }
+
+        .modal-close svg {
+            width: 20px;
+            height: 20px;
+            stroke: #ffffff;
+            stroke-width: 2;
+        }
+
+        .modal-preview {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .modal-preview-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, #181818 0%, transparent 50%);
+        }
+
+        .modal-preview-content {
+            position: absolute;
+            bottom: 2rem;
+            left: 3rem;
+            right: 3rem;
+        }
+
+        .modal-logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .modal-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .modal-btn.play {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .modal-btn.play:hover {
+            background: rgba(255,255,255,0.8);
+        }
+
+        .modal-btn.icon-only {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 50%;
+            background: rgba(42,42,42,0.6);
+            border: 2px solid rgba(255,255,255,0.5);
+            justify-content: center;
+        }
+
+        .modal-btn.icon-only svg {
+            width: 20px;
+            height: 20px;
+            stroke: #ffffff;
+            fill: none;
+        }
+
+        .modal-btn.icon-only:hover {
+            background: rgba(42,42,42,0.9);
+            border-color: #ffffff;
+        }
+
+        .modal-sound {
+            position: absolute;
+            bottom: 2rem;
+            right: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .modal-sound-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .modal-sound-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: #ffffff;
+        }
+
+        .modal-rating {
+            padding: 0.25rem 0.75rem;
+            background: rgba(51,51,51,0.6);
+            border-left: 3px solid #dcdcdc;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .modal-body {
+            padding: 1.5rem 3rem 2rem;
+        }
+
+        .modal-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-match {
+            color: #46d369;
+            font-weight: 600;
+        }
+
+        .modal-year, .modal-duration {
+            color: #bcbcbc;
+        }
+
+        .modal-quality {
+            padding: 0 0.4rem;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .modal-badges {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.2rem 0.5rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            font-size: 0.75rem;
+        }
+
+        .modal-badge svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .modal-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #d2d2d2;
+        }
+
+        .modal-info-item {
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .modal-info-label {
+            color: #777;
+        }
+
+        .modal-info-value {
+            color: #fff;
+        }
+
+        .modal-info-value a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .modal-info-value a:hover {
+            text-decoration: underline;
+        }
+
+        .modal-section {
+            padding: 1rem 3rem 2rem;
+            border-top: 1px solid #404040;
+        }
+
+        .modal-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .modal-related-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .related-card {
+            border-radius: 4px;
+            overflow: hidden;
+            background: #2f2f2f;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .related-card:hover {
+            background: #3f3f3f;
+        }
+
+        .related-card img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+
+        .related-card-content {
+            padding: 1rem;
+        }
+
+        .related-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .related-card-meta {
+            font-size: 0.75rem;
+            color: #46d369;
+            font-weight: 600;
+        }
+
+        .related-card-duration {
+            font-size: 0.75rem;
+            color: #bcbcbc;
+        }
+
+        .related-card-description {
+            font-size: 0.8rem;
+            color: #d2d2d2;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-nav {
+                display: none;
+            }
+
+            .page-controls {
+                flex-wrap: wrap;
+                padding: 80px 4% 15px;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+                width: 100%;
+            }
+
+            .genre-menu {
+                min-width: calc(100vw - 8%);
+                left: -10px;
+            }
+
+            .genre-columns {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .view-toggle {
+                display: none;
+            }
+
+            .hero {
+                height: 70vw;
+            }
+
+            .hero-content {
+                max-width: 70%;
+                bottom: 20%;
+            }
+
+            .hero-title {
+                font-size: 1.75rem;
+            }
+
+            .hero-description {
+                font-size: 0.9rem;
+                -webkit-line-clamp: 2;
+            }
+
+            .hero-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .hero-rating {
+                display: none;
+            }
+
+            .content-section {
+                margin-top: -4rem;
+            }
+
+            .content-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modal {
+                max-width: 100%;
+                border-radius: 0;
+            }
+
+            .modal-preview-content {
+                left: 1.5rem;
+                right: 1.5rem;
+            }
+
+            .modal-logo {
+                font-size: 1.5rem;
+            }
+
+            .modal-body {
+                padding: 1rem 1.5rem;
+            }
+
+            .modal-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-section {
+                padding: 1rem 1.5rem;
+            }
+
+            .modal-related-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <a href="../browse/" class="header-logo">SIREN</a>
+        <nav class="header-nav">
+            <a href="../browse/">Home</a>
+            <a href="../browse/">TV Shows</a>
+            <a href="./" class="active">Movies</a>
+            <a href="../browse/">New & Popular</a>
+            <a href="../browse/">My List</a>
+            <a href="../browse/">Browse by Languages</a>
+        </nav>
+        <div class="header-right">
+            <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <div class="header-avatar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg" id="heroBg" style="background-image: url('../images/1.jpg')"></div>
+        <div class="hero-gradient"></div>
+        <div class="hero-content">
+            <h1 class="hero-title" id="heroTitle">Midnight Whispers</h1>
+            <p class="hero-description" id="heroDesc">An intimate evening unfolds as two souls connect in the city that never sleeps. Experience the passion and chemistry in stunning 4K clarity.</p>
+            <div class="hero-buttons">
+                <button class="hero-btn play">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Play
+                </button>
+                <button class="hero-btn info" onclick="openModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    More Info
+                </button>
+            </div>
+        </div>
+        <div class="hero-rating">
+            <span>18+</span>
+        </div>
+    </section>
+
+    <!-- Page Controls -->
+    <div class="page-controls">
+        <h2 class="page-title" id="pageTitle">Movies</h2>
+        <div class="genre-dropdown">
+            <button class="genre-btn" id="genreBtn" onclick="toggleGenreMenu()">
+                <span id="selectedGenre">Genres</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </button>
+            <div class="genre-menu" id="genreMenu">
+                <div class="genre-columns">
+                    <div class="genre-item active" data-genre="all">All Genres</div>
+                    <div class="genre-item" data-genre="popular">Most Popular</div>
+                    <div class="genre-item" data-genre="vr180">VR 180°</div>
+                    <div class="genre-item" data-genre="vr360">360° Full</div>
+                    <div class="genre-item" data-genre="4d">4D Immersive</div>
+                    <div class="genre-item" data-genre="romantic">Romantic</div>
+                    <div class="genre-item" data-genre="amateur">Amateur</div>
+                    <div class="genre-item" data-genre="solo">Solo</div>
+                    <div class="genre-item" data-genre="couples">Couples</div>
+                    <div class="genre-item" data-genre="glamour">Glamour</div>
+                    <div class="genre-item" data-genre="sensual">Sensual</div>
+                    <div class="genre-item" data-genre="passionate">Passionate</div>
+                    <div class="genre-item" data-genre="fantasy">Fantasy</div>
+                    <div class="genre-item" data-genre="exclusive">Exclusive</div>
+                    <div class="genre-item" data-genre="behind">Behind the Scenes</div>
+                    <div class="genre-item" data-genre="new">New Releases</div>
+                    <div class="genre-item" data-genre="trending">Trending Now</div>
+                    <div class="genre-item" data-genre="award">Award Winners</div>
+                </div>
+            </div>
+        </div>
+        <div class="view-toggle">
+            <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                </svg>
+            </button>
+            <button class="view-btn" id="listViewBtn" onclick="setView('list')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                    <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+                    <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <section class="content-section">
+        <div class="content-grid" id="contentGrid"></div>
+    </section>
+
+    <!-- More Info Modal -->
+    <div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <div class="modal-preview" id="modalPreview">
+                <div class="modal-preview-gradient"></div>
+                <div class="modal-preview-content">
+                    <div class="modal-logo" id="modalLogo">Midnight Whispers</div>
+                    <div class="modal-actions">
+                        <button class="modal-btn play">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            Play
+                        </button>
+                        <button class="modal-btn icon-only" title="Add to My List">
+                            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <button class="modal-btn icon-only" title="I like this">
+                            <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-sound">
+                    <button class="modal-sound-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                        </svg>
+                    </button>
+                    <span class="modal-rating">18+</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-meta">
+                    <span class="modal-match">98% Match</span>
+                    <span class="modal-year">2024</span>
+                    <span class="modal-duration">45m</span>
+                    <span class="modal-quality">4K</span>
+                    <span class="modal-quality">HDR</span>
+                </div>
+                <div class="modal-badges">
+                    <span class="modal-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        4D Available
+                    </span>
+                    <span class="modal-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        VR 180°
+                    </span>
+                </div>
+                <div class="modal-grid">
+                    <div class="modal-description" id="modalDesc">
+                        An intimate evening unfolds as two souls connect in the city that never sleeps. Shot in stunning 4K with immersive 4D technology, experience every moment as if you were there. Features award-winning cinematography and a passionate storyline that will leave you breathless.
+                    </div>
+                    <div class="modal-info">
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Starring: </span>
+                            <span class="modal-info-value" id="modalCast"><a href="#">Aria Valentine</a>, <a href="#">Luna Rose</a></span>
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">Genres: </span>
+                            <span class="modal-info-value" id="modalGenres">Romantic, Sensual, Couples</span>
+                        </div>
+                        <div class="modal-info-item">
+                            <span class="modal-info-label">This movie is: </span>
+                            <span class="modal-info-value">Passionate, Intimate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-section">
+                <h3 class="modal-section-title">More Like This</h3>
+                <div class="modal-related-grid" id="relatedGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Content Data
+        const contentItems = [
+            { id: 1, title: 'Midnight Whispers', img: '../images/1.jpg', duration: '45:23', match: 98, year: 2024, tags: ['4D', 'VR'], genre: 'romantic' },
+            { id: 2, title: 'Pillow Talk', img: '../images/2.jpg', duration: '32:15', match: 95, year: 2024, tags: ['4K'], genre: 'sensual' },
+            { id: 3, title: 'Girls Night', img: '../images/3.jpg', duration: '28:40', match: 92, year: 2024, tags: ['VR'], genre: 'couples' },
+            { id: 4, title: 'Triple Threat', img: '../images/4.jpg', duration: '52:18', match: 97, year: 2023, tags: ['4D', 'Premium'], genre: 'exclusive' },
+            { id: 5, title: 'Silk & Shadows', img: '../images/5.jpg', duration: '38:55', match: 94, year: 2024, tags: ['4K'], genre: 'glamour' },
+            { id: 6, title: 'Golden Hour', img: '../images/6.jpg', duration: '41:30', match: 96, year: 2024, tags: ['VR', '4D'], genre: 'romantic' },
+            { id: 7, title: 'Private Suite', img: '../images/7.jpg', duration: '35:12', match: 91, year: 2023, tags: ['4K'], genre: 'solo' },
+            { id: 8, title: 'Crystal Dreams', img: '../images/8.jpg', duration: '29:45', match: 89, year: 2024, tags: ['VR'], genre: 'amateur' },
+            { id: 9, title: 'Neon Nights', img: '../images/9.jpg', duration: '44:20', match: 93, year: 2024, tags: ['4D'], genre: 'fantasy' },
+            { id: 10, title: 'Sunrise Session', img: '../images/10.jpg', duration: '36:10', match: 90, year: 2023, tags: ['4K'], genre: 'sensual' },
+            { id: 11, title: 'Velvet Dreams', img: '../images/11.jpg', duration: '48:30', match: 95, year: 2024, tags: ['VR', 'Premium'], genre: 'passionate' },
+            { id: 12, title: 'Secret Garden', img: '../images/12.jpg', duration: '33:25', match: 88, year: 2024, tags: ['4K'], genre: 'romantic' },
+            { id: 13, title: 'After Dark', img: '../images/13.jpg', duration: '40:15', match: 94, year: 2024, tags: ['4D', 'VR'], genre: 'exclusive' },
+            { id: 14, title: 'Moonlit Escape', img: '../images/1.jpg', duration: '37:50', match: 92, year: 2023, tags: ['4K'], genre: 'couples' },
+            { id: 15, title: 'The Penthouse', img: '../images/2.jpg', duration: '55:00', match: 97, year: 2024, tags: ['4D', 'Premium'], genre: 'glamour' },
+            { id: 16, title: 'Twilight Zone', img: '../images/3.jpg', duration: '31:40', match: 89, year: 2024, tags: ['VR'], genre: 'fantasy' },
+        ];
+
+        const descriptions = [
+            "An intimate evening unfolds as two souls connect in the city that never sleeps. Shot in stunning 4K with immersive technology.",
+            "Experience the passion and chemistry between two incredible performers in this award-winning production.",
+            "A sensual journey through desire and connection, featuring breathtaking cinematography and stunning visuals.",
+            "Exclusive behind-the-scenes footage combined with the main feature creates an unforgettable experience."
+        ];
+
+        // Render content grid
+        function renderContent(filter = 'all') {
+            const grid = document.getElementById('contentGrid');
+            const filtered = filter === 'all' ? contentItems : contentItems.filter(item => item.genre === filter);
+            
+            grid.innerHTML = filtered.map(item => `
+                <div class="content-card" onclick="openModalWithData(${item.id})">
+                    <img src="${item.img}" alt="${item.title}">
+                    <div class="card-overlay">
+                        <div class="card-title">${item.title}</div>
+                        <div class="card-meta">
+                            <span>${item.match}% Match</span>
+                            <span>${item.duration}</span>
+                            ${item.tags.map(t => `<span class="card-badge">${t}</span>`).join('')}
+                        </div>
+                        <p class="card-description">${descriptions[item.id % descriptions.length]}</p>
+                    </div>
+                    <div class="card-actions">
+                        <button class="card-action-btn play-btn" onclick="event.stopPropagation(); window.location.href='../watch/'">
+                            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </button>
+                        <button class="card-action-btn" onclick="event.stopPropagation()">
+                            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <button class="card-action-btn" onclick="event.stopPropagation()">
+                            <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                        </button>
+                        <button class="card-action-btn info-btn" onclick="event.stopPropagation(); openModalWithData(${item.id})">
+                            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Animate cards in
+            gsap.fromTo('#contentGrid .content-card', 
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 0.4, stagger: 0.03, ease: 'power2.out' }
+            );
+        }
+
+        // Render related content in modal
+        function renderRelated() {
+            const grid = document.getElementById('relatedGrid');
+            const shuffled = [...contentItems].sort(() => Math.random() - 0.5).slice(0, 6);
+            
+            grid.innerHTML = shuffled.map(item => `
+                <div class="related-card" onclick="openModalWithData(${item.id})">
+                    <img src="${item.img}" alt="${item.title}">
+                    <div class="related-card-content">
+                        <div class="related-card-header">
+                            <span class="related-card-meta">${item.match}% Match</span>
+                            <span class="related-card-duration">${item.duration}</span>
+                        </div>
+                        <p class="related-card-description">${descriptions[item.id % descriptions.length]}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Genre menu
+        function toggleGenreMenu() {
+            const btn = document.getElementById('genreBtn');
+            const menu = document.getElementById('genreMenu');
+            btn.classList.toggle('open');
+            menu.classList.toggle('open');
+        }
+
+        // Close genre menu on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.genre-dropdown')) {
+                document.getElementById('genreBtn').classList.remove('open');
+                document.getElementById('genreMenu').classList.remove('open');
+            }
+        });
+
+        // Genre selection
+        document.querySelectorAll('.genre-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.genre-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                const genre = item.dataset.genre;
+                const genreName = item.textContent;
+                
+                document.getElementById('selectedGenre').textContent = genreName;
+                document.getElementById('pageTitle').textContent = genreName === 'All Genres' ? 'Movies' : genreName;
+                
+                renderContent(genre);
+                toggleGenreMenu();
+            });
+        });
+
+        // View toggle
+        function setView(view) {
+            const grid = document.getElementById('contentGrid');
+            const gridBtn = document.getElementById('gridViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+            
+            if (view === 'list') {
+                grid.classList.add('list-view');
+                gridBtn.classList.remove('active');
+                listBtn.classList.add('active');
+            } else {
+                grid.classList.remove('list-view');
+                gridBtn.classList.add('active');
+                listBtn.classList.remove('active');
+            }
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('modalBackdrop').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            renderRelated();
+        }
+
+        function openModalWithData(id) {
+            const item = contentItems.find(i => i.id === id);
+            if (!item) return;
+            
+            document.getElementById('modalPreview').style.backgroundImage = `url('${item.img}')`;
+            document.getElementById('modalLogo').textContent = item.title;
+            document.getElementById('modalDesc').textContent = descriptions[id % descriptions.length];
+            
+            openModal();
+        }
+
+        function closeModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('modalBackdrop').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Escape key closes modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // Init
+        renderContent();
+    </script>
+</body>
+</html>
