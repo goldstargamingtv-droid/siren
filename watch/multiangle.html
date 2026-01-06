@@ -26,11 +26,13 @@
             color: #fff;
         }
         
-        #canvas {
+        /* Viewer iframe */
+        .viewer-frame {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
+            border: none;
         }
         
         /* Loader */
@@ -151,7 +153,7 @@
             left: 0;
             right: 0;
             padding: 20px 24px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -200,7 +202,7 @@
             right: 0;
             padding: 20px 24px;
             padding-bottom: max(20px, env(safe-area-inset-bottom));
-            background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -409,14 +411,14 @@
                 <div class="loader-logo">S</div>
             </div>
             <div class="loader-progress-container">
-                <div class="loader-status" id="loaderStatus">Initializing 3D...</div>
+                <div class="loader-status" id="loaderStatus">Loading 3D Scene...</div>
                 <div class="loader-progress-bar"><div class="loader-progress-fill" id="loaderProgress"></div></div>
             </div>
         </div>
     </div>
     
-    <!-- 3D Canvas -->
-    <canvas id="canvas"></canvas>
+    <!-- 3D Viewer (antimatter15's viewer in iframe) -->
+    <iframe id="viewerFrame" class="viewer-frame" allowfullscreen></iframe>
     
     <!-- Angle Indicator -->
     <div class="angle-indicator" id="angleIndicator">
@@ -431,7 +433,7 @@
                 <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
             <div class="title-info">
-                <h1 id="sceneTitle">Garden</h1>
+                <h1 id="sceneTitle">Plush Toy</h1>
                 <span>Gaussian Splat • Drag to orbit, Scroll to zoom</span>
             </div>
             <div class="mode-badge">
@@ -458,49 +460,66 @@
             <div class="controls-hint">
                 <span><kbd>Drag</kbd> Orbit</span>
                 <span><kbd>Scroll</kbd> Zoom</span>
+                <span><kbd>WASD</kbd> Look</span>
                 <span><kbd>1-8</kbd> Angles</span>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
-        
-        // Scene configurations  
+    <script>
+        // Scene configurations with preset camera angles
+        // Format: [rotation matrix 3x3, position x, y, z, scale]
         const SCENES = {
-            garden: {
-                name: 'Garden',
-                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/garden/garden.splat'
+            plush: {
+                name: 'Plush Toy',
+                url: 'plush.splat',
+                angles: [
+                    { name: 'Front', hash: '[0.95,0.19,-0.23,0,-0.16,0.98,0.12,0,0.24,-0.08,0.97,0,-0.33,-1.52,1.53,1]' },
+                    { name: 'Left', hash: '[0.12,0.19,0.97,0,-0.16,0.98,-0.17,0,-0.98,-0.13,0.15,0,1.5,-1.52,0,1]' },
+                    { name: 'Right', hash: '[-0.12,0.19,-0.97,0,-0.16,0.98,0.17,0,0.98,0.13,0.15,0,-1.5,-1.52,0,1]' },
+                    { name: 'Back', hash: '[-0.95,0.19,0.23,0,-0.16,0.98,-0.12,0,-0.24,0.08,0.97,0,0.33,-1.52,-1.53,1]' },
+                    { name: 'Above', hash: '[0.95,0,-0.3,0,0.19,0.77,0.61,0,0.23,-0.64,0.73,0,-0.33,0.5,2.5,1]' },
+                    { name: 'Low', hash: '[0.95,0.3,-0.08,0,-0.08,0.45,0.89,0,0.3,-0.84,0.45,0,-0.33,-2.5,0.8,1]' },
+                    { name: 'Corner L', hash: '[0.7,0.19,0.69,0,-0.16,0.98,-0.12,0,-0.69,-0.03,0.72,0,1,-1.52,1.2,1]' },
+                    { name: 'Corner R', hash: '[0.7,0.19,-0.69,0,-0.16,0.98,0.12,0,0.69,0.03,0.72,0,-1,-1.52,1.2,1]' }
+                ]
             },
-            bonsai: {
-                name: 'Bonsai',
-                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/bonsai/bonsai.splat'
+            truck: {
+                name: 'Truck',
+                url: 'truck.splat',
+                angles: [
+                    { name: 'Front', hash: '[1,0,0,0,0,1,0,0,0,0,1,0,0,-0.5,5,1]' },
+                    { name: 'Left', hash: '[0,0,1,0,0,1,0,0,-1,0,0,0,-5,-0.5,0,1]' },
+                    { name: 'Right', hash: '[0,0,-1,0,0,1,0,0,1,0,0,0,5,-0.5,0,1]' },
+                    { name: 'Back', hash: '[-1,0,0,0,0,1,0,0,0,0,-1,0,0,-0.5,-5,1]' },
+                    { name: 'Above', hash: '[1,0,0,0,0,0.5,0.87,0,0,-0.87,0.5,0,0,4,3,1]' },
+                    { name: 'Low', hash: '[1,0,0,0,0,0.97,-0.26,0,0,0.26,0.97,0,0,-2,5,1]' },
+                    { name: 'Corner L', hash: '[0.7,0,0.7,0,0,1,0,0,-0.7,0,0.7,0,-3,-0.5,3,1]' },
+                    { name: 'Corner R', hash: '[0.7,0,-0.7,0,0,1,0,0,0.7,0,0.7,0,3,-0.5,3,1]' }
+                ]
             },
-            bicycle: {
-                name: 'Bicycle', 
-                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/bicycle/bicycle.splat'
+            stump: {
+                name: 'Tree Stump',
+                url: 'stump.splat',
+                angles: [
+                    { name: 'Front', hash: '[-0.86,-0.23,0.45,0,0.27,0.54,0.8,0,-0.43,0.81,-0.4,0,0.92,-2.02,4.1,1]' },
+                    { name: 'Left', hash: '[0.1,-0.23,0.97,0,0.27,0.94,0.2,0,-0.96,0.24,0.16,0,4,-2,0.5,1]' },
+                    { name: 'Right', hash: '[-0.97,-0.23,-0.1,0,0.27,0.04,-0.96,0,0.22,-0.97,0.02,0,-4,-2,0.5,1]' },
+                    { name: 'Back', hash: '[0.86,-0.23,-0.45,0,0.27,0.94,-0.2,0,0.43,-0.24,-0.87,0,-0.92,-2,-4.1,1]' },
+                    { name: 'Above', hash: '[-0.86,0,0.5,0,0.35,0.71,0.6,0,-0.36,0.7,-0.61,0,0.92,3,3,1]' },
+                    { name: 'Close', hash: '[-0.86,-0.23,0.45,0,0.27,0.54,0.8,0,-0.43,0.81,-0.4,0,0.5,-1.2,2.2,1]' },
+                    { name: 'Corner L', hash: '[-0.5,-0.23,0.84,0,0.27,0.9,0.35,0,-0.82,0.37,-0.43,0,3,-2,3,1]' },
+                    { name: 'Corner R', hash: '[-0.98,-0.23,-0.05,0,0.27,0.7,-0.66,0,0.19,-0.68,-0.71,0,-3,-2,3,1]' }
+                ]
             }
         };
         
-        // Camera preset angles (spherical coordinates: distance, theta (horizontal), phi (vertical))
-        const CAMERA_ANGLES = [
-            { name: 'Front', theta: 0, phi: 0, distance: 5 },
-            { name: 'Left', theta: Math.PI / 2, phi: 0, distance: 5 },
-            { name: 'Right', theta: -Math.PI / 2, phi: 0, distance: 5 },
-            { name: 'Back', theta: Math.PI, phi: 0, distance: 5 },
-            { name: 'Above', theta: 0, phi: Math.PI / 4, distance: 5 },
-            { name: 'Low', theta: 0, phi: -Math.PI / 6, distance: 5 },
-            { name: 'Corner L', theta: Math.PI / 4, phi: Math.PI / 6, distance: 5 },
-            { name: 'Corner R', theta: -Math.PI / 4, phi: Math.PI / 6, distance: 5 }
-        ];
-        
         // State
-        let currentScene = 'garden';
+        let currentScene = 'plush';
         let currentAngle = 0;
-        let renderer, scene, camera, controls, splat;
         
         // Elements
-        const canvas = document.getElementById('canvas');
+        const viewerFrame = document.getElementById('viewerFrame');
         const siteLoader = document.getElementById('siteLoader');
         const loaderProgress = document.getElementById('loaderProgress');
         const loaderStatus = document.getElementById('loaderStatus');
@@ -511,39 +530,32 @@
         const angleStripInner = document.getElementById('angleStripInner');
         const sceneSelector = document.getElementById('sceneSelector');
         
-        // Initialize renderer
-        async function init() {
-            renderer = new SPLAT.WebGLRenderer(canvas);
-            scene = new SPLAT.Scene();
-            camera = new SPLAT.Camera();
-            controls = new SPLAT.OrbitControls(camera, canvas);
+        // Loader animation
+        function runLoader() {
+            let progress = 0;
+            const messages = ['Loading 3D Scene...', 'Processing splats...', 'Building geometry...', 'Almost ready...'];
+            let msgIdx = 0;
             
-            // Configure controls
-            controls.minZoom = 0.5;
-            controls.maxZoom = 10;
-            controls.orbitSpeed = 1;
-            controls.panSpeed = 1;
-            controls.zoomSpeed = 1;
-            
-            // Initialize UI
-            initAngleSelectors();
-            initSceneSelector();
-            
-            // Load first scene
-            await loadScene('garden');
-            
-            // Start render loop
-            const frame = () => {
-                controls.update();
-                renderer.render(scene, camera);
-                requestAnimationFrame(frame);
-            };
-            requestAnimationFrame(frame);
-            
-            // Handle resize
-            window.addEventListener('resize', () => {
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
+            const interval = setInterval(() => {
+                progress += Math.random() * 15 + 5;
+                if (progress > 100) progress = 100;
+                
+                loaderProgress.style.width = progress + '%';
+                
+                const newMsgIdx = Math.floor((progress / 100) * messages.length);
+                if (newMsgIdx !== msgIdx && newMsgIdx < messages.length) {
+                    msgIdx = newMsgIdx;
+                    loaderStatus.textContent = messages[msgIdx];
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    loaderStatus.textContent = 'Enjoy';
+                    setTimeout(() => {
+                        siteLoader.classList.add('hidden');
+                    }, 500);
+                }
+            }, 200);
         }
         
         // Initialize angle selectors
@@ -551,7 +563,8 @@
             angleSelector.innerHTML = '';
             angleStripInner.innerHTML = '';
             
-            CAMERA_ANGLES.forEach((angle, i) => {
+            const scene = SCENES[currentScene];
+            scene.angles.forEach((angle, i) => {
                 // Desktop button
                 const btn = document.createElement('button');
                 btn.className = 'angle-btn' + (i === 0 ? ' active' : '');
@@ -596,38 +609,17 @@
             }, 1500);
         }
         
-        // Convert spherical to cartesian
-        function sphericalToCartesian(theta, phi, distance) {
-            return {
-                x: distance * Math.cos(phi) * Math.sin(theta),
-                y: distance * Math.sin(phi),
-                z: distance * Math.cos(phi) * Math.cos(theta)
-            };
-        }
-        
         // Switch camera angle
         function switchAngle(index) {
+            const scene = SCENES[currentScene];
+            if (index < 0) index = scene.angles.length - 1;
+            if (index >= scene.angles.length) index = 0;
+            
             currentAngle = index;
-            const angle = CAMERA_ANGLES[index];
+            const angle = scene.angles[index];
             
-            // Calculate new camera position
-            const pos = sphericalToCartesian(angle.theta, angle.phi, angle.distance);
-            
-            // Animate camera position
-            const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
-            
-            gsap.to(startPos, {
-                x: pos.x,
-                y: pos.y + 1, // Offset up slightly
-                z: pos.z,
-                duration: 0.8,
-                ease: 'power2.inOut',
-                onUpdate: () => {
-                    camera.position.x = startPos.x;
-                    camera.position.y = startPos.y;
-                    camera.position.z = startPos.z;
-                }
-            });
+            // Update iframe URL with new camera position
+            viewerFrame.src = `https://antimatter15.com/splat/?url=${scene.url}#${angle.hash}`;
             
             // Update UI
             updateAngleUI();
@@ -648,89 +640,44 @@
         }
         
         // Load scene
-        async function loadScene(sceneName) {
-            const sceneData = SCENES[sceneName];
-            if (!sceneData) return;
-            
-            // Show loader
-            siteLoader.classList.remove('hidden');
-            loaderProgress.style.width = '0%';
-            loaderStatus.textContent = 'Loading ' + sceneData.name + '...';
+        function loadScene(sceneName) {
+            const scene = SCENES[sceneName];
+            if (!scene) return;
             
             currentScene = sceneName;
             currentAngle = 0;
             
             // Update UI
-            sceneTitle.textContent = sceneData.name;
+            sceneTitle.textContent = scene.name;
             document.querySelectorAll('.scene-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent === sceneData.name);
+                btn.classList.toggle('active', btn.textContent === scene.name);
             });
-            updateAngleUI();
             
-            try {
-                // Remove old splat
-                if (splat) {
-                    scene.removeObject(splat);
-                }
-                
-                // Load new splat with progress
-                splat = await SPLAT.Loader.LoadAsync(
-                    sceneData.url,
-                    scene,
-                    (progress) => {
-                        const pct = Math.round(progress * 100);
-                        loaderProgress.style.width = pct + '%';
-                        if (pct < 30) loaderStatus.textContent = 'Downloading...';
-                        else if (pct < 60) loaderStatus.textContent = 'Processing...';
-                        else if (pct < 90) loaderStatus.textContent = 'Building scene...';
-                        else loaderStatus.textContent = 'Almost ready...';
-                    }
-                );
-                
-                // Reset camera
-                camera.position.x = 0;
-                camera.position.y = 1;
-                camera.position.z = 5;
-                
-                loaderProgress.style.width = '100%';
-                loaderStatus.textContent = 'Enjoy';
-                
-                setTimeout(() => {
-                    siteLoader.classList.add('hidden');
-                }, 500);
-                
-            } catch (err) {
-                console.error('Error loading scene:', err);
-                loaderStatus.textContent = 'Error - trying fallback...';
-                
-                // Try loading without progress callback
-                try {
-                    splat = await SPLAT.Loader.LoadAsync(sceneData.url, scene);
-                    camera.position.x = 0;
-                    camera.position.y = 1;
-                    camera.position.z = 5;
-                    setTimeout(() => siteLoader.classList.add('hidden'), 500);
-                } catch (err2) {
-                    console.error('Fallback failed:', err2);
-                    loaderStatus.textContent = 'Failed to load - try another scene';
-                    setTimeout(() => siteLoader.classList.add('hidden'), 2000);
-                }
-            }
+            // Reinitialize angle selectors for new scene
+            initAngleSelectors();
+            
+            // Load scene in iframe
+            viewerFrame.src = `https://antimatter15.com/splat/?url=${scene.url}#${scene.angles[0].hash}`;
+            
+            showAngleIndicator(scene.angles[0].name);
         }
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key >= '1' && e.key <= '8') {
                 switchAngle(parseInt(e.key) - 1);
-            } else if (e.key === 'ArrowLeft') {
-                switchAngle((currentAngle - 1 + CAMERA_ANGLES.length) % CAMERA_ANGLES.length);
-            } else if (e.key === 'ArrowRight') {
-                switchAngle((currentAngle + 1) % CAMERA_ANGLES.length);
+            } else if (e.key === 'ArrowLeft' && e.shiftKey) {
+                switchAngle(currentAngle - 1);
+            } else if (e.key === 'ArrowRight' && e.shiftKey) {
+                switchAngle(currentAngle + 1);
             }
         });
         
-        // Start
-        init();
+        // Initialize
+        initSceneSelector();
+        initAngleSelectors();
+        loadScene('plush');
+        runLoader();
     </script>
 </body>
 </html>
