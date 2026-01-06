@@ -123,6 +123,7 @@
     body.age-gate-active .mobile-landing {
         opacity: 0 !important;
         pointer-events: none !important;
+        visibility: hidden !important;
     }
 
     /* Lock body scroll when mobile landing is visible */
@@ -331,11 +332,6 @@
         overflow-y: auto !important;
     }
 
-    body.age-gate-active .mobile-landing {
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-
     .age-gate *, .age-gate::before, .age-gate::after {
         animation: none !important;
         transition: none !important;
@@ -353,6 +349,7 @@
     .age-gate-content {
         opacity: 1 !important;
         width: 100% !important;
+        pointer-events: auto !important;
     }
 
     .age-gate-box {
@@ -361,6 +358,7 @@
         backdrop-filter: none !important;
         background: rgba(30, 30, 35, 0.95) !important;
         border: 1px solid rgba(255,255,255,0.1) !important;
+        pointer-events: auto !important;
     }
 
     .age-gate h2 {
@@ -386,6 +384,9 @@
         gap: 8px !important;
         opacity: 1 !important;
         visibility: visible !important;
+        position: relative !important;
+        z-index: 10 !important;
+        pointer-events: auto !important;
     }
 
     .age-btn {
@@ -399,11 +400,20 @@
         visibility: visible !important;
         filter: none !important;
         transform: none !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: transparent !important;
     }
 
     .age-btn-primary {
         background: linear-gradient(135deg, #ef4444, #dc2626) !important;
         color: #fff !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    .age-btn-primary::before {
+        display: none !important;
     }
 
     .age-btn-secondary {

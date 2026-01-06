@@ -5377,6 +5377,133 @@ subscribeBtn.addEventListener('click', () => {
 })();
 </script>
 
+<!-- Coming Soon Modal -->
+<div class="coming-soon-modal" id="comingSoonModal">
+    <div class="coming-soon-backdrop" onclick="closeComingSoon()"></div>
+    <div class="coming-soon-content">
+        <button class="coming-soon-close" onclick="closeComingSoon()">×</button>
+        <div class="coming-soon-icon" id="comingSoonIcon">🎬</div>
+        <h2 class="coming-soon-title" id="comingSoonTitle">Clips</h2>
+        <p class="coming-soon-subtitle">Coming Soon</p>
+        <p class="coming-soon-desc" id="comingSoonDesc">Short-form vertical videos are on the way.</p>
+        <div class="coming-soon-notify">
+            <input type="email" placeholder="Enter email for updates" class="coming-soon-input">
+            <button class="coming-soon-btn">Notify Me</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.coming-soon-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.coming-soon-modal.active { display: flex; }
+.coming-soon-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+}
+.coming-soon-content {
+    position: relative;
+    background: linear-gradient(145deg, rgba(30,30,35,0.98), rgba(20,20,25,0.98));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 32px 24px;
+    max-width: 320px;
+    width: 100%;
+    text-align: center;
+    animation: modalPop 0.3s ease-out;
+}
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.coming-soon-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+.coming-soon-icon { font-size: 3rem; margin-bottom: 12px; }
+.coming-soon-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0 0 4px; }
+.coming-soon-subtitle {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    background: linear-gradient(135deg, #ef4444, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0 0 16px;
+}
+.coming-soon-desc { font-size: 0.85rem; color: rgba(255,255,255,0.6); line-height: 1.5; margin: 0 0 20px; }
+.coming-soon-notify { display: flex; flex-direction: column; gap: 10px; }
+.coming-soon-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+    box-sizing: border-box;
+}
+.coming-soon-input::placeholder { color: rgba(255,255,255,0.4); }
+.coming-soon-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+</style>
+
+<script>
+function openComingSoon(feature) {
+    const modal = document.getElementById('comingSoonModal');
+    const icon = document.getElementById('comingSoonIcon');
+    const title = document.getElementById('comingSoonTitle');
+    const desc = document.getElementById('comingSoonDesc');
+    
+    const features = {
+        clips: { icon: '🎬', title: 'Clips', desc: 'Short-form vertical videos are on the way. Get ready for quick, immersive content you can swipe through.' },
+        mylist: { icon: '🔖', title: 'My List', desc: 'Save your favorites and create custom playlists. Your personal collection, always ready when you are.' },
+        vr: { icon: '🥽', title: 'VR Experience', desc: 'Step inside the scene with immersive VR content. Compatible with all major headsets.' }
+    };
+    
+    const f = features[feature] || features.clips;
+    icon.textContent = f.icon;
+    title.textContent = f.title;
+    desc.textContent = f.desc;
+    
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeComingSoon() {
+    document.getElementById('comingSoonModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+</script>
+
 <!-- Mobile Navigation (fallback) -->
 <nav class="mobile-nav" id="mobileNav" style="display:none;">
     <svg width="0" height="0" style="position:absolute">
@@ -5396,13 +5523,13 @@ subscribeBtn.addEventListener('click', () => {
         </svg>
         <span>Browse</span>
     </a>
-    <a href="#" class="mobile-nav-item" onclick="alert('My List coming soon!'); return false;">
+    <a href="#" class="mobile-nav-item" onclick="openComingSoon('mylist'); return false;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
         </svg>
         <span>My List</span>
     </a>
-    <a href="#" class="mobile-nav-item" onclick="alert('VR content coming soon!'); return false;">
+    <a href="#" class="mobile-nav-item" onclick="openComingSoon('vr'); return false;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M21 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"/>
             <circle cx="8" cy="10" r="2"/>
@@ -5412,7 +5539,7 @@ subscribeBtn.addEventListener('click', () => {
         </svg>
         <span>VR</span>
     </a>
-    <a href="#" class="mobile-nav-item" onclick="alert('Clips coming soon!'); return false;">
+    <a href="#" class="mobile-nav-item" onclick="openComingSoon('clips'); return false;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <polygon points="23 7 16 12 23 17 23 7"/>
             <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
