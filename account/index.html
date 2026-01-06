@@ -1068,9 +1068,56 @@
         }
         .mobile-nav-item.active { color: #fff; }
         .mobile-nav-item svg { width: 24px; height: 24px; stroke-width: 1.5; }
+        
+        /* Mobile Account Tabs */
+        .mobile-account-tabs {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 12, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            z-index: 99;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .mobile-account-tabs::-webkit-scrollbar { display: none; }
+        .mobile-account-tabs-inner {
+            display: flex;
+            padding: 0 16px;
+            gap: 4px;
+            min-width: max-content;
+        }
+        .mobile-account-tab {
+            padding: 14px 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .mobile-account-tab.active {
+            color: #fff;
+            border-bottom-color: #ef4444;
+        }
+        .mobile-account-tab:hover {
+            color: #fff;
+        }
+        
         @media (max-width: 768px) {
             .mobile-nav { display: flex !important; }
-            body { padding-bottom: 80px !important; }
+            .mobile-account-tabs { display: block !important; }
+            body { padding-bottom: 80px !important; padding-top: 120px !important; }
+            .sidebar { display: none !important; }
+            .main { padding-top: 0 !important; }
         }
     </style>
     <link rel="stylesheet" href="../css/mobile.css">
@@ -1088,6 +1135,17 @@
             </a>
         </div>
     </header>
+
+    <!-- Mobile Account Tabs -->
+    <div class="mobile-account-tabs">
+        <div class="mobile-account-tabs-inner">
+            <button class="mobile-account-tab active" data-section="profile">Profile</button>
+            <button class="mobile-account-tab" data-section="preferences">Preferences</button>
+            <button class="mobile-account-tab" data-section="security">Security</button>
+            <button class="mobile-account-tab" data-section="billing">Billing</button>
+            <button class="mobile-account-tab" data-section="help">Help</button>
+        </div>
+    </div>
 
     <!-- Main Layout -->
     <main class="main">
@@ -1583,12 +1641,43 @@
                 document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
                 
+                // Update mobile tabs too
+                document.querySelectorAll('.mobile-account-tab').forEach(t => t.classList.remove('active'));
+                const mobileTab = document.querySelector(`.mobile-account-tab[data-section="${sectionId}"]`);
+                if (mobileTab) mobileTab.classList.add('active');
+                
                 // Update sections
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 document.getElementById(sectionId).classList.add('active');
                 
                 // Update URL hash
                 window.location.hash = sectionId;
+            });
+        });
+        
+        // Mobile tabs navigation
+        document.querySelectorAll('.mobile-account-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const sectionId = tab.dataset.section;
+                
+                // Update mobile tabs
+                document.querySelectorAll('.mobile-account-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update sidebar nav too
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                const navItem = document.querySelector(`.nav-item[data-section="${sectionId}"]`);
+                if (navItem) navItem.classList.add('active');
+                
+                // Update sections
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(sectionId).classList.add('active');
+                
+                // Update URL hash
+                window.location.hash = sectionId;
+                
+                // Scroll tab into view
+                tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             });
         });
 
@@ -1598,6 +1687,12 @@
             if (hash) {
                 const navItem = document.querySelector(`.nav-item[data-section="${hash}"]`);
                 if (navItem) navItem.click();
+                
+                const mobileTab = document.querySelector(`.mobile-account-tab[data-section="${hash}"]`);
+                if (mobileTab) {
+                    document.querySelectorAll('.mobile-account-tab').forEach(t => t.classList.remove('active'));
+                    mobileTab.classList.add('active');
+                }
             }
         });
 
