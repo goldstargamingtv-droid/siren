@@ -251,17 +251,95 @@
             font-family: inherit;
         }
         
-        /* Angle Selector */
+        /* Angle Selector - Hidden, replaced by 3D hotspots */
         .angle-selector {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 20;
+            display: none;
         }
+        
+        /* 3D Hotspots */
+        .hotspots-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 15;
+            overflow: hidden;
+        }
+        .hotspot {
+            --hs-scale: 1;
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            transform: translate(-50%, -50%) scale(var(--hs-scale));
+            pointer-events: auto;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .hotspot:hover {
+            --hs-scale: 1.3 !important;
+        }
+        .hotspot:hover .hotspot-label {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .hotspot-dot {
+            position: absolute;
+            inset: 4px;
+            border-radius: 50%;
+            background: var(--siren-gradient);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+        }
+        .hotspot-ring {
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            animation: hotspot-pulse 2s ease-out infinite;
+        }
+        .hotspot-ring-2 {
+            animation-delay: 0.5s;
+        }
+        .hotspot-num {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .hotspot-label {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(5px);
+            margin-top: 8px;
+            padding: 4px 10px;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            white-space: nowrap;
+            color: #fff;
+            opacity: 0;
+            transition: all 0.2s;
+            pointer-events: none;
+        }
+        .hotspot.active .hotspot-dot {
+            background: #fff;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+        }
+        .hotspot.active .hotspot-ring {
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        @keyframes hotspot-pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        /* Legacy angle button styles kept for mobile strip */
         .angle-btn {
             width: 80px;
             height: 40px;
@@ -411,6 +489,9 @@
     <!-- 3D Canvas -->
     <canvas id="canvas" style="position:absolute;inset:0;width:100%;height:100%;display:block;background:#000;"></canvas>
     
+    <!-- 3D Hotspots Container -->
+    <div class="hotspots-container" id="hotspotsContainer"></div>
+    
     <!-- Angle Indicator -->
     <div class="angle-indicator" id="angleIndicator">
         <div class="angle-indicator-title">Viewing Angle</div>
@@ -458,6 +539,7 @@
     </div>
 
     <script type="module">
+        console.log('%c[SIREN MULTIANGLE v1.2.0 - 3D Hotspots]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
         
         // Scene configurations - from dylanebert's Hugging Face 3dgs dataset
@@ -472,7 +554,7 @@
             }
         };
         
-        // Camera preset angles (for OrbitControls: alpha=horizontal, beta=vertical, radius=distance)
+        // Camera preset angles (where camera moves TO when clicking hotspot)
         const CAMERA_ANGLES = [
             { name: 'Front', theta: 0, phi: 0.5, dist: 5 },
             { name: 'Left', theta: Math.PI/2, phi: 0.5, dist: 5 },
@@ -482,6 +564,18 @@
             { name: 'Low', theta: 0, phi: 0.2, dist: 5 },
             { name: 'Corner L', theta: Math.PI/4, phi: 0.6, dist: 5 },
             { name: 'Corner R', theta: -Math.PI/4, phi: 0.6, dist: 5 }
+        ];
+        
+        // Hotspot 3D positions (floating in scene, ring around center)
+        const HOTSPOT_POSITIONS = [
+            { x: 0, y: 0.3, z: 2.5 },       // Front
+            { x: 2.5, y: 0.3, z: 0 },       // Left  
+            { x: -2.5, y: 0.3, z: 0 },      // Right
+            { x: 0, y: 0.3, z: -2.5 },      // Back
+            { x: 0, y: 2.5, z: 0 },         // Above
+            { x: 0, y: -0.5, z: 2 },        // Low
+            { x: 1.8, y: 0.5, z: 1.8 },     // Corner L
+            { x: -1.8, y: 0.5, z: 1.8 }     // Corner R
         ];
         
         // State
@@ -500,6 +594,10 @@
         const angleSelector = document.getElementById('angleSelector');
         const angleStripInner = document.getElementById('angleStripInner');
         const sceneSelector = document.getElementById('sceneSelector');
+        const hotspotsContainer = document.getElementById('hotspotsContainer');
+        
+        // Hotspot elements array
+        let hotspotElements = [];
         
         // Spherical to cartesian
         function toCartesian(theta, phi, dist) {
@@ -510,7 +608,124 @@
             };
         }
         
-        // Initialize angle selectors
+        // Project 3D point to screen coordinates
+        function project3DToScreen(point3D, camera, canvas) {
+            if (!camera) return null;
+            
+            // Get camera position - try different ways
+            let camX = 0, camY = 0, camZ = 5;
+            
+            if (camera.position) {
+                camX = camera.position.x || 0;
+                camY = camera.position.y || 0;
+                camZ = camera.position.z || 5;
+            } else if (camera.data && camera.data.position) {
+                camX = camera.data.position[0] || 0;
+                camY = camera.data.position[1] || 0;
+                camZ = camera.data.position[2] || 5;
+            }
+            
+            // Vector from point to camera (for visibility check)
+            const toCamX = camX - point3D.x;
+            const toCamY = camY - point3D.y;
+            const toCamZ = camZ - point3D.z;
+            
+            // Distance from camera to point
+            const dist = Math.sqrt(toCamX*toCamX + toCamY*toCamY + toCamZ*toCamZ);
+            
+            // Look direction (camera points toward origin)
+            const lookLen = Math.sqrt(camX*camX + camY*camY + camZ*camZ);
+            const lookX = -camX / (lookLen || 1);
+            const lookY = -camY / (lookLen || 1);
+            const lookZ = -camZ / (lookLen || 1);
+            
+            // Right vector (cross look with up)
+            const upX = 0, upY = 1, upZ = 0;
+            let rightX = lookY * upZ - lookZ * upY;
+            let rightY = lookZ * upX - lookX * upZ;
+            let rightZ = lookX * upY - lookY * upX;
+            const rightLen = Math.sqrt(rightX*rightX + rightY*rightY + rightZ*rightZ);
+            rightX /= (rightLen || 1);
+            rightY /= (rightLen || 1);
+            rightZ /= (rightLen || 1);
+            
+            // Up vector (cross right with look)
+            const realUpX = rightY * lookZ - rightZ * lookY;
+            const realUpY = rightZ * lookX - rightX * lookZ;
+            const realUpZ = rightX * lookY - rightY * lookX;
+            
+            // Vector from camera to point
+            const dx = point3D.x - camX;
+            const dy = point3D.y - camY;
+            const dz = point3D.z - camZ;
+            
+            // Project onto view axes
+            const depth = dx * lookX + dy * lookY + dz * lookZ;
+            const screenX = dx * rightX + dy * rightY + dz * rightZ;
+            const screenY = dx * realUpX + dy * realUpY + dz * realUpZ;
+            
+            // Behind camera check
+            const behind = depth < 0.1;
+            
+            // Perspective divide
+            const fov = 75;
+            const scale = canvas.height / (2 * Math.tan(fov * Math.PI / 360));
+            
+            const projX = (screenX / Math.abs(depth)) * scale + canvas.width / 2;
+            const projY = (-screenY / Math.abs(depth)) * scale + canvas.height / 2;
+            
+            return { x: projX, y: projY, behind, dist };
+        }
+        
+        // Initialize 3D hotspots
+        function initHotspots() {
+            hotspotsContainer.innerHTML = '';
+            hotspotElements = [];
+            
+            HOTSPOT_POSITIONS.forEach((pos, i) => {
+                const hotspot = document.createElement('div');
+                hotspot.className = 'hotspot' + (i === 0 ? ' active' : '');
+                hotspot.innerHTML = `
+                    <div class="hotspot-ring"></div>
+                    <div class="hotspot-ring hotspot-ring-2"></div>
+                    <div class="hotspot-dot"></div>
+                    <div class="hotspot-num">${i + 1}</div>
+                    <div class="hotspot-label">${CAMERA_ANGLES[i].name}</div>
+                `;
+                hotspot.addEventListener('click', () => switchAngle(i));
+                hotspotsContainer.appendChild(hotspot);
+                hotspotElements.push({ element: hotspot, position: pos });
+            });
+        }
+        
+        // Update hotspot screen positions
+        function updateHotspots() {
+            if (!camera || !canvas) return;
+            
+            hotspotElements.forEach((hs, i) => {
+                const screen = project3DToScreen(hs.position, camera, canvas);
+                if (screen) {
+                    // Only update if on screen
+                    const onScreen = screen.x > -50 && screen.x < canvas.width + 50 &&
+                                   screen.y > -50 && screen.y < canvas.height + 50;
+                    
+                    if (onScreen && !screen.behind) {
+                        hs.element.style.left = screen.x + 'px';
+                        hs.element.style.top = screen.y + 'px';
+                        hs.element.style.display = 'block';
+                        hs.element.classList.remove('behind');
+                        
+                        // Scale based on distance (closer = bigger)
+                        const scale = Math.max(0.6, Math.min(1.2, 4 / screen.dist));
+                        hs.element.style.setProperty('--hs-scale', scale);
+                    } else {
+                        hs.element.style.display = 'none';
+                    }
+                }
+            });
+        }
+        
+        // Initialize angle selectors (kept for mobile strip)
         function initAngleSelectors() {
             angleSelector.innerHTML = '';
             angleStripInner.innerHTML = '';
@@ -559,39 +774,59 @@
         
         // Switch camera angle with animation
         function switchAngle(index) {
-            if (!controls) return;
+            if (!camera) return;
             
             currentAngle = index;
             const angle = CAMERA_ANGLES[index];
+            const target = toCartesian(angle.theta, angle.phi, angle.dist);
             
-            console.log('[SIREN] Switching to angle', index, angle.name);
+            // Debug camera structure
+            console.log('[SIREN] Camera object:', camera);
+            console.log('[SIREN] Camera position:', camera.position);
+            console.log('[SIREN] Camera data:', camera.data);
+            console.log('[SIREN] Controls:', controls);
+            console.log('[SIREN] Switching to angle', index, angle.name, 'target:', target);
             
-            // gsplat OrbitControls uses alpha (horizontal), beta (vertical), radius
-            // Get current values
-            const startAlpha = controls.alpha || 0;
-            const startBeta = controls.beta || 0.5;
-            const startRadius = controls.radius || 5;
-            
-            // Target values - convert our theta/phi to controls' alpha/beta
-            const targetAlpha = angle.theta;
-            const targetBeta = Math.PI/2 - angle.phi; // Convert from elevation to beta
-            const targetRadius = angle.dist;
-            
-            // Animate
-            const anim = { t: 0 };
-            gsap.to(anim, {
-                t: 1,
-                duration: 0.6,
-                ease: 'power2.out',
-                onUpdate: function() {
-                    const t = anim.t;
-                    if (controls.alpha !== undefined) {
-                        controls.alpha = startAlpha + (targetAlpha - startAlpha) * t;
-                        controls.beta = startBeta + (targetBeta - startBeta) * t;
-                        controls.radius = startRadius + (targetRadius - startRadius) * t;
+            // Try different approaches based on camera structure
+            // Approach 1: Direct position properties
+            if (camera.position && typeof camera.position.x === 'number') {
+                const start = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+                gsap.to(camera.position, {
+                    x: target.x,
+                    y: target.y,
+                    z: target.z,
+                    duration: 0.6,
+                    ease: 'power2.out'
+                });
+            }
+            // Approach 2: Position as array in data
+            else if (camera.data && camera.data.position) {
+                gsap.to(camera.data.position, {
+                    0: target.x,
+                    1: target.y,
+                    2: target.z,
+                    duration: 0.6,
+                    ease: 'power2.out'
+                });
+            }
+            // Approach 3: setPosition method
+            else if (camera.setPosition) {
+                const start = camera.getPosition ? camera.getPosition() : {x:0,y:0,z:5};
+                const anim = { t: 0 };
+                gsap.to(anim, {
+                    t: 1,
+                    duration: 0.6,
+                    ease: 'power2.out',
+                    onUpdate: () => {
+                        const t = anim.t;
+                        camera.setPosition(
+                            start.x + (target.x - start.x) * t,
+                            start.y + (target.y - start.y) * t,
+                            start.z + (target.z - start.z) * t
+                        );
                     }
-                }
-            });
+                });
+            }
             
             // Update UI
             document.querySelectorAll('.angle-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
@@ -599,6 +834,7 @@
                 btn.classList.toggle('active', i === index);
                 if (i === index) btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             });
+            document.querySelectorAll('.hotspot').forEach((hs, i) => hs.classList.toggle('active', i === index));
             showAngleIndicator(angle.name);
         }
         
@@ -664,6 +900,7 @@
             
             initSceneSelector();
             initAngleSelectors();
+            initHotspots();
             
             await loadScene('stump');
             
@@ -671,6 +908,7 @@
             const frame = () => {
                 controls.update();
                 renderer.render(scene, camera);
+                updateHotspots();
                 requestAnimationFrame(frame);
             };
             requestAnimationFrame(frame);
