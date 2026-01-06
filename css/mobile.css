@@ -179,12 +179,17 @@
     .mobile-landing-carousel {
         display: flex;
         flex: 1;
-        will-change: transform;
-        transform: translate3d(0, 0, 0);
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
-        perspective: 1000px;
-        touch-action: pan-y pinch-zoom;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .mobile-landing-carousel::-webkit-scrollbar {
+        display: none;
     }
 
     /* Each Page */
@@ -198,8 +203,8 @@
         padding: 0 24px 180px;
         position: relative;
         flex-shrink: 0;
-        backface-visibility: hidden;
-        -webkit-backface-visibility: hidden;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
     }
 
     /* Background Image */
