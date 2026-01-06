@@ -26,13 +26,11 @@
             color: #fff;
         }
         
-        #viewer-container {
+        #canvas {
             position: absolute;
             inset: 0;
-        }
-        
-        #viewer-container canvas {
-            display: block;
+            width: 100%;
+            height: 100%;
         }
         
         /* Loader */
@@ -157,7 +155,6 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            pointer-events: auto;
         }
         .back-btn {
             width: 44px;
@@ -418,8 +415,8 @@
         </div>
     </div>
     
-    <!-- 3D Viewer Container -->
-    <div id="viewer-container"></div>
+    <!-- 3D Canvas -->
+    <canvas id="canvas"></canvas>
     
     <!-- Angle Indicator -->
     <div class="angle-indicator" id="angleIndicator">
@@ -434,14 +431,14 @@
                 <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
             <div class="title-info">
-                <h1 id="sceneTitle">Bonsai</h1>
+                <h1 id="sceneTitle">Garden</h1>
                 <span>Gaussian Splat • Drag to orbit, Scroll to zoom</span>
             </div>
             <div class="mode-badge">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
-                3D
+                8-ANGLE
             </div>
         </div>
         
@@ -461,65 +458,49 @@
             <div class="controls-hint">
                 <span><kbd>Drag</kbd> Orbit</span>
                 <span><kbd>Scroll</kbd> Zoom</span>
-                <span><kbd>Right-drag</kbd> Pan</span>
                 <span><kbd>1-8</kbd> Angles</span>
             </div>
         </div>
     </div>
 
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- OrbitControls -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    
     <script type="module">
-        // Import GaussianSplats3D from CDN
-        import * as GaussianSplats3D from 'https://cdn.jsdelivr.net/npm/@mkkellogg/gaussian-splats-3d@0.4.6/build/gaussian-splats-3d.module.min.js';
+        import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
         
-        // Scene configurations with .ksplat files (smaller, faster loading)
+        // Scene configurations  
         const SCENES = {
+            garden: {
+                name: 'Garden',
+                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/garden/garden.splat'
+            },
             bonsai: {
                 name: 'Bonsai',
-                url: 'https://projects.markkellogg.org/downloads/gaussian_splat_data/bonsai/bonsai_trimmed.ksplat',
-                position: [0, 1, 0],
-                cameraPosition: [0, 2, 5],
-                cameraTarget: [0, 1, 0]
+                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/bonsai/bonsai.splat'
             },
-            guitar: {
-                name: 'Guitar',
-                url: 'https://projects.markkellogg.org/downloads/gaussian_splat_data/guitar/guitar.ksplat',
-                position: [0, 0, 0],
-                cameraPosition: [0, 0, 4],
-                cameraTarget: [0, 0, 0]
-            },
-            stump: {
-                name: 'Stump',
-                url: 'https://projects.markkellogg.org/downloads/gaussian_splat_data/stump/stump.ksplat',
-                position: [0, 0, 0],
-                cameraPosition: [2, 2, 5],
-                cameraTarget: [0, 0, 0]
+            bicycle: {
+                name: 'Bicycle', 
+                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/bicycle/bicycle.splat'
             }
         };
         
-        // Camera angles for each scene
+        // Camera preset angles (spherical coordinates: distance, theta (horizontal), phi (vertical))
         const CAMERA_ANGLES = [
-            { name: 'Front', offset: [0, 0, 5] },
-            { name: 'Left', offset: [-5, 0, 0] },
-            { name: 'Right', offset: [5, 0, 0] },
-            { name: 'Back', offset: [0, 0, -5] },
-            { name: 'Above', offset: [0, 5, 3] },
-            { name: 'Low', offset: [0, -1, 4] },
-            { name: 'Corner L', offset: [-3.5, 2, 3.5] },
-            { name: 'Corner R', offset: [3.5, 2, 3.5] }
+            { name: 'Front', theta: 0, phi: 0, distance: 5 },
+            { name: 'Left', theta: Math.PI / 2, phi: 0, distance: 5 },
+            { name: 'Right', theta: -Math.PI / 2, phi: 0, distance: 5 },
+            { name: 'Back', theta: Math.PI, phi: 0, distance: 5 },
+            { name: 'Above', theta: 0, phi: Math.PI / 4, distance: 5 },
+            { name: 'Low', theta: 0, phi: -Math.PI / 6, distance: 5 },
+            { name: 'Corner L', theta: Math.PI / 4, phi: Math.PI / 6, distance: 5 },
+            { name: 'Corner R', theta: -Math.PI / 4, phi: Math.PI / 6, distance: 5 }
         ];
         
         // State
-        let currentScene = 'bonsai';
+        let currentScene = 'garden';
         let currentAngle = 0;
-        let viewer = null;
+        let renderer, scene, camera, controls, splat;
         
         // Elements
-        const container = document.getElementById('viewer-container');
+        const canvas = document.getElementById('canvas');
         const siteLoader = document.getElementById('siteLoader');
         const loaderProgress = document.getElementById('loaderProgress');
         const loaderStatus = document.getElementById('loaderStatus');
@@ -529,6 +510,41 @@
         const angleSelector = document.getElementById('angleSelector');
         const angleStripInner = document.getElementById('angleStripInner');
         const sceneSelector = document.getElementById('sceneSelector');
+        
+        // Initialize renderer
+        async function init() {
+            renderer = new SPLAT.WebGLRenderer(canvas);
+            scene = new SPLAT.Scene();
+            camera = new SPLAT.Camera();
+            controls = new SPLAT.OrbitControls(camera, canvas);
+            
+            // Configure controls
+            controls.minZoom = 0.5;
+            controls.maxZoom = 10;
+            controls.orbitSpeed = 1;
+            controls.panSpeed = 1;
+            controls.zoomSpeed = 1;
+            
+            // Initialize UI
+            initAngleSelectors();
+            initSceneSelector();
+            
+            // Load first scene
+            await loadScene('garden');
+            
+            // Start render loop
+            const frame = () => {
+                controls.update();
+                renderer.render(scene, camera);
+                requestAnimationFrame(frame);
+            };
+            requestAnimationFrame(frame);
+            
+            // Handle resize
+            window.addEventListener('resize', () => {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
         
         // Initialize angle selectors
         function initAngleSelectors() {
@@ -580,44 +596,37 @@
             }, 1500);
         }
         
+        // Convert spherical to cartesian
+        function sphericalToCartesian(theta, phi, distance) {
+            return {
+                x: distance * Math.cos(phi) * Math.sin(theta),
+                y: distance * Math.sin(phi),
+                z: distance * Math.cos(phi) * Math.cos(theta)
+            };
+        }
+        
         // Switch camera angle
         function switchAngle(index) {
-            if (!viewer) return;
-            
             currentAngle = index;
             const angle = CAMERA_ANGLES[index];
-            const scene = SCENES[currentScene];
-            const target = scene.cameraTarget || [0, 0, 0];
             
             // Calculate new camera position
-            const newPos = [
-                target[0] + angle.offset[0],
-                target[1] + angle.offset[1],
-                target[2] + angle.offset[2]
-            ];
+            const pos = sphericalToCartesian(angle.theta, angle.phi, angle.distance);
             
-            // Animate camera
-            const camera = viewer.camera;
-            const controls = viewer.controls;
+            // Animate camera position
+            const startPos = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
             
-            gsap.to(camera.position, {
-                x: newPos[0],
-                y: newPos[1],
-                z: newPos[2],
+            gsap.to(startPos, {
+                x: pos.x,
+                y: pos.y + 1, // Offset up slightly
+                z: pos.z,
                 duration: 0.8,
                 ease: 'power2.inOut',
                 onUpdate: () => {
-                    controls.update();
+                    camera.position.x = startPos.x;
+                    camera.position.y = startPos.y;
+                    camera.position.z = startPos.z;
                 }
-            });
-            
-            // Update controls target
-            gsap.to(controls.target, {
-                x: target[0],
-                y: target[1],
-                z: target[2],
-                duration: 0.8,
-                ease: 'power2.inOut'
             });
             
             // Update UI
@@ -640,73 +649,48 @@
         
         // Load scene
         async function loadScene(sceneName) {
-            const scene = SCENES[sceneName];
-            if (!scene) return;
+            const sceneData = SCENES[sceneName];
+            if (!sceneData) return;
             
             // Show loader
             siteLoader.classList.remove('hidden');
             loaderProgress.style.width = '0%';
-            loaderStatus.textContent = 'Loading ' + scene.name + '...';
+            loaderStatus.textContent = 'Loading ' + sceneData.name + '...';
             
             currentScene = sceneName;
             currentAngle = 0;
             
             // Update UI
-            sceneTitle.textContent = scene.name;
+            sceneTitle.textContent = sceneData.name;
             document.querySelectorAll('.scene-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.textContent === scene.name);
+                btn.classList.toggle('active', btn.textContent === sceneData.name);
             });
             updateAngleUI();
             
-            // Dispose old viewer
-            if (viewer) {
-                viewer.dispose();
-                container.innerHTML = '';
-            }
-            
-            // Create new viewer
             try {
-                viewer = new GaussianSplats3D.Viewer({
-                    'cameraUp': [0, 1, 0],
-                    'initialCameraPosition': scene.cameraPosition,
-                    'initialCameraLookAt': scene.cameraTarget,
-                    'rootElement': container,
-                    'sharedMemoryForWorkers': false,
-                    'dynamicScene': false
-                });
+                // Remove old splat
+                if (splat) {
+                    scene.removeObject(splat);
+                }
                 
-                // Progress callback
-                let lastProgress = 0;
-                const progressCallback = (progress, message) => {
-                    const pct = Math.round(progress * 100);
-                    if (pct > lastProgress) {
-                        lastProgress = pct;
+                // Load new splat with progress
+                splat = await SPLAT.Loader.LoadAsync(
+                    sceneData.url,
+                    scene,
+                    (progress) => {
+                        const pct = Math.round(progress * 100);
                         loaderProgress.style.width = pct + '%';
-                        if (pct < 30) loaderStatus.textContent = 'Downloading splats...';
-                        else if (pct < 60) loaderStatus.textContent = 'Processing geometry...';
+                        if (pct < 30) loaderStatus.textContent = 'Downloading...';
+                        else if (pct < 60) loaderStatus.textContent = 'Processing...';
                         else if (pct < 90) loaderStatus.textContent = 'Building scene...';
                         else loaderStatus.textContent = 'Almost ready...';
                     }
-                };
+                );
                 
-                await viewer.addSplatScene(scene.url, {
-                    'showLoadingUI': false,
-                    'progressiveLoad': true,
-                    'onProgress': progressCallback
-                });
-                
-                viewer.start();
-                
-                // Configure controls for intuitive navigation
-                if (viewer.controls) {
-                    viewer.controls.enableDamping = true;
-                    viewer.controls.dampingFactor = 0.1;
-                    viewer.controls.rotateSpeed = 0.5;
-                    viewer.controls.zoomSpeed = 1.2;
-                    viewer.controls.panSpeed = 0.8;
-                    viewer.controls.minDistance = 1;
-                    viewer.controls.maxDistance = 20;
-                }
+                // Reset camera
+                camera.position.x = 0;
+                camera.position.y = 1;
+                camera.position.z = 5;
                 
                 loaderProgress.style.width = '100%';
                 loaderStatus.textContent = 'Enjoy';
@@ -717,10 +701,20 @@
                 
             } catch (err) {
                 console.error('Error loading scene:', err);
-                loaderStatus.textContent = 'Error loading - try another scene';
-                setTimeout(() => {
-                    siteLoader.classList.add('hidden');
-                }, 2000);
+                loaderStatus.textContent = 'Error - trying fallback...';
+                
+                // Try loading without progress callback
+                try {
+                    splat = await SPLAT.Loader.LoadAsync(sceneData.url, scene);
+                    camera.position.x = 0;
+                    camera.position.y = 1;
+                    camera.position.z = 5;
+                    setTimeout(() => siteLoader.classList.add('hidden'), 500);
+                } catch (err2) {
+                    console.error('Fallback failed:', err2);
+                    loaderStatus.textContent = 'Failed to load - try another scene';
+                    setTimeout(() => siteLoader.classList.add('hidden'), 2000);
+                }
             }
         }
         
@@ -735,10 +729,8 @@
             }
         });
         
-        // Initialize
-        initAngleSelectors();
-        initSceneSelector();
-        loadScene('bonsai');
+        // Start
+        init();
     </script>
 </body>
 </html>
