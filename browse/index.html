@@ -4065,7 +4065,7 @@
             <div class="sidebar-header">
                 <!-- SIREN Logo -->
                 <a href="../" class="sidebar-logo">SIREN</a>
-                <span style="position:fixed;top:10px;right:10px;background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;z-index:99999;">v1.0.9</span>
+                <span style="position:fixed;top:10px;right:10px;background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;z-index:99999;">v1.1.0</span>
                 
                 <div class="header-user">
                     <div class="user-avatar">
@@ -4944,7 +4944,7 @@
     </div>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        console.log('%c[SIREN BROWSE v1.0.9]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
+        console.log('%c[SIREN BROWSE v1.1.0]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         // Global mobile check - disable heavy animations
         const IS_MOBILE = window.innerWidth <= 768;
         
@@ -5156,7 +5156,7 @@
                 
                 if (timeDiff < 300 && distX < 10 && distY < 10) {
                     if (card.dataset.is3d === 'true') {
-                        window.location.href = '../watch/?type=3d';
+                        window.location.href = '../watch/multiangle.html?mode=3d';
                     } else if (card.dataset.multiangle === 'true') {
                         window.location.href = '../watch/multiangle.html';
                     } else {
@@ -5192,7 +5192,7 @@
                 // Check content type
                 if (card.dataset.is3d === 'true') {
                     console.log('[SIREN] Navigating to 3D splat viewer');
-                    window.location.href = '../watch/?type=3d';
+                    window.location.href = '../watch/multiangle.html?mode=3d';
                 } else if (card.dataset.multiangle === 'true') {
                     console.log('[SIREN] Navigating to multiangle viewer');
                     window.location.href = '../watch/multiangle.html';
@@ -6958,7 +6958,7 @@
                 const card = btn.closest('.content-card') || currentCard;
                 console.log('[SIREN] Play button clicked, card:', card, 'is3d:', card?.dataset?.is3d, 'multiangle:', card?.dataset?.multiangle);
                 if (card && card.dataset.is3d === 'true') {
-                    window.location.href = '../watch/?type=3d';
+                    window.location.href = '../watch/multiangle.html?mode=3d';
                 } else if (card && card.dataset.multiangle === 'true') {
                     window.location.href = '../watch/multiangle.html';
                 } else {
@@ -6971,7 +6971,7 @@
                 e.stopPropagation();
                 const card = btn.closest('.content-card') || currentCard;
                 if (card && card.dataset.is3d === 'true') {
-                    window.location.href = '../watch/?type=3d';
+                    window.location.href = '../watch/multiangle.html?mode=3d';
                 } else if (card && card.dataset.multiangle === 'true') {
                     window.location.href = '../watch/multiangle.html';
                 } else {
@@ -7006,7 +7006,7 @@
                 // Only navigate if it was a tap (not drag)
                 if (timeDiff < 300 && distX < 10 && distY < 10) {
                     if (card.dataset.is3d === 'true') {
-                        window.location.href = '../watch/?type=3d';
+                        window.location.href = '../watch/multiangle.html?mode=3d';
                     } else if (card.dataset.multiangle === 'true') {
                         window.location.href = '../watch/multiangle.html';
                     } else {
@@ -7040,7 +7040,7 @@
                 
                 // Check content type
                 if (card.dataset.is3d === 'true') {
-                    window.location.href = '../watch/?type=3d';
+                    window.location.href = '../watch/multiangle.html?mode=3d';
                 } else if (card.dataset.multiangle === 'true') {
                     window.location.href = '../watch/multiangle.html';
                 } else {

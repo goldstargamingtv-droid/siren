@@ -466,26 +466,22 @@
                 name: 'Tree Stump',
                 url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/stump/stump-7k.splat'
             },
-            garden: {
-                name: 'Garden',
-                url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/garden/garden-7k.splat'
-            },
             bonsai: {
                 name: 'Bonsai',
                 url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/bonsai/bonsai-7k.splat'
             }
         };
         
-        // Camera preset angles (spherical coords)
+        // Camera preset angles (for OrbitControls: alpha=horizontal, beta=vertical, radius=distance)
         const CAMERA_ANGLES = [
-            { name: 'Front', theta: 0, phi: 0.3, dist: 4 },
-            { name: 'Left', theta: Math.PI/2, phi: 0.3, dist: 4 },
-            { name: 'Right', theta: -Math.PI/2, phi: 0.3, dist: 4 },
-            { name: 'Back', theta: Math.PI, phi: 0.3, dist: 4 },
-            { name: 'Above', theta: 0, phi: 1.2, dist: 4 },
-            { name: 'Low', theta: 0, phi: -0.2, dist: 4 },
-            { name: 'Corner L', theta: Math.PI/4, phi: 0.5, dist: 4 },
-            { name: 'Corner R', theta: -Math.PI/4, phi: 0.5, dist: 4 }
+            { name: 'Front', theta: 0, phi: 0.5, dist: 5 },
+            { name: 'Left', theta: Math.PI/2, phi: 0.5, dist: 5 },
+            { name: 'Right', theta: -Math.PI/2, phi: 0.5, dist: 5 },
+            { name: 'Back', theta: Math.PI, phi: 0.5, dist: 5 },
+            { name: 'Above', theta: 0, phi: 1.2, dist: 5 },
+            { name: 'Low', theta: 0, phi: 0.2, dist: 5 },
+            { name: 'Corner L', theta: Math.PI/4, phi: 0.6, dist: 5 },
+            { name: 'Corner R', theta: -Math.PI/4, phi: 0.6, dist: 5 }
         ];
         
         // State
@@ -563,26 +559,37 @@
         
         // Switch camera angle with animation
         function switchAngle(index) {
-            if (!camera || !camera.position) return;
+            if (!controls) return;
             
             currentAngle = index;
             const angle = CAMERA_ANGLES[index];
-            const target = toCartesian(angle.theta, angle.phi, angle.dist);
             
-            // gsplat.js camera uses position.x/y/z
-            const startX = camera.position.x;
-            const startY = camera.position.y;
-            const startZ = camera.position.z;
+            console.log('[SIREN] Switching to angle', index, angle.name);
             
-            gsap.to({ t: 0 }, {
+            // gsplat OrbitControls uses alpha (horizontal), beta (vertical), radius
+            // Get current values
+            const startAlpha = controls.alpha || 0;
+            const startBeta = controls.beta || 0.5;
+            const startRadius = controls.radius || 5;
+            
+            // Target values - convert our theta/phi to controls' alpha/beta
+            const targetAlpha = angle.theta;
+            const targetBeta = Math.PI/2 - angle.phi; // Convert from elevation to beta
+            const targetRadius = angle.dist;
+            
+            // Animate
+            const anim = { t: 0 };
+            gsap.to(anim, {
                 t: 1,
                 duration: 0.6,
                 ease: 'power2.out',
                 onUpdate: function() {
-                    const t = this.targets()[0].t;
-                    camera.position.x = startX + (target.x - startX) * t;
-                    camera.position.y = startY + (target.y - startY) * t;
-                    camera.position.z = startZ + (target.z - startZ) * t;
+                    const t = anim.t;
+                    if (controls.alpha !== undefined) {
+                        controls.alpha = startAlpha + (targetAlpha - startAlpha) * t;
+                        controls.beta = startBeta + (targetBeta - startBeta) * t;
+                        controls.radius = startRadius + (targetRadius - startRadius) * t;
+                    }
                 }
             });
             
