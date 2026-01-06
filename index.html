@@ -3627,7 +3627,7 @@
 </head>
 <body>
     <!-- VERSION INDICATOR -->
-    <div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">V.4</div>
+    <div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">V.5</div>
     
     <!-- Age Gate Overlay -->
     <div class="age-gate" id="ageGate">
@@ -3637,8 +3637,8 @@
                 <h2>Access Beyond This Page is Restricted to Adults<br><span style="font-size: 1.3em;">(18+) Only</span></h2>
                 <p>This website contains age-restricted content including nudity and explicit material. By entering, you affirm that you are at least 18 years of age, or the age of majority in the jurisdiction you are accessing the Website from, and you consent to viewing such content.</p>
                 <div class="age-buttons">
-                    <button class="age-btn age-btn-secondary" onclick="exitSite()">Exit Here</button>
-                    <button class="age-btn age-btn-primary" onclick="enterSite()">Enter</button>
+                    <button class="age-btn age-btn-secondary" onclick="window.location.href='https://google.com'">Exit Here</button>
+                    <button class="age-btn age-btn-primary" onclick="localStorage.setItem('siren_age_verified','true');document.getElementById('ageGate').style.display='none';">Enter</button>
                 </div>
             </div>
             <div class="age-gate-terms">
