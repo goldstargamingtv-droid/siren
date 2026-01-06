@@ -3630,8 +3630,7 @@
     <div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">V.6</div>
     
     <!-- Age Gate Overlay -->
-    <div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">V.13</div>
-    <div class="age-gate" id="ageGate">
+        <div class="age-gate" id="ageGate">
         <div class="age-gate-logo">SIREN</div>
         <div class="age-gate-content">
             <div class="age-gate-box">
@@ -3639,11 +3638,8 @@
                 <p>This website contains age-restricted content including nudity and explicit material. By entering, you affirm that you are at least 18 years of age, or the age of majority in the jurisdiction you are accessing the Website from, and you consent to viewing such content.</p>
                 <div class="age-buttons">
                     <a href="https://google.com" class="age-btn" style="display:inline-flex;align-items:center;justify-content:center;padding:1rem 2.5rem;border-radius:0.75rem;font-weight:600;font-size:0.95rem;text-decoration:none;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#a1a1aa;opacity:1;pointer-events:auto;cursor:pointer;">Exit Here</a>
-                    <a href="#" onclick="console.log('CLICK'); enterSite(); return false;" class="age-btn" style="display:inline-flex;align-items:center;justify-content:center;padding:1rem 2.5rem;border-radius:0.75rem;font-weight:600;font-size:0.95rem;text-decoration:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;opacity:1;pointer-events:auto;cursor:pointer;">Enter</a>
+                    <a href="#" onclick="enterSite(); return false;" class="age-btn" style="display:inline-flex;align-items:center;justify-content:center;padding:1rem 2.5rem;border-radius:0.75rem;font-weight:600;font-size:0.95rem;text-decoration:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;opacity:1;pointer-events:auto;cursor:pointer;">Enter</a>
                 </div>
-                <button onclick="alert('TEST')" style="margin-top:20px;padding:20px 40px;font-size:18px;background:blue;color:white;border:none;border-radius:10px;">TEST BUTTON</button>
-                <button onclick="enterSite()" style="margin-top:10px;padding:20px 40px;font-size:18px;background:green;color:white;border:none;border-radius:10px;">ENTER (button)</button>
-                <button onclick="var ag=document.getElementById('ageGate');if(ag)ag.parentNode.removeChild(ag);document.body.style.background='purple';" style="margin-top:10px;padding:20px 40px;font-size:18px;background:orange;color:white;border:none;border-radius:10px;">ENTER (inline)</button>
             </div>
             <div class="age-gate-terms">
                 <div class="age-gate-terms-title">Terms and Conditions to Enter</div>
@@ -5013,43 +5009,28 @@
         }
         
         async function enterSite() {
-            console.log('enterSite() called');
             try {
                 localStorage.setItem(AGE_KEY, 'true');
-                console.log('localStorage set');
                 var ageGate = document.getElementById('ageGate');
                 if (ageGate) {
                     ageGate.parentNode.removeChild(ageGate);
-                    console.log('ageGate REMOVED from DOM');
-                } else {
-                    console.log('ageGate not found!');
                 }
                 document.body.classList.remove('age-gate-active');
-                document.body.style.background = 'green'; // Visual confirmation
-                console.log('age-gate-active removed, body should be green');
                 
                 // Check auth state
-                console.log('supabaseClient:', supabaseClient);
                 if (supabaseClient) {
                     const { data: { session } } = await supabaseClient.auth.getSession();
-                    console.log('session:', session);
                     
                     if (session) {
-                        console.log('Logged in, going to browse');
                         window.location.href = 'browse/';
                     } else {
                         const hasAccount = localStorage.getItem('siren_user_email');
-                        console.log('hasAccount:', hasAccount);
                         if (hasAccount) {
-                            console.log('Opening auth modal');
                             window.afterAuthRedirect = 'browse/index.html';
                             openAuthModal('signin');
-                        } else {
-                            console.log('No account, showing landing');
                         }
+                        // No account → Landing carousel shows via CSS
                     }
-                } else {
-                    console.log('No supabaseClient');
                 }
             } catch(err) {
                 console.error('enterSite error:', err);
