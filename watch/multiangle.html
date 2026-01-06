@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="robots" content="noindex, nofollow">
+    <title>SIREN - Multi-Angle Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --siren-red: #ef4444;
+            --siren-orange: #f97316;
+            --siren-gradient: linear-gradient(135deg, #ef4444, #f97316);
+            --glass-bg: rgba(10, 10, 15, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #050507;
+            font-family: 'Outfit', sans-serif;
+            color: #fff;
+            overscroll-behavior: none;
+            touch-action: none;
+        }
+        
+        /* Loader */
+        .site-loader {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 7, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            visibility: visible;
+            transition: all 0.5s ease;
+        }
+        .site-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+        }
+        .loader-rings {
+            position: relative;
+            width: 160px;
+            height: 160px;
+        }
+        .loader-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid transparent;
+        }
+        .loader-ring-1 {
+            inset: 0;
+            border-top-color: var(--siren-red);
+            border-right-color: var(--siren-orange);
+            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+        }
+        .loader-ring-2 {
+            inset: 15px;
+            border-bottom-color: var(--siren-orange);
+            border-left-color: #ec4899;
+            animation: spin 2s ease-in-out infinite reverse;
+        }
+        .loader-ring-3 {
+            inset: 30px;
+            border-top-color: #ec4899;
+            animation: spin 2.5s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loader-glow {
+            position: absolute;
+            inset: -30px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, transparent 70%);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        .loader-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--siren-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .loader-progress-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            min-width: 260px;
+        }
+        .loader-status {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .loader-progress-bar {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .loader-progress-fill {
+            height: 100%;
+            background: var(--siren-gradient);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        /* Main Container */
+        .player-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+        
+        /* Video Stack - all 8 videos layered */
+        .video-stack {
+            position: absolute;
+            inset: 0;
+        }
+        .video-stack video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .video-stack video.active {
+            opacity: 1;
+        }
+        
+        /* Controls Overlay */
+        .controls-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .controls-overlay.visible {
+            opacity: 1;
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 24px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .back-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .back-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+        .title-info {
+            text-align: center;
+            flex: 1;
+        }
+        .title-info h1 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .title-info span {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.6);
+        }
+        .angle-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--siren-gradient);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .angle-badge svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        /* Bottom Controls */
+        .bottom-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px 24px;
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+            background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            position: relative;
+        }
+        .progress-bar:hover {
+            height: 6px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--siren-gradient);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        /* Control Buttons */
+        .controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .controls-left, .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .ctrl-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ctrl-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+        .ctrl-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+        .ctrl-btn.play-btn {
+            width: 56px;
+            height: 56px;
+            background: var(--siren-gradient);
+        }
+        .ctrl-btn.play-btn svg {
+            width: 28px;
+            height: 28px;
+        }
+        .time-display {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.8);
+            font-variant-numeric: tabular-nums;
+        }
+        
+        /* Desktop Angle Selector - Right Side Wheel */
+        .angle-selector-desktop {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .angle-wheel {
+            position: relative;
+            width: 80px;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .angle-item {
+            position: relative;
+            width: 80px;
+            height: 45px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+        }
+        .angle-item:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+        .angle-item.active {
+            border-color: var(--siren-red);
+            opacity: 1;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+        .angle-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .angle-item-number {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 18px;
+            height: 18px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .angle-item.active .angle-item-number {
+            background: var(--siren-gradient);
+        }
+        .angle-label {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            margin-top: 8px;
+        }
+        
+        /* Mobile Angle Selector - Bottom Strip */
+        .angle-selector-mobile {
+            display: none;
+            position: absolute;
+            bottom: 100px;
+            left: 0;
+            right: 0;
+            z-index: 15;
+            padding: 0 16px;
+        }
+        .angle-strip {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 12px 0;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .angle-strip::-webkit-scrollbar { display: none; }
+        .angle-strip-item {
+            flex-shrink: 0;
+            width: 70px;
+            height: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            scroll-snap-align: center;
+            position: relative;
+        }
+        .angle-strip-item.active {
+            border-color: var(--siren-red);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        }
+        .angle-strip-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .angle-strip-number {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 50%;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .angle-strip-item.active .angle-strip-number {
+            background: var(--siren-gradient);
+        }
+        
+        /* Mobile Swipe Indicator */
+        .swipe-indicator {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 16px 24px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            font-size: 1.5rem;
+            font-weight: 700;
+            pointer-events: none;
+            z-index: 30;
+        }
+        .swipe-indicator.show {
+            display: block;
+            animation: fadeInOut 0.6s ease;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+        
+        /* Center Play Button */
+        .center-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 25;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+        .center-play.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .center-play svg {
+            width: 36px;
+            height: 36px;
+            fill: #fff;
+            margin-left: 4px;
+        }
+        
+        /* Current Angle Indicator */
+        .current-angle {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 16px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 20;
+        }
+        .current-angle.visible {
+            opacity: 1;
+        }
+        .current-angle span {
+            color: var(--siren-red);
+            font-weight: 700;
+        }
+        
+        /* Keyboard Hints (Desktop) */
+        .keyboard-hints {
+            position: absolute;
+            bottom: 100px;
+            left: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .controls-overlay.visible .keyboard-hints {
+            opacity: 0.5;
+        }
+        .keyboard-hint {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.6);
+        }
+        .keyboard-hint kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            font-family: inherit;
+            margin-right: 6px;
+        }
+        
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .angle-selector-desktop {
+                display: none;
+            }
+            .angle-selector-mobile {
+                display: block;
+            }
+            .keyboard-hints {
+                display: none;
+            }
+            .top-bar {
+                padding: 16px;
+            }
+            .title-info h1 {
+                font-size: 0.9rem;
+            }
+            .angle-badge {
+                padding: 6px 10px;
+                font-size: 0.7rem;
+            }
+            .bottom-controls {
+                padding: 16px;
+                padding-bottom: max(16px, env(safe-area-inset-bottom));
+            }
+            .ctrl-btn {
+                width: 40px;
+                height: 40px;
+            }
+            .ctrl-btn svg {
+                width: 20px;
+                height: 20px;
+            }
+            .ctrl-btn.play-btn {
+                width: 48px;
+                height: 48px;
+            }
+            .center-play {
+                width: 70px;
+                height: 70px;
+            }
+            .center-play svg {
+                width: 30px;
+                height: 30px;
+            }
+        }
+        
+        /* Landscape mobile adjustments */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .angle-selector-mobile {
+                bottom: 70px;
+            }
+            .angle-strip-item {
+                width: 60px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="site-loader" id="siteLoader">
+        <div class="loader-container">
+            <div class="loader-rings">
+                <div class="loader-glow"></div>
+                <div class="loader-ring loader-ring-1"></div>
+                <div class="loader-ring loader-ring-2"></div>
+                <div class="loader-ring loader-ring-3"></div>
+                <div class="loader-logo">S</div>
+            </div>
+            <div class="loader-progress-container">
+                <div class="loader-status" id="loaderStatus">Loading angles...</div>
+                <div class="loader-progress-bar"><div class="loader-progress-fill" id="loaderProgress"></div></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Player Container -->
+    <div class="player-container" id="playerContainer">
+        <!-- Video Stack - All 8 angles -->
+        <div class="video-stack" id="videoStack">
+            <!-- Videos will be created dynamically -->
+        </div>
+        
+        <!-- Swipe Indicator -->
+        <div class="swipe-indicator" id="swipeIndicator">Angle 1</div>
+        
+        <!-- Center Play Button (when paused) -->
+        <div class="center-play" id="centerPlay">
+            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+        </div>
+        
+        <!-- Current Angle Indicator -->
+        <div class="current-angle" id="currentAngle">
+            Angle <span id="currentAngleNum">1</span> of 8
+        </div>
+        
+        <!-- Controls Overlay -->
+        <div class="controls-overlay" id="controlsOverlay">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <button class="back-btn" onclick="window.location.href='../browse/'">
+                    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </button>
+                <div class="title-info">
+                    <h1>Sunset Session</h1>
+                    <span>Multi-Angle Experience</span>
+                </div>
+                <div class="angle-badge">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="3"/>
+                        <line x1="12" y1="2" x2="12" y2="6"/>
+                        <line x1="12" y1="18" x2="12" y2="22"/>
+                        <line x1="2" y1="12" x2="6" y2="12"/>
+                        <line x1="18" y1="12" x2="22" y2="12"/>
+                    </svg>
+                    8 ANGLES
+                </div>
+            </div>
+            
+            <!-- Bottom Controls -->
+            <div class="bottom-controls">
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="controls-row">
+                    <div class="controls-left">
+                        <button class="ctrl-btn play-btn" id="playPauseBtn">
+                            <svg viewBox="0 0 24 24" fill="currentColor" id="playIcon"><polygon points="5,3 19,12 5,21"/></svg>
+                        </button>
+                        <button class="ctrl-btn" id="skipBackBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+                                <text x="10" y="14" font-size="6" fill="currentColor" stroke="none">10</text>
+                            </svg>
+                        </button>
+                        <button class="ctrl-btn" id="skipForwardBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/>
+                                <text x="10" y="14" font-size="6" fill="currentColor" stroke="none">10</text>
+                            </svg>
+                        </button>
+                        <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+                    </div>
+                    <div class="controls-right">
+                        <button class="ctrl-btn" id="muteBtn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                            </svg>
+                        </button>
+                        <button class="ctrl-btn" id="fullscreenBtn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Keyboard Hints (Desktop) -->
+            <div class="keyboard-hints">
+                <div class="keyboard-hint"><kbd>1-8</kbd> Switch angles</div>
+                <div class="keyboard-hint"><kbd>Space</kbd> Play/Pause</div>
+                <div class="keyboard-hint"><kbd>F</kbd> Fullscreen</div>
+            </div>
+        </div>
+        
+        <!-- Desktop Angle Selector -->
+        <div class="angle-selector-desktop" id="angleSelectorDesktop">
+            <div class="angle-wheel" id="angleWheel">
+                <!-- Angle items will be generated -->
+            </div>
+            <div class="angle-label">ANGLES</div>
+        </div>
+        
+        <!-- Mobile Angle Selector -->
+        <div class="angle-selector-mobile" id="angleSelectorMobile">
+            <div class="angle-strip" id="angleStrip">
+                <!-- Angle items will be generated -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration
+        const ANGLE_COUNT = 8;
+        const SAMPLE_VIDEO = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+        const ANGLE_NAMES = ['Front', 'Left', 'Right', 'Back', 'Top', 'Close-up', 'Wide', 'POV'];
+        const ANGLE_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+        
+        // State
+        let currentAngle = 0;
+        let isPlaying = false;
+        let videos = [];
+        let hideControlsTimeout;
+        let isMobile = window.innerWidth <= 768;
+        
+        // Elements
+        const siteLoader = document.getElementById('siteLoader');
+        const loaderProgress = document.getElementById('loaderProgress');
+        const loaderStatus = document.getElementById('loaderStatus');
+        const videoStack = document.getElementById('videoStack');
+        const controlsOverlay = document.getElementById('controlsOverlay');
+        const centerPlay = document.getElementById('centerPlay');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playIcon = document.getElementById('playIcon');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const currentAngleEl = document.getElementById('currentAngle');
+        const currentAngleNum = document.getElementById('currentAngleNum');
+        const swipeIndicator = document.getElementById('swipeIndicator');
+        const angleWheel = document.getElementById('angleWheel');
+        const angleStrip = document.getElementById('angleStrip');
+        const muteBtn = document.getElementById('muteBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const playerContainer = document.getElementById('playerContainer');
+        
+        // Loader messages
+        const loaderMsgs = ['Loading angles...', 'Syncing streams...', 'Building views...', 'Almost ready...'];
+        let loadProg = 0, msgIdx = 0;
+        
+        function hideLoader() {
+            siteLoader.style.transition = 'opacity 0.5s ease, visibility 0.5s ease';
+            siteLoader.style.opacity = '0';
+            siteLoader.style.visibility = 'hidden';
+            siteLoader.style.pointerEvents = 'none';
+            setTimeout(() => {
+                siteLoader.classList.add('hidden');
+                showControls();
+                centerPlay.classList.add('visible');
+            }, 500);
+        }
+        
+        function updateLoader() {
+            loadProg += Math.random() * 18 + 6;
+            if (loadProg > 100) loadProg = 100;
+            loaderProgress.style.width = loadProg + '%';
+            
+            if (loadProg < 100) {
+                const newIdx = Math.floor((loadProg / 100) * (loaderMsgs.length - 1));
+                if (newIdx !== msgIdx) {
+                    msgIdx = newIdx;
+                    loaderStatus.textContent = loaderMsgs[msgIdx];
+                }
+                setTimeout(updateLoader, 180 + Math.random() * 250);
+            } else {
+                loaderStatus.textContent = 'Enjoy';
+                setTimeout(hideLoader, 400);
+            }
+        }
+        
+        // Generate placeholder thumbnails with angle colors
+        function generateThumbnail(angleIndex) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 160;
+            canvas.height = 90;
+            const ctx = canvas.getContext('2d');
+            
+            // Gradient background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, ANGLE_COLORS[angleIndex]);
+            gradient.addColorStop(1, '#1a1a2e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Angle text
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.font = 'bold 14px Outfit';
+            ctx.textAlign = 'center';
+            ctx.fillText(ANGLE_NAMES[angleIndex], canvas.width/2, canvas.height/2 + 5);
+            
+            return canvas.toDataURL();
+        }
+        
+        // Initialize videos
+        function initVideos() {
+            for (let i = 0; i < ANGLE_COUNT; i++) {
+                const video = document.createElement('video');
+                video.src = SAMPLE_VIDEO;
+                video.playsInline = true;
+                video.preload = 'auto';
+                video.muted = i !== 0; // Only first angle has audio
+                video.loop = false;
+                if (i === 0) video.classList.add('active');
+                
+                video.addEventListener('loadedmetadata', () => {
+                    if (i === 0) updateTimeDisplay();
+                });
+                
+                video.addEventListener('timeupdate', () => {
+                    if (i === currentAngle) updateProgress();
+                });
+                
+                video.addEventListener('ended', () => {
+                    if (i === currentAngle) {
+                        isPlaying = false;
+                        updatePlayButton();
+                        showControls();
+                        centerPlay.classList.add('visible');
+                    }
+                });
+                
+                videoStack.appendChild(video);
+                videos.push(video);
+            }
+        }
+        
+        // Initialize angle selectors
+        function initAngleSelectors() {
+            // Desktop wheel
+            for (let i = 0; i < ANGLE_COUNT; i++) {
+                const item = document.createElement('div');
+                item.className = 'angle-item' + (i === 0 ? ' active' : '');
+                item.dataset.angle = i;
+                item.innerHTML = `
+                    <img src="${generateThumbnail(i)}" alt="Angle ${i + 1}">
+                    <div class="angle-item-number">${i + 1}</div>
+                `;
+                item.addEventListener('click', () => switchAngle(i));
+                angleWheel.appendChild(item);
+            }
+            
+            // Mobile strip
+            for (let i = 0; i < ANGLE_COUNT; i++) {
+                const item = document.createElement('div');
+                item.className = 'angle-strip-item' + (i === 0 ? ' active' : '');
+                item.dataset.angle = i;
+                item.innerHTML = `
+                    <img src="${generateThumbnail(i)}" alt="Angle ${i + 1}">
+                    <div class="angle-strip-number">${i + 1}</div>
+                `;
+                item.addEventListener('click', () => switchAngle(i));
+                angleStrip.appendChild(item);
+            }
+        }
+        
+        // Switch angle
+        function switchAngle(newAngle, showIndicator = true) {
+            if (newAngle === currentAngle) return;
+            if (newAngle < 0) newAngle = ANGLE_COUNT - 1;
+            if (newAngle >= ANGLE_COUNT) newAngle = 0;
+            
+            const currentTime = videos[currentAngle].currentTime;
+            const wasPlaying = isPlaying;
+            
+            // Update video states
+            videos[currentAngle].classList.remove('active');
+            videos[currentAngle].muted = true;
+            
+            currentAngle = newAngle;
+            
+            videos[currentAngle].currentTime = currentTime;
+            videos[currentAngle].classList.add('active');
+            videos[currentAngle].muted = false;
+            
+            if (wasPlaying) {
+                videos[currentAngle].play();
+            }
+            
+            // Update UI
+            updateAngleSelectors();
+            currentAngleNum.textContent = currentAngle + 1;
+            
+            // Show indicator
+            if (showIndicator) {
+                showSwipeIndicator();
+            }
+            
+            // Animate with GSAP
+            gsap.fromTo(videos[currentAngle], 
+                { scale: 1.02 },
+                { scale: 1, duration: 0.3, ease: 'power2.out' }
+            );
+        }
+        
+        // Update angle selector UI
+        function updateAngleSelectors() {
+            // Desktop
+            document.querySelectorAll('.angle-item').forEach((item, i) => {
+                item.classList.toggle('active', i === currentAngle);
+            });
+            
+            // Mobile
+            document.querySelectorAll('.angle-strip-item').forEach((item, i) => {
+                item.classList.toggle('active', i === currentAngle);
+                if (i === currentAngle) {
+                    item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            });
+        }
+        
+        // Show swipe indicator
+        function showSwipeIndicator() {
+            swipeIndicator.textContent = `Angle ${currentAngle + 1}`;
+            swipeIndicator.classList.remove('show');
+            void swipeIndicator.offsetWidth; // Trigger reflow
+            swipeIndicator.classList.add('show');
+            
+            currentAngleEl.classList.add('visible');
+            clearTimeout(window.angleIndicatorTimeout);
+            window.angleIndicatorTimeout = setTimeout(() => {
+                currentAngleEl.classList.remove('visible');
+            }, 2000);
+        }
+        
+        // Play/Pause
+        function togglePlay() {
+            if (isPlaying) {
+                videos.forEach(v => v.pause());
+                isPlaying = false;
+                centerPlay.classList.add('visible');
+            } else {
+                // Sync all videos to current time
+                const currentTime = videos[currentAngle].currentTime;
+                videos.forEach((v, i) => {
+                    v.currentTime = currentTime;
+                    v.play();
+                });
+                isPlaying = true;
+                centerPlay.classList.remove('visible');
+                hideControlsDelayed();
+            }
+            updatePlayButton();
+        }
+        
+        // Update play button icon
+        function updatePlayButton() {
+            if (isPlaying) {
+                playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
+            } else {
+                playIcon.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+            }
+        }
+        
+        // Update progress bar
+        function updateProgress() {
+            const video = videos[currentAngle];
+            const percent = (video.currentTime / video.duration) * 100;
+            progressFill.style.width = percent + '%';
+            updateTimeDisplay();
+        }
+        
+        // Update time display
+        function updateTimeDisplay() {
+            const video = videos[currentAngle];
+            const current = formatTime(video.currentTime);
+            const duration = formatTime(video.duration || 0);
+            timeDisplay.textContent = `${current} / ${duration}`;
+        }
+        
+        // Format time
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Show controls
+        function showControls() {
+            controlsOverlay.classList.add('visible');
+            clearTimeout(hideControlsTimeout);
+        }
+        
+        // Hide controls delayed
+        function hideControlsDelayed() {
+            clearTimeout(hideControlsTimeout);
+            hideControlsTimeout = setTimeout(() => {
+                if (isPlaying) {
+                    controlsOverlay.classList.remove('visible');
+                }
+            }, 3000);
+        }
+        
+        // Seek
+        function seek(e) {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            const time = percent * videos[currentAngle].duration;
+            
+            videos.forEach(v => {
+                v.currentTime = time;
+            });
+        }
+        
+        // Skip
+        function skip(seconds) {
+            const newTime = Math.max(0, Math.min(videos[currentAngle].duration, videos[currentAngle].currentTime + seconds));
+            videos.forEach(v => {
+                v.currentTime = newTime;
+            });
+        }
+        
+        // Toggle mute
+        function toggleMute() {
+            const video = videos[currentAngle];
+            video.muted = !video.muted;
+            
+            muteBtn.innerHTML = video.muted 
+                ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>'
+                : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+        }
+        
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                playerContainer.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Touch/Swipe handling for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        
+        function handleTouchStart(e) {
+            if (e.target.closest('.angle-strip') || e.target.closest('button')) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        }
+        
+        function handleTouchEnd(e) {
+            if (e.target.closest('.angle-strip') || e.target.closest('button')) return;
+            
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            const elapsed = Date.now() - touchStartTime;
+            
+            // Horizontal swipe
+            if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY) && elapsed < 300) {
+                if (diffX > 0) {
+                    switchAngle(currentAngle - 1);
+                } else {
+                    switchAngle(currentAngle + 1);
+                }
+            } 
+            // Tap to toggle controls
+            else if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10 && elapsed < 200) {
+                if (controlsOverlay.classList.contains('visible')) {
+                    if (isPlaying) {
+                        controlsOverlay.classList.remove('visible');
+                    }
+                } else {
+                    showControls();
+                    hideControlsDelayed();
+                }
+            }
+        }
+        
+        // Keyboard controls
+        function handleKeydown(e) {
+            switch(e.key) {
+                case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8':
+                    switchAngle(parseInt(e.key) - 1);
+                    break;
+                case ' ':
+                case 'k':
+                    e.preventDefault();
+                    togglePlay();
+                    break;
+                case 'f':
+                    toggleFullscreen();
+                    break;
+                case 'm':
+                    toggleMute();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    skip(-10);
+                    showControls();
+                    hideControlsDelayed();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    skip(10);
+                    showControls();
+                    hideControlsDelayed();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    switchAngle(currentAngle - 1);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    switchAngle(currentAngle + 1);
+                    break;
+            }
+        }
+        
+        // Event listeners
+        function initEventListeners() {
+            // Play/Pause
+            playPauseBtn.addEventListener('click', togglePlay);
+            centerPlay.addEventListener('click', togglePlay);
+            
+            // Progress bar
+            progressBar.addEventListener('click', seek);
+            
+            // Skip buttons
+            document.getElementById('skipBackBtn').addEventListener('click', () => skip(-10));
+            document.getElementById('skipForwardBtn').addEventListener('click', () => skip(10));
+            
+            // Mute & Fullscreen
+            muteBtn.addEventListener('click', toggleMute);
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            
+            // Touch events (mobile)
+            playerContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+            playerContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
+            
+            // Mouse events (desktop)
+            playerContainer.addEventListener('mousemove', () => {
+                showControls();
+                hideControlsDelayed();
+            });
+            
+            playerContainer.addEventListener('click', (e) => {
+                if (e.target === playerContainer || e.target.closest('.video-stack')) {
+                    if (!e.target.closest('button') && !e.target.closest('.angle-item')) {
+                        togglePlay();
+                    }
+                }
+            });
+            
+            // Keyboard
+            document.addEventListener('keydown', handleKeydown);
+            
+            // Resize
+            window.addEventListener('resize', () => {
+                isMobile = window.innerWidth <= 768;
+            });
+        }
+        
+        // Initialize
+        function init() {
+            initVideos();
+            initAngleSelectors();
+            initEventListeners();
+            
+            // Start loader animation
+            setTimeout(updateLoader, 200);
+            
+            // Fallback loader hide after 6 seconds
+            setTimeout(() => {
+                if (!siteLoader.classList.contains('hidden')) {
+                    console.log('Loader failsafe triggered');
+                    hideLoader();
+                }
+            }, 6000);
+        }
+        
+        init();
+    </script>
+</body>
+</html>
