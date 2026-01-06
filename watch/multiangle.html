@@ -539,7 +539,7 @@
     </div>
 
     <script type="module">
-        console.log('%c[SIREN MULTIANGLE v1.2.3]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
+        console.log('%c[SIREN MULTIANGLE v1.3.0 - Custom Controls]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
         
         // Scene configurations - from dylanebert's Hugging Face 3dgs dataset
@@ -581,7 +581,20 @@
         // State
         let currentScene = 'stump';
         let currentAngle = 0;
-        let renderer, scene, camera, controls, currentSplat;
+        let renderer, scene, camera, currentSplat;
+        
+        // Custom orbit state (we control this, not OrbitControls)
+        let orbitAlpha = 0;      // horizontal angle
+        let orbitBeta = 0.5;     // vertical angle  
+        let orbitRadius = 5;     // distance
+        let targetAlpha = 0;
+        let targetBeta = 0.5;
+        let targetRadius = 5;
+        
+        // Drag state
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
         
         // Elements
         const canvas = document.getElementById('canvas');
@@ -775,35 +788,39 @@
         // Animation state
         let isAnimating = false;
         
-        // Switch camera angle - instant snap then recreate controls
-        function switchAngle(index) {
-            if (!camera || isAnimating) return;
+        // Update camera position from orbit state
+        function updateCameraFromOrbit() {
+            if (!camera) return;
             
+            // Clamp beta to avoid gimbal lock
+            orbitBeta = Math.max(0.1, Math.min(Math.PI - 0.1, orbitBeta));
+            
+            // Spherical to cartesian
+            const x = orbitRadius * Math.sin(orbitBeta) * Math.sin(orbitAlpha);
+            const y = orbitRadius * Math.cos(orbitBeta);
+            const z = orbitRadius * Math.sin(orbitBeta) * Math.cos(orbitAlpha);
+            
+            camera.position.x = x;
+            camera.position.y = y;
+            camera.position.z = z;
+        }
+        
+        // Switch camera angle
+        function switchAngle(index) {
             currentAngle = index;
             const angle = CAMERA_ANGLES[index];
-            const target = toCartesian(angle.theta, angle.phi, angle.dist);
             
-            console.log('[SIREN] Switching to angle', index, angle.name, target);
+            console.log('[SIREN] Switching to angle', index, angle.name);
             
-            isAnimating = true;
+            // Set orbit state directly
+            orbitAlpha = angle.theta;
+            orbitBeta = Math.PI/2 - angle.phi; // Convert phi to beta
+            orbitRadius = angle.dist;
             
-            // Dispose old controls first
-            if (controls && controls.dispose) {
-                controls.dispose();
-                controls = null;
-            }
+            // Update camera immediately
+            updateCameraFromOrbit();
             
-            // Set camera position directly
-            camera.position.x = target.x;
-            camera.position.y = target.y;
-            camera.position.z = target.z;
-            
-            // Create fresh controls from new position
-            controls = new SPLAT.OrbitControls(camera, canvas);
-            
-            console.log('[SIREN] Camera set to:', camera.position.x, camera.position.y, camera.position.z);
-            
-            isAnimating = false;
+            console.log('[SIREN] Orbit set to alpha:', orbitAlpha, 'beta:', orbitBeta, 'radius:', orbitRadius);
             
             // Update UI
             document.querySelectorAll('.angle-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
@@ -852,8 +869,11 @@
                     }
                 );
                 
-                // Reset camera - don't force position, let controls handle it
-                // The OrbitControls will manage camera positioning
+                // Reset to front view
+                orbitAlpha = 0;
+                orbitBeta = Math.PI/2 - 0.5;
+                orbitRadius = 5;
+                updateCameraFromOrbit();
                 
                 initAngleSelectors();
                 
@@ -873,17 +893,76 @@
             renderer = new SPLAT.WebGLRenderer(canvas);
             scene = new SPLAT.Scene();
             camera = new SPLAT.Camera();
-            controls = new SPLAT.OrbitControls(camera, canvas);
+            
+            // Set initial camera position
+            updateCameraFromOrbit();
             
             initSceneSelector();
             initAngleSelectors();
             initHotspots();
             
+            // Mouse controls for orbiting
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+            
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - lastMouseX;
+                const deltaY = e.clientY - lastMouseY;
+                
+                orbitAlpha -= deltaX * 0.005;
+                orbitBeta += deltaY * 0.005;
+                
+                updateCameraFromOrbit();
+                
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+            
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            
+            // Scroll to zoom
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                orbitRadius += e.deltaY * 0.01;
+                orbitRadius = Math.max(2, Math.min(15, orbitRadius));
+                updateCameraFromOrbit();
+            }, { passive: false });
+            
+            // Touch controls
+            let lastTouchX = 0, lastTouchY = 0;
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                }
+            });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 1) {
+                    const deltaX = e.touches[0].clientX - lastTouchX;
+                    const deltaY = e.touches[0].clientY - lastTouchY;
+                    
+                    orbitAlpha -= deltaX * 0.005;
+                    orbitBeta += deltaY * 0.005;
+                    
+                    updateCameraFromOrbit();
+                    
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                }
+            });
+            
             await loadScene('stump');
             
             // Render loop
             const frame = () => {
-                if (controls) controls.update();
                 renderer.render(scene, camera);
                 updateHotspots();
                 requestAnimationFrame(frame);
