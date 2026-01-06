@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIREN - Product Roadmap</title>
+    <title>SIREN - 90 Day Roadmap</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,7 +25,7 @@
         }
         .header {
             position: sticky; top: 0;
-            background: rgba(10, 10, 10, 0.9);
+            background: rgba(10, 10, 10, 0.95);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
             padding: 1.5rem 2rem;
@@ -38,488 +38,351 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .header-subtitle { color: var(--text-secondary); font-size: 0.9rem; }
-        .version-badge {
+        .header-right { text-align: right; }
+        .timeline-badge {
             background: linear-gradient(135deg, #ef4444, #f97316);
             padding: 0.5rem 1rem; border-radius: 20px;
-            font-size: 0.8rem; font-weight: 600;
+            font-size: 0.85rem; font-weight: 600;
+            display: inline-block; margin-bottom: 0.25rem;
         }
-        .container { max-width: 1400px; margin: 0 auto; padding: 3rem 2rem; }
-        .current-status {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.1));
+        .date-range { color: var(--text-secondary); font-size: 0.8rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        /* Month Headers */
+        .month-header {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.15));
             border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 20px; padding: 2rem; margin-bottom: 4rem;
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            margin: 2.5rem 0 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
-        .status-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
-        .status-icon {
+        .month-header:first-of-type { margin-top: 0; }
+        .month-icon {
             width: 50px; height: 50px;
             background: linear-gradient(135deg, #ef4444, #f97316);
             border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; flex-shrink: 0;
         }
-        .status-title { font-size: 1.5rem; font-weight: 700; }
-        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-        .status-item {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px; padding: 1rem;
+        .month-title { font-size: 1.4rem; font-weight: 700; }
+        .month-subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+
+        /* Week Cards */
+        .week-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .week-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #ef4444, #f97316);
+            border-radius: 4px 0 0 4px;
+        }
+        .week-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .week-date {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-secondary);
+        }
+        .week-label {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .task-list { list-style: none; }
+        .task-item {
+            padding: 0.6rem 0;
+            padding-left: 1.75rem;
+            position: relative;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .task-item:last-child { border-bottom: none; }
+        .task-item::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 50%;
+            transform: translateY(-50%);
+            width: 8px; height: 8px;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            border-radius: 50%;
+        }
+        .task-category {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            text-transform: uppercase;
+        }
+        .cat-dev { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .cat-content { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .cat-business { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+        .cat-equipment { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .cat-meeting { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+
+        /* Goals Section */
+        .goals-section {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(168, 85, 247, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .goals-section::before { display: none; }
+        .goals-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .goals-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+        }
+        .goals-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #c084fc;
+        }
+
+        /* Tech Stack */
+        .tech-section {
+            margin-top: 3rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+        .tech-title {
+            font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem;
             display: flex; align-items: center; gap: 0.75rem;
         }
-        .status-check {
-            width: 24px; height: 24px;
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; flex-shrink: 0;
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
         }
-        .timeline { position: relative; padding-left: 3rem; }
-        .timeline::before {
-            content: ''; position: absolute;
-            left: 15px; top: 0; bottom: 0; width: 3px;
-            background: linear-gradient(180deg, #ef4444, #f97316, #fbbf24, #22c55e, #3b82f6, #8b5cf6, #ec4899);
-            border-radius: 3px;
+        .tech-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
         }
-        .phase { position: relative; margin-bottom: 3rem; padding-bottom: 2rem; }
-        .phase-marker {
-            position: absolute; left: -3rem; top: 0;
-            width: 36px; height: 36px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 0.9rem; z-index: 1;
-        }
-        .phase-1 .phase-marker { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .phase-2 .phase-marker { background: linear-gradient(135deg, #f97316, #ea580c); }
-        .phase-3 .phase-marker { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
-        .phase-4 .phase-marker { background: linear-gradient(135deg, #22c55e, #16a34a); }
-        .phase-5 .phase-marker { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .phase-6 .phase-marker { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-        .phase-7 .phase-marker { background: linear-gradient(135deg, #ec4899, #db2777); }
-        .phase-content {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 1.5rem; margin-left: 1rem;
-        }
-        .phase-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;
-        }
-        .phase-title { font-size: 1.3rem; font-weight: 700; }
-        .phase-timeline {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.4rem 1rem; border-radius: 20px;
-            font-size: 0.8rem; color: var(--text-secondary);
-        }
-        .phase-description { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
-        .feature-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 12px; padding: 1.25rem;
-            transition: all 0.3s ease;
-        }
-        .feature-card:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.12);
-            transform: translateY(-2px);
-        }
-        .feature-icon {
-            width: 40px; height: 40px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; margin-bottom: 0.75rem;
-        }
-        .phase-1 .feature-icon { background: rgba(239, 68, 68, 0.2); }
-        .phase-2 .feature-icon { background: rgba(249, 115, 22, 0.2); }
-        .phase-3 .feature-icon { background: rgba(251, 191, 36, 0.2); }
-        .phase-4 .feature-icon { background: rgba(34, 197, 94, 0.2); }
-        .phase-5 .feature-icon { background: rgba(59, 130, 246, 0.2); }
-        .phase-6 .feature-icon { background: rgba(139, 92, 246, 0.2); }
-        .phase-7 .feature-icon { background: rgba(236, 72, 153, 0.2); }
-        .feature-title { font-weight: 600; margin-bottom: 0.5rem; }
-        .feature-items { list-style: none; font-size: 0.85rem; color: var(--text-secondary); }
-        .feature-items li { padding: 0.25rem 0; padding-left: 1.25rem; position: relative; }
-        .feature-items li::before { content: '→'; position: absolute; left: 0; color: var(--text-muted); }
-        .tech-stack {
-            margin-top: 4rem;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px; padding: 2rem;
-        }
-        .tech-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
-        .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
-        .tech-item { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 1rem; text-align: center; }
-        .tech-item-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-        .tech-item-name { font-weight: 600; font-size: 0.9rem; }
-        .tech-item-desc { font-size: 0.75rem; color: var(--text-muted); }
-        .metrics { margin-top: 4rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
-        .metric-card {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.1));
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 16px; padding: 1.5rem; text-align: center;
-        }
-        .metric-value {
-            font-size: 2.5rem; font-weight: 800;
-            background: linear-gradient(135deg, #ef4444, #f97316);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .metric-label { color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem; }
+        .tech-item-icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
+        .tech-item-name { font-weight: 600; font-size: 0.85rem; }
+        .tech-item-desc { font-size: 0.7rem; color: var(--text-muted); }
+
+        /* Footer */
         .footer {
-            margin-top: 4rem; padding: 2rem; text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            text-align: center;
             border-top: 1px solid var(--glass-border);
-            color: var(--text-muted); font-size: 0.85rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
         }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
         @media (max-width: 768px) {
-            .container { padding: 1.5rem 1rem; }
-            .timeline { padding-left: 2.5rem; }
-            .phase-marker { left: -2.5rem; width: 30px; height: 30px; font-size: 0.8rem; }
+            .container { padding: 1rem; }
             .header { flex-direction: column; gap: 1rem; text-align: center; }
-            .features-grid { grid-template-columns: 1fr; }
+            .header-right { text-align: center; }
+            .month-header { flex-direction: column; text-align: center; }
         }
-        @media print { body { background: white; color: black; } .phase-content { break-inside: avoid; } }
+
+        @media print {
+            body { background: white; color: black; }
+            .week-card, .goals-section { break-inside: avoid; }
+        }
     </style>
 </head>
 <body>
     <header class="header">
         <div>
             <div class="logo">SIREN</div>
-            <div class="header-subtitle">Product Roadmap 2025</div>
+            <div class="header-subtitle">90-Day Launch Roadmap</div>
         </div>
-        <div class="version-badge">v2.4.3</div>
+        <div class="header-right">
+            <div class="timeline-badge">90 Days</div>
+            <div class="date-range">January 1 - March 31, 2026</div>
+        </div>
     </header>
 
     <div class="container">
-        <section class="current-status">
-            <div class="status-header">
-                <div class="status-icon">🚀</div>
-                <div>
-                    <div class="status-title">Current State - Ready for Investor Demo</div>
-                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Platform ready, 3D Gaussian viewer operational, preparing for 4D content partnerships</div>
-                </div>
-            </div>
-            <div class="status-grid">
-                <div class="status-item"><div class="status-check">✓</div><span>Landing Page + SEO</span></div>
-                <div class="status-item"><div class="status-check">✓</div><span>Netflix-style Browse</span></div>
-                <div class="status-item"><div class="status-check">✓</div><span>8-Angle Video Player</span></div>
-                <div class="status-item"><div class="status-check">✓</div><span>Gaussian Splat Viewer</span></div>
-                <div class="status-item"><div class="status-check">✓</div><span>3D Floating Hotspots</span></div>
-                <div class="status-item"><div class="status-check">✓</div><span>Auth System (Supabase)</span></div>
-                <div class="status-item"><div class="status-check">✓</div><span>Account Management</span></div>
-                <div class="status-item"><div class="status-check">✓</div><span>Mobile Responsive</span></div>
-                <div class="status-item"><div class="status-check">✓</div><span>GSAP Animations</span></div>
-                <div class="status-item"><div class="status-check">✓</div><span>Age Verification Gate</span></div>
-            </div>
-        </section>
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item"><span class="task-category cat-dev">Dev</span> Development</div>
+            <div class="legend-item"><span class="task-category cat-content">Content</span> Production</div>
+            <div class="legend-item"><span class="task-category cat-business">Business</span> Partnerships</div>
+            <div class="legend-item"><span class="task-category cat-equipment">Equip</span> Equipment</div>
+            <div class="legend-item"><span class="task-category cat-meeting">Meeting</span> Key Meetings</div>
+        </div>
 
-        <div class="timeline">
-            <div class="phase phase-1">
-                <div class="phase-marker">1</div>
-                <div class="phase-content">
-                    <div class="phase-header">
-                        <div class="phase-title">🎬 Standard Video Content</div>
-                        <div class="phase-timeline">Month 1-2</div>
-                    </div>
-                    <p class="phase-description">Launch with traditional HD/4K video content. Complete platform polish, CMS, and video delivery infrastructure.</p>
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">📁</div>
-                            <div class="feature-title">Content Management</div>
-                            <ul class="feature-items">
-                                <li>Admin upload panel</li>
-                                <li>Metadata editor</li>
-                                <li>Thumbnail generator</li>
-                                <li>Content scheduling</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🐰</div>
-                            <div class="feature-title">Bunny.net Integration</div>
-                            <ul class="feature-items">
-                                <li>Bunny Stream setup</li>
-                                <li>HLS adaptive streaming</li>
-                                <li>Multi-quality transcoding</li>
-                                <li>Token authentication</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">💾</div>
-                            <div class="feature-title">User Data</div>
-                            <ul class="feature-items">
-                                <li>Watch history sync</li>
-                                <li>Progress tracking</li>
-                                <li>Favorites/watchlist</li>
-                                <li>Cross-device sync</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🔍</div>
-                            <div class="feature-title">Search & Discovery</div>
-                            <ul class="feature-items">
-                                <li>Full-text search</li>
-                                <li>Category filtering</li>
-                                <li>Performer pages</li>
-                                <li>Recommendations</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="phase phase-2">
-                <div class="phase-marker">2</div>
-                <div class="phase-content">
-                    <div class="phase-header">
-                        <div class="phase-title">🌐 3D Immersive Content (360°)</div>
-                        <div class="phase-timeline">Month 2-4</div>
-                    </div>
-                    <p class="phase-description">Launch 360° camera content - fully achievable now. Users can look around and explore scenes from any angle.</p>
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">📹</div>
-                            <div class="feature-title">360° Video Production</div>
-                            <ul class="feature-items">
-                                <li>360° camera rigs</li>
-                                <li>Equirectangular encoding</li>
-                                <li>Spatial audio capture</li>
-                                <li>Multi-angle shoots</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🎮</div>
-                            <div class="feature-title">360° Player</div>
-                            <ul class="feature-items">
-                                <li>Drag-to-look controls</li>
-                                <li>Gyroscope support</li>
-                                <li>Hotspot navigation</li>
-                                <li>Quality switching</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🥽</div>
-                            <div class="feature-title">VR Support</div>
-                            <ul class="feature-items">
-                                <li>WebXR integration</li>
-                                <li>Headset detection</li>
-                                <li>Head tracking</li>
-                                <li>Comfort settings</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="phase phase-3">
-                <div class="phase-marker">3</div>
-                <div class="phase-content">
-                    <div class="phase-header">
-                        <div class="phase-title">🔮 4D Gaussian Splat Content</div>
-                        <div class="phase-timeline">Year 1-2+</div>
-                    </div>
-                    <p class="phase-description">The ultimate goal - full-length 4D volumetric content. Dependent on partnerships with Luma AI and volumetric capture studios as the tech matures.</p>
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">🤝</div>
-                            <div class="feature-title">Tech Partnerships</div>
-                            <ul class="feature-items">
-                                <li>Partner with Luma AI</li>
-                                <li>Volumetric studio deals</li>
-                                <li>R&D collaboration</li>
-                                <li>Early access programs</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🎬</div>
-                            <div class="feature-title">4D Production Pipeline</div>
-                            <ul class="feature-items">
-                                <li>Capture rig development</li>
-                                <li>4D encoding pipeline</li>
-                                <li>Streaming optimization</li>
-                                <li>Full-length scenes</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">⚡</div>
-                            <div class="feature-title">4D Playback Engine</div>
-                            <ul class="feature-items">
-                                <li>Timeline scrubbing in 3D</li>
-                                <li>Free camera movement</li>
-                                <li>60fps rendering</li>
-                                <li>WebXR 4D support</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="phase phase-4">
-                <div class="phase-marker">4</div>
-                <div class="phase-content">
-                    <div class="phase-header">
-                        <div class="phase-title">💰 Monetization</div>
-                        <div class="phase-timeline">Month 2-4</div>
-                    </div>
-                    <p class="phase-description">Implement subscription tiers with CCBill (industry-standard adult payment processor) and premium content gating.</p>
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">💳</div>
-                            <div class="feature-title">CCBill Integration</div>
-                            <ul class="feature-items">
-                                <li>Merchant account setup</li>
-                                <li>FlexForms checkout</li>
-                                <li>Webhook handling</li>
-                                <li>Subscription management</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">⭐</div>
-                            <div class="feature-title">Tier System</div>
-                            <ul class="feature-items">
-                                <li>Free: Limited, SD</li>
-                                <li>Basic: Full HD</li>
-                                <li>Premium: 4K + VR</li>
-                                <li>Ultimate: Downloads</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🎁</div>
-                            <div class="feature-title">Additional Revenue</div>
-                            <ul class="feature-items">
-                                <li>Pay-per-view content</li>
-                                <li>Rentals (24-48hr)</li>
-                                <li>Creator tipping</li>
-                                <li>Bundle deals</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="phase phase-5">
-                <div class="phase-marker">5</div>
-                <div class="phase-content">
-                    <div class="phase-header">
-                        <div class="phase-title">👥 Social & Community</div>
-                        <div class="phase-timeline">Month 4-6</div>
-                    </div>
-                    <p class="phase-description">Build community features with profiles, social interactions, and creator tools.</p>
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">👤</div>
-                            <div class="feature-title">User Profiles</div>
-                            <ul class="feature-items">
-                                <li>Public/private profiles</li>
-                                <li>Custom avatars</li>
-                                <li>Activity feed</li>
-                                <li>Follow creators</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">💬</div>
-                            <div class="feature-title">Engagement</div>
-                            <ul class="feature-items">
-                                <li>Comments system</li>
-                                <li>Ratings (1-5 stars)</li>
-                                <li>Public playlists</li>
-                                <li>Share functionality</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🎨</div>
-                            <div class="feature-title">Creator Tools</div>
-                            <ul class="feature-items">
-                                <li>Creator dashboard</li>
-                                <li>Analytics & earnings</li>
-                                <li>Fan messaging</li>
-                                <li>Verification badges</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="phase phase-6">
-                <div class="phase-marker">6</div>
-                <div class="phase-content">
-                    <div class="phase-header">
-                        <div class="phase-title">📱 Platform Expansion</div>
-                        <div class="phase-timeline">Month 6-12</div>
-                    </div>
-                    <p class="phase-description">Launch native apps for iOS, Android, Smart TVs, and desktop platforms.</p>
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">📱</div>
-                            <div class="feature-title">Mobile Apps</div>
-                            <ul class="feature-items">
-                                <li>iOS (App Store)</li>
-                                <li>Android (Play Store)</li>
-                                <li>Push notifications</li>
-                                <li>Offline downloads</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">📺</div>
-                            <div class="feature-title">Smart TV</div>
-                            <ul class="feature-items">
-                                <li>Roku channel</li>
-                                <li>Fire TV app</li>
-                                <li>Apple TV</li>
-                                <li>Samsung TV</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">💻</div>
-                            <div class="feature-title">Desktop App</div>
-                            <ul class="feature-items">
-                                <li>Windows/Mac/Linux</li>
-                                <li>Download manager</li>
-                                <li>Offline viewing</li>
-                                <li>Hardware acceleration</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="phase phase-7">
-                <div class="phase-marker">7</div>
-                <div class="phase-content">
-                    <div class="phase-header">
-                        <div class="phase-title">🔒 Trust & Safety</div>
-                        <div class="phase-timeline">Ongoing</div>
-                    </div>
-                    <p class="phase-description">Ensure compliance, security, and content moderation across the platform.</p>
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">📋</div>
-                            <div class="feature-title">Compliance</div>
-                            <ul class="feature-items">
-                                <li>ID/Age verification</li>
-                                <li>2257 documentation</li>
-                                <li>GDPR/CCPA</li>
-                                <li>DMCA system</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🛡️</div>
-                            <div class="feature-title">Security</div>
-                            <ul class="feature-items">
-                                <li>Two-factor auth</li>
-                                <li>Session management</li>
-                                <li>Content watermarking</li>
-                                <li>Secure delivery</li>
-                            </ul>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">⚖️</div>
-                            <div class="feature-title">Moderation</div>
-                            <ul class="feature-items">
-                                <li>Content review pipeline</li>
-                                <li>Report system</li>
-                                <li>Auto-detection</li>
-                                <li>Appeal process</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+        <!-- JANUARY -->
+        <div class="month-header">
+            <div class="month-icon">📅</div>
+            <div>
+                <div class="month-title">January 2026</div>
+                <div class="month-subtitle">Foundation & Infrastructure</div>
             </div>
         </div>
 
-        <section class="tech-stack">
+        <div class="week-card">
+            <div class="week-header">
+                <div class="week-date">Jan 1-9</div>
+                <div class="week-label">Week 1</div>
+            </div>
+            <ul class="task-list">
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Website creation (front and back end)</li>
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Gaussian Splat Viewer implementation</li>
+                <li class="task-item"><span class="task-category cat-content">Content</span> Placeholder images and videos on SIREN website</li>
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Auth system & account management</li>
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Mobile responsive polish</li>
+            </ul>
+        </div>
+
+        <div class="week-card">
+            <div class="week-header">
+                <div class="week-date">Jan 10</div>
+                <div class="week-label">Key Date</div>
+            </div>
+            <ul class="task-list">
+                <li class="task-item"><span class="task-category cat-meeting">Meeting</span> Bill and Dan Vegas meeting</li>
+                <li class="task-item"><span class="task-category cat-meeting">Meeting</span> Web experience walkthrough demo</li>
+                <li class="task-item"><span class="task-category cat-meeting">Meeting</span> Operations meeting</li>
+                <li class="task-item"><span class="task-category cat-business">Business</span> Milestone evaluation</li>
+            </ul>
+        </div>
+
+        <div class="week-card">
+            <div class="week-header">
+                <div class="week-date">Jan 11-17</div>
+                <div class="week-label">Week 2</div>
+            </div>
+            <ul class="task-list">
+                <li class="task-item"><span class="task-category cat-equipment">Equip</span> Logistics for cameras and equipment</li>
+                <li class="task-item"><span class="task-category cat-equipment">Equip</span> Order Canon VR Cameras and Lenses</li>
+                <li class="task-item"><span class="task-category cat-equipment">Equip</span> Order DSLR/Digital film and prime lenses</li>
+                <li class="task-item"><span class="task-category cat-equipment">Equip</span> Order camera supplemental equipment (batteries, cables, storage)</li>
+                <li class="task-item"><span class="task-category cat-equipment">Equip</span> Order physical MCP unit (god box)</li>
+            </ul>
+        </div>
+
+        <div class="week-card">
+            <div class="week-header">
+                <div class="week-date">Jan 18-24</div>
+                <div class="week-label">Week 3</div>
+            </div>
+            <ul class="task-list">
+                <li class="task-item"><span class="task-category cat-content">Content</span> Recording local video in both VR and Digital Film</li>
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Unreal Engine Project buildout and tortoise integration</li>
+                <li class="task-item"><span class="task-category cat-business">Business</span> AVN floor walkthrough</li>
+            </ul>
+        </div>
+
+        <div class="week-card">
+            <div class="week-header">
+                <div class="week-date">Jan 25-31</div>
+                <div class="week-label">Week 4</div>
+            </div>
+            <ul class="task-list">
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Establish MCP video pipeline</li>
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Integrate into Unreal Engine 5 and SIREN test viewer</li>
+                <li class="task-item"><span class="task-category cat-business">Business</span> Establish content creator relationship pipeline</li>
+                <li class="task-item"><span class="task-category cat-business">Business</span> Establish brand partnerships pipeline</li>
+            </ul>
+        </div>
+
+        <!-- FEBRUARY -->
+        <div class="month-header">
+            <div class="month-icon">🚀</div>
+            <div>
+                <div class="month-title">February 2026</div>
+                <div class="month-subtitle">Partnerships & Production</div>
+            </div>
+        </div>
+
+        <div class="goals-section">
+            <div class="goals-header">
+                <div class="goals-icon">🎯</div>
+                <div class="goals-title">February Goals</div>
+            </div>
+            <ul class="task-list">
+                <li class="task-item"><span class="task-category cat-business">Business</span> NDA + MOU Content Creators and video content for platform</li>
+                <li class="task-item"><span class="task-category cat-business">Business</span> NDA + MOU Brand partnerships for platform</li>
+                <li class="task-item"><span class="task-category cat-content">Content</span> Start filming advertisements for the platform</li>
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> SEO Optimization, User Acquisition</li>
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Train MCP on 8+ camera angle footage → 4D Gaussian Splat</li>
+            </ul>
+        </div>
+
+        <!-- MARCH -->
+        <div class="month-header">
+            <div class="month-icon">🔮</div>
+            <div>
+                <div class="month-title">March 2026</div>
+                <div class="month-subtitle">4D Tech Demo & Content Scale</div>
+            </div>
+        </div>
+
+        <div class="goals-section">
+            <div class="goals-header">
+                <div class="goals-icon">🎯</div>
+                <div class="goals-title">March Goals</div>
+            </div>
+            <ul class="task-list">
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Attempt solid 4D Gaussian Splat tech demo</li>
+                <li class="task-item"><span class="task-category cat-content">Content</span> Record more local VR and 8+ camera video</li>
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Update website to host more internal and external content</li>
+                <li class="task-item"><span class="task-category cat-business">Business</span> CCBill payment integration (if ready)</li>
+                <li class="task-item"><span class="task-category cat-dev">Dev</span> Bunny.net CDN integration for video streaming</li>
+            </ul>
+        </div>
+
+        <!-- Tech Stack -->
+        <section class="tech-section">
             <div class="tech-title">🛠️ Technology Stack</div>
             <div class="tech-grid">
                 <div class="tech-item">
@@ -529,18 +392,18 @@
                 </div>
                 <div class="tech-item">
                     <div class="tech-item-icon">🔮</div>
-                    <div class="tech-item-name">GaussianSplats3D</div>
-                    <div class="tech-item-desc">Splat Rendering</div>
+                    <div class="tech-item-name">Gaussian Splats</div>
+                    <div class="tech-item-desc">4D Rendering</div>
                 </div>
                 <div class="tech-item">
-                    <div class="tech-item-icon">🎬</div>
-                    <div class="tech-item-name">Luma AI</div>
-                    <div class="tech-item-desc">4D Capture Partner</div>
+                    <div class="tech-item-icon">🎮</div>
+                    <div class="tech-item-name">Unreal Engine 5</div>
+                    <div class="tech-item-desc">Pipeline Integration</div>
                 </div>
                 <div class="tech-item">
-                    <div class="tech-item-icon">✨</div>
-                    <div class="tech-item-name">GSAP</div>
-                    <div class="tech-item-desc">Animations</div>
+                    <div class="tech-item-icon">🤖</div>
+                    <div class="tech-item-name">MCP</div>
+                    <div class="tech-item-desc">AI Processing</div>
                 </div>
                 <div class="tech-item">
                     <div class="tech-item-icon">🗄️</div>
@@ -553,53 +416,21 @@
                     <div class="tech-item-desc">Video CDN</div>
                 </div>
                 <div class="tech-item">
-                    <div class="tech-item-icon">🏛️</div>
-                    <div class="tech-item-name">Vicetemple</div>
-                    <div class="tech-item-desc">Hosting</div>
-                </div>
-                <div class="tech-item">
                     <div class="tech-item-icon">💳</div>
                     <div class="tech-item-name">CCBill</div>
                     <div class="tech-item-desc">Payments</div>
                 </div>
                 <div class="tech-item">
-                    <div class="tech-item-icon">🥽</div>
-                    <div class="tech-item-name">WebXR</div>
-                    <div class="tech-item-desc">VR Support</div>
+                    <div class="tech-item-icon">🏛️</div>
+                    <div class="tech-item-name">Vicetemple</div>
+                    <div class="tech-item-desc">Hosting</div>
                 </div>
-            </div>
-        </section>
-
-        <section class="metrics">
-            <div class="metric-card">
-                <div class="metric-value">100+</div>
-                <div class="metric-label">Hours Video<br>At Launch</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">20+</div>
-                <div class="metric-label">360° Scenes<br>Immersive Content</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">4D</div>
-                <div class="metric-label">Gaussian Movies<br>Year 1-2 Goal</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">60fps</div>
-                <div class="metric-label">Playback<br>All Formats</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">&lt;3s</div>
-                <div class="metric-label">Load Time<br>Performance</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">1K+</div>
-                <div class="metric-label">Beta Users<br>Launch Target</div>
             </div>
         </section>
     </div>
 
     <footer class="footer">
-        <p>SIREN Platform Roadmap • January 2025 • Confidential</p>
+        <p>SIREN 90-Day Roadmap • January - March 2026 • Confidential</p>
     </footer>
 </body>
 </html>
