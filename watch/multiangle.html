@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SIREN | 4D Gaussian Experience</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Load Three.js FIRST as global -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/examples/js/controls/OrbitControls.js"></script>
     <style>
         :root {
             --siren-red: #ef4444;
@@ -16,200 +18,66 @@
             --glass-border: rgba(255,255,255,0.1);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #000;
-            color: #fff;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-        }
-        #viewer { position: absolute; inset: 0; }
-        #viewer canvas { display: block; width: 100%; height: 100%; }
+        body { font-family: 'Inter', sans-serif; background: #000; color: #fff; overflow: hidden; }
+        #canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
         
         .site-loader {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            position: fixed; inset: 0; background: #000; z-index: 1000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.4s;
         }
         .site-loader.hidden { opacity: 0; pointer-events: none; }
         .loader-container { position: relative; width: 80px; height: 80px; margin-bottom: 24px; }
-        .loader-ring {
-            position: absolute;
-            inset: 0;
-            border: 2px solid transparent;
-            border-top-color: var(--siren-red);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+        .loader-ring { position: absolute; inset: 0; border: 2px solid transparent; border-top-color: var(--siren-red); border-radius: 50%; animation: spin 1s linear infinite; }
         .loader-ring-2 { inset: 8px; border-top-color: var(--siren-orange); animation-duration: 1.5s; animation-direction: reverse; }
         .loader-ring-3 { inset: 16px; border-top-color: var(--siren-red); animation-duration: 2s; }
-        .loader-logo {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: var(--siren-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .loader-logo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; background: var(--siren-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loader-progress-container { text-align: center; }
-        .loader-status { font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 12px; }
+        .loader-status { font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 12px; text-align: center; }
         .loader-progress-bar { width: 200px; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
         .loader-progress-fill { height: 100%; background: var(--siren-gradient); width: 0%; transition: width 0.3s; }
         
         .controls-overlay { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
         .controls-overlay > * { pointer-events: auto; }
         
-        .top-bar {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            padding: 20px 24px;
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .back-btn {
-            width: 44px; height: 44px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #fff;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+        .top-bar { position: absolute; top: 0; left: 0; right: 0; padding: 20px 24px; background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%); display: flex; align-items: center; justify-content: space-between; }
+        .back-btn { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
         .back-btn:hover { background: rgba(255,255,255,0.2); }
         .back-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
         .title-info { text-align: center; flex: 1; }
         .title-info h1 { font-size: 1rem; font-weight: 600; margin-bottom: 2px; }
         .title-info span { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
-        .mode-badge {
-            display: flex; align-items: center; gap: 6px;
-            padding: 8px 14px;
-            background: var(--siren-gradient);
-            border-radius: 20px;
-            font-size: 0.8rem; font-weight: 600;
-        }
+        .mode-badge { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: var(--siren-gradient); border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
         .mode-badge svg { width: 16px; height: 16px; }
         
-        .hotspots-container { position: absolute; inset: 0; pointer-events: none; z-index: 15; overflow: hidden; }
-        .hotspot {
-            position: absolute;
-            width: 40px; height: 40px;
-            transform: translate(-50%, -50%);
-            pointer-events: auto;
-            cursor: pointer;
-            transition: opacity 0.3s, transform 0.2s;
-        }
-        .hotspot:hover { transform: translate(-50%, -50%) scale(1.2); }
+        .hotspots-container { position: absolute; inset: 0; pointer-events: none; z-index: 15; }
+        .hotspot { position: absolute; width: 44px; height: 44px; transform: translate(-50%, -50%); pointer-events: auto; cursor: pointer; transition: transform 0.2s; }
+        .hotspot:hover { transform: translate(-50%, -50%) scale(1.15); }
         .hotspot:hover .hotspot-label { opacity: 1; }
-        .hotspot-dot {
-            position: absolute; inset: 6px;
-            border-radius: 50%;
-            background: var(--siren-gradient);
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
-        }
-        .hotspot-ring {
-            position: absolute; inset: 0;
-            border-radius: 50%;
-            border: 2px solid rgba(239, 68, 68, 0.5);
-            animation: hotspot-pulse 2s ease-out infinite;
-        }
-        .hotspot-ring-2 { animation-delay: 0.5s; }
-        .hotspot-num {
-            position: absolute; inset: 0;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; font-weight: 700; color: #fff;
-        }
-        .hotspot-label {
-            position: absolute;
-            top: 100%; left: 50%;
-            transform: translateX(-50%);
-            margin-top: 8px;
-            padding: 4px 10px;
-            background: rgba(0,0,0,0.9);
-            border-radius: 6px;
-            font-size: 0.7rem;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
+        .hotspot-dot { position: absolute; inset: 8px; border-radius: 50%; background: var(--siren-gradient); box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+        .hotspot-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(239, 68, 68, 0.4); animation: pulse 2s ease-out infinite; }
+        .hotspot-ring-2 { animation-delay: 0.6s; }
+        .hotspot-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; }
+        .hotspot-label { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 6px; padding: 4px 10px; background: rgba(0,0,0,0.9); border-radius: 6px; font-size: 0.7rem; white-space: nowrap; opacity: 0; transition: opacity 0.2s; }
         .hotspot.active .hotspot-dot { background: #fff; box-shadow: 0 0 25px rgba(255,255,255,0.8); }
-        @keyframes hotspot-pulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.8); opacity: 0; } }
+        .hotspot.active .hotspot-ring { border-color: rgba(255,255,255,0.5); }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.8); opacity: 0; } }
         
-        .bottom-bar {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            padding: 20px 24px;
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%);
-            display: flex; flex-direction: column; align-items: center; gap: 16px;
-        }
-        .scene-selector {
-            display: flex; gap: 8px;
-            padding: 6px 10px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            border: 1px solid var(--glass-border);
-        }
-        .scene-btn {
-            padding: 8px 16px;
-            background: transparent;
-            border: none;
-            color: rgba(255,255,255,0.6);
-            font-family: inherit;
-            font-size: 0.8rem;
-            cursor: pointer;
-            border-radius: 20px;
-            transition: all 0.2s;
-        }
+        .bottom-bar { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 24px; padding-bottom: max(20px, env(safe-area-inset-bottom)); background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+        .scene-selector { display: flex; gap: 8px; padding: 6px 10px; background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 30px; border: 1px solid var(--glass-border); }
+        .scene-btn { padding: 8px 16px; background: transparent; border: none; color: rgba(255,255,255,0.6); font-family: inherit; font-size: 0.8rem; cursor: pointer; border-radius: 20px; transition: all 0.2s; }
         .scene-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
         .scene-btn.active { background: var(--siren-gradient); color: #fff; }
         .controls-hint { display: flex; gap: 16px; font-size: 0.7rem; color: rgba(255,255,255,0.5); }
         .controls-hint kbd { padding: 3px 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-right: 4px; }
         
-        .angle-indicator {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 16px 28px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
+        .angle-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 16px 28px; background: var(--glass-bg); backdrop-filter: blur(10px); border-radius: 12px; z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .angle-indicator.visible { opacity: 1; }
         .angle-indicator-title { font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 4px; }
         .angle-indicator-name { font-size: 1.5rem; font-weight: 700; background: var(--siren-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        @media (max-width: 768px) { .controls-hint { display: none; } .hotspot { width: 36px; height: 36px; } }
+        @media (max-width: 768px) { .controls-hint { display: none; } .hotspot { width: 38px; height: 38px; } }
     </style>
-    
-    <!-- Import map for ES modules -->
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/"
-        }
-    }
-    </script>
 </head>
 <body>
     <div class="site-loader" id="siteLoader">
@@ -219,13 +87,11 @@
             <div class="loader-ring loader-ring-3"></div>
             <div class="loader-logo">S</div>
         </div>
-        <div class="loader-progress-container">
-            <div class="loader-status" id="loaderStatus">Initializing...</div>
-            <div class="loader-progress-bar"><div class="loader-progress-fill" id="loaderProgress"></div></div>
-        </div>
+        <div class="loader-status" id="loaderStatus">Initializing...</div>
+        <div class="loader-progress-bar"><div class="loader-progress-fill" id="loaderProgress"></div></div>
     </div>
     
-    <div id="viewer"></div>
+    <canvas id="canvas"></canvas>
     <div class="hotspots-container" id="hotspotsContainer"></div>
     
     <div class="angle-indicator" id="angleIndicator">
@@ -260,19 +126,13 @@
     </div>
 
     <script type="module">
-        console.log('%c[SIREN 4D v2.0.3]', 'background:#ef4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
+        console.log('%c[SIREN 4D v2.1.1 - DropInViewer]', 'background:#ef4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { PLYLoader } from 'three/addons/loaders/PLYLoader.js';
+        // Import GaussianSplats3D DropInViewer
+        const { DropInViewer } = await import('https://cdn.jsdelivr.net/npm/@mkkellogg/gaussian-splats-3d@0.4.6/build/gaussian-splats-3d.module.js');
         
-        window.THREE = THREE; // Make THREE global for GaussianSplats3D
-        
-        // Now import GaussianSplats3D
-        const GS = await import('https://cdn.jsdelivr.net/npm/@mkkellogg/gaussian-splats-3d@0.4.6/build/gaussian-splats-3d.module.js');
-        
-        console.log('[SIREN] THREE:', THREE);
-        console.log('[SIREN] GaussianSplats3D:', GS);
+        console.log('[SIREN] THREE:', typeof THREE !== 'undefined');
+        console.log('[SIREN] DropInViewer:', DropInViewer);
         
         const SCENES = {
             stump: { name: 'Tree Stump', url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/stump/stump-7k.splat' },
@@ -280,149 +140,181 @@
         };
         
         const CAMERA_ANGLES = [
-            { name: 'Front', pos: [0, 0.5, 4], target: [0, 0, 0] },
-            { name: 'Left', pos: [4, 0.5, 0], target: [0, 0, 0] },
-            { name: 'Right', pos: [-4, 0.5, 0], target: [0, 0, 0] },
-            { name: 'Back', pos: [0, 0.5, -4], target: [0, 0, 0] },
-            { name: 'Above', pos: [0, 5, 2], target: [0, 0, 0] },
-            { name: 'Low', pos: [0, -1, 4], target: [0, 0, 0] },
-            { name: 'Corner L', pos: [3, 1.5, 3], target: [0, 0, 0] },
-            { name: 'Corner R', pos: [-3, 1.5, 3], target: [0, 0, 0] }
+            { name: 'Front', pos: new THREE.Vector3(0, 0.5, 4) },
+            { name: 'Left', pos: new THREE.Vector3(4, 0.5, 0) },
+            { name: 'Right', pos: new THREE.Vector3(-4, 0.5, 0) },
+            { name: 'Back', pos: new THREE.Vector3(0, 0.5, -4) },
+            { name: 'Above', pos: new THREE.Vector3(0, 5, 2) },
+            { name: 'Low', pos: new THREE.Vector3(0, -0.5, 4) },
+            { name: 'Corner L', pos: new THREE.Vector3(3, 1.5, 3) },
+            { name: 'Corner R', pos: new THREE.Vector3(-3, 1.5, 3) }
         ];
         
-        const HOTSPOT_3D = [
-            new THREE.Vector3(0, 0.3, 1.8),
-            new THREE.Vector3(1.8, 0.3, 0),
-            new THREE.Vector3(-1.8, 0.3, 0),
-            new THREE.Vector3(0, 0.3, -1.8),
-            new THREE.Vector3(0, 2, 0.5),
-            new THREE.Vector3(0, -0.5, 1.8),
-            new THREE.Vector3(1.3, 0.6, 1.3),
-            new THREE.Vector3(-1.3, 0.6, 1.3)
-        ];
+        // Hotspot 3D positions - ring around center
+        const HOTSPOT_3D = CAMERA_ANGLES.map(a => a.pos.clone().multiplyScalar(0.5));
         
-        let viewer = null, currentScene = 'stump', currentAngle = 0, hotspotElements = [], camera = null, controls = null;
+        let viewer, threeScene, camera, controls, renderer;
+        let currentScene = 'stump', currentAngle = 0, hotspotEls = [];
         
+        const canvas = document.getElementById('canvas');
+        const siteLoader = document.getElementById('siteLoader');
         const loaderStatus = document.getElementById('loaderStatus');
         const loaderProgress = document.getElementById('loaderProgress');
-        const siteLoader = document.getElementById('siteLoader');
-        const sceneSelector = document.getElementById('sceneSelector');
         const hotspotsContainer = document.getElementById('hotspotsContainer');
         const angleIndicator = document.getElementById('angleIndicator');
         const angleIndicatorName = document.getElementById('angleIndicatorName');
+        const sceneSelector = document.getElementById('sceneSelector');
         const sceneTitle = document.getElementById('sceneTitle');
-        const viewerDiv = document.getElementById('viewer');
         
+        // Setup Three.js
+        function initThree() {
+            threeScene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 500);
+            camera.position.set(0, 0.5, 4);
+            
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            controls = new THREE.OrbitControls(camera, canvas);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.1;
+            controls.target.set(0, 0, 0);
+            
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // Create hotspots
         function createHotspots() {
             hotspotsContainer.innerHTML = '';
-            hotspotElements = [];
+            hotspotEls = [];
             CAMERA_ANGLES.forEach((angle, i) => {
                 const el = document.createElement('div');
                 el.className = 'hotspot' + (i === 0 ? ' active' : '');
-                el.innerHTML = `<div class="hotspot-ring"></div><div class="hotspot-ring hotspot-ring-2"></div><div class="hotspot-dot"></div><div class="hotspot-num">${i + 1}</div><div class="hotspot-label">${angle.name}</div>`;
-                el.addEventListener('click', () => switchAngle(i));
+                el.innerHTML = `<div class="hotspot-ring"></div><div class="hotspot-ring hotspot-ring-2"></div><div class="hotspot-dot"></div><div class="hotspot-num">${i+1}</div><div class="hotspot-label">${angle.name}</div>`;
+                el.onclick = () => switchAngle(i);
                 hotspotsContainer.appendChild(el);
-                hotspotElements.push({ el, pos3D: HOTSPOT_3D[i] });
+                hotspotEls.push({ el, pos: HOTSPOT_3D[i] });
             });
         }
         
+        // Update hotspot positions
         function updateHotspots() {
-            if (!camera) return;
-            hotspotElements.forEach((hs) => {
-                const screenPos = hs.pos3D.clone().project(camera);
-                const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
-                const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
-                const camDir = new THREE.Vector3();
-                camera.getWorldDirection(camDir);
-                const toHotspot = hs.pos3D.clone().sub(camera.position).normalize();
-                const dot = camDir.dot(toHotspot);
-                if (dot > 0 && x > -50 && x < window.innerWidth + 50 && y > -50 && y < window.innerHeight + 50) {
-                    hs.el.style.display = 'block';
-                    hs.el.style.left = x + 'px';
-                    hs.el.style.top = y + 'px';
-                } else {
-                    hs.el.style.display = 'none';
-                }
+            hotspotEls.forEach(hs => {
+                const p = hs.pos.clone().project(camera);
+                const x = (p.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-p.y * 0.5 + 0.5) * window.innerHeight;
+                const dir = new THREE.Vector3();
+                camera.getWorldDirection(dir);
+                const toHs = hs.pos.clone().sub(camera.position).normalize();
+                const visible = dir.dot(toHs) > 0 && x > 0 && x < window.innerWidth && y > 0 && y < window.innerHeight;
+                hs.el.style.display = visible ? 'block' : 'none';
+                hs.el.style.left = x + 'px';
+                hs.el.style.top = y + 'px';
             });
         }
         
-        function switchAngle(index) {
-            if (!camera || !controls) return;
-            currentAngle = index;
-            const angle = CAMERA_ANGLES[index];
-            console.log('[SIREN] Switching to angle', index, angle.name);
-            gsap.to(camera.position, { x: angle.pos[0], y: angle.pos[1], z: angle.pos[2], duration: 0.8, ease: 'power2.inOut' });
-            gsap.to(controls.target, { x: angle.target[0], y: angle.target[1], z: angle.target[2], duration: 0.8, ease: 'power2.inOut' });
-            document.querySelectorAll('.hotspot').forEach((el, i) => el.classList.toggle('active', i === index));
-            showAngleIndicator(angle.name);
+        // Switch angle
+        function switchAngle(i) {
+            currentAngle = i;
+            const angle = CAMERA_ANGLES[i];
+            gsap.to(camera.position, { x: angle.pos.x, y: angle.pos.y, z: angle.pos.z, duration: 0.7, ease: 'power2.inOut' });
+            gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 0.7, ease: 'power2.inOut' });
+            document.querySelectorAll('.hotspot').forEach((el, j) => el.classList.toggle('active', j === i));
+            showIndicator(angle.name);
         }
         
-        function showAngleIndicator(name) {
+        function showIndicator(name) {
             angleIndicatorName.textContent = name;
             angleIndicator.classList.add('visible');
-            clearTimeout(window.indicatorTimeout);
-            window.indicatorTimeout = setTimeout(() => angleIndicator.classList.remove('visible'), 1500);
+            clearTimeout(window.indTO);
+            window.indTO = setTimeout(() => angleIndicator.classList.remove('visible'), 1200);
         }
         
+        // Scene selector
         function initSceneSelector() {
             sceneSelector.innerHTML = '';
-            Object.entries(SCENES).forEach(([key, data]) => {
+            Object.entries(SCENES).forEach(([k, v]) => {
                 const btn = document.createElement('button');
-                btn.className = 'scene-btn' + (key === currentScene ? ' active' : '');
-                btn.textContent = data.name;
-                btn.addEventListener('click', () => loadScene(key));
+                btn.className = 'scene-btn' + (k === currentScene ? ' active' : '');
+                btn.textContent = v.name;
+                btn.onclick = () => loadScene(k);
                 sceneSelector.appendChild(btn);
             });
         }
         
-        async function loadScene(sceneName) {
-            const sceneData = SCENES[sceneName];
-            if (!sceneData) return;
+        // Load scene
+        async function loadScene(name) {
+            const sc = SCENES[name];
+            if (!sc) return;
             
             siteLoader.classList.remove('hidden');
-            loaderProgress.style.width = '0%';
-            loaderStatus.textContent = 'Loading ' + sceneData.name + '...';
-            currentScene = sceneName;
-            sceneTitle.textContent = sceneData.name;
-            document.querySelectorAll('.scene-btn').forEach(btn => btn.classList.toggle('active', btn.textContent === sceneData.name));
+            loaderStatus.textContent = 'Loading ' + sc.name + '...';
+            loaderProgress.style.width = '10%';
+            currentScene = name;
+            sceneTitle.textContent = sc.name;
+            document.querySelectorAll('.scene-btn').forEach(b => b.classList.toggle('active', b.textContent === sc.name));
             
             try {
-                if (viewer) { viewer.dispose(); viewer = null; viewerDiv.innerHTML = ''; }
+                // Remove old viewer
+                if (viewer) {
+                    viewer.dispose();
+                    viewer = null;
+                }
                 
-                console.log('[SIREN] Creating viewer...');
-                viewer = new GS.Viewer({
-                    cameraUp: [0, 1, 0],
-                    initialCameraPosition: CAMERA_ANGLES[0].pos,
-                    initialCameraLookAt: CAMERA_ANGLES[0].target,
-                    rootElement: viewerDiv
+                loaderProgress.style.width = '30%';
+                loaderStatus.textContent = 'Creating viewer...';
+                
+                // Create DropInViewer with our Three.js scene
+                viewer = new DropInViewer({
+                    gpuAcceleratedSort: true,
+                    sharedMemoryForWorkers: false
                 });
                 
-                console.log('[SIREN] Loading splat:', sceneData.url);
-                await viewer.addSplatScene(sceneData.url, { splatAlphaRemovalThreshold: 5 });
+                viewer.addSplatScenes([{
+                    path: sc.url,
+                    splatAlphaRemovalThreshold: 5
+                }], true).then(() => {
+                    console.log('[SIREN] Splat loaded!');
+                    loaderProgress.style.width = '100%';
+                    loaderStatus.textContent = 'Enjoy!';
+                    setTimeout(() => siteLoader.classList.add('hidden'), 300);
+                });
                 
-                console.log('[SIREN] Starting viewer...');
-                viewer.start();
+                threeScene.add(viewer);
                 
-                camera = viewer.camera;
-                controls = viewer.controls;
-                console.log('[SIREN] Camera:', camera, 'Controls:', controls);
-                
-                loaderProgress.style.width = '100%';
-                loaderStatus.textContent = 'Enjoy!';
-                setTimeout(() => siteLoader.classList.add('hidden'), 400);
-                
-                (function updateLoop() { updateHotspots(); requestAnimationFrame(updateLoop); })();
+                loaderProgress.style.width = '50%';
+                loaderStatus.textContent = 'Loading splats...';
                 
             } catch (err) {
-                console.error('[SIREN] Load error:', err);
+                console.error('[SIREN] Error:', err);
                 loaderStatus.textContent = 'Error: ' + err.message;
             }
         }
         
-        document.addEventListener('keydown', (e) => { if (e.key >= '1' && e.key <= '8') switchAngle(parseInt(e.key) - 1); });
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            if (viewer) viewer.update();
+            updateHotspots();
+            renderer.render(threeScene, camera);
+        }
         
-        initSceneSelector();
+        // Keyboard
+        document.addEventListener('keydown', e => {
+            if (e.key >= '1' && e.key <= '8') switchAngle(parseInt(e.key) - 1);
+        });
+        
+        // Init
+        initThree();
         createHotspots();
+        initSceneSelector();
+        animate();
         loadScene('stump');
     </script>
 </body>
