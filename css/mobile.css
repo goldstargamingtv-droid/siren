@@ -384,6 +384,8 @@
         display: flex !important;
         flex-direction: row !important;
         gap: 8px !important;
+        opacity: 1 !important;
+        visibility: visible !important;
     }
 
     .age-btn {
@@ -393,6 +395,10 @@
         font-size: 0.8rem !important;
         font-weight: 600 !important;
         border: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        filter: none !important;
+        transform: none !important;
     }
 
     .age-btn-primary {

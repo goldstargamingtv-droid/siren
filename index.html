@@ -4991,6 +4991,12 @@
                 document.querySelector('.age-gate-logo').style.opacity = 1;
                 document.querySelector('.age-gate-content').style.opacity = 1;
                 document.querySelector('.age-gate-terms').style.opacity = 1;
+                // Make sure buttons are visible too
+                document.querySelectorAll('.age-btn').forEach(btn => {
+                    btn.style.opacity = 1;
+                    btn.style.filter = 'none';
+                    btn.style.transform = 'none';
+                });
             }
         }
         
