@@ -5006,39 +5006,13 @@
         }
         
         function enterSite() {
-            // VERSION: v2-fixed-no-alert
             try {
                 localStorage.setItem(AGE_KEY, 'true');
             } catch(e) {}
             
-            const isMobileDevice = window.innerWidth <= 768;
-            
-            if (isMobileDevice) {
-                // Hide age gate, show mobile landing
-                const ageGate = document.getElementById('ageGate');
-                if (ageGate) ageGate.style.display = 'none';
-                document.body.classList.remove('age-gate-active');
-                
-                // Show mobile landing carousel
-                const mobileLanding = document.querySelector('.mobile-landing');
-                if (mobileLanding) {
-                    mobileLanding.style.opacity = '1';
-                    mobileLanding.style.visibility = 'visible';
-                    mobileLanding.style.pointerEvents = 'auto';
-                }
-            } else {
-                // Desktop: Show loader then animate
-                document.getElementById('siteLoader').style.display = 'flex';
-                gsap.to('.age-gate', {
-                    opacity: 0,
-                    duration: 0.6,
-                    ease: 'power2.inOut',
-                    onComplete: () => {
-                        document.getElementById('ageGate').classList.add('hidden');
-                        startLoader();
-                    }
-                });
-            }
+            // Hide age gate directly
+            document.getElementById('ageGate').style.display = 'none';
+            document.body.classList.remove('age-gate-active');
         }
         
         function exitSite() {
