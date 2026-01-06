@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="robots" content="noindex, nofollow">
-    <title>SIREN - Multi-Angle Player</title>
+    <title>SIREN - 3D Immersive</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
@@ -21,11 +21,9 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #050507;
+            background: #000;
             font-family: 'Outfit', sans-serif;
             color: #fff;
-            overscroll-behavior: none;
-            touch-action: none;
         }
         
         /* Loader */
@@ -38,9 +36,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 1;
-            visibility: visible;
-            transition: all 0.5s ease;
+            transition: opacity 0.5s, visibility 0.5s;
         }
         .site-loader.hidden {
             opacity: 0;
@@ -80,9 +76,7 @@
             border-top-color: #ec4899;
             animation: spin 2.5s linear infinite;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .loader-glow {
             position: absolute;
             inset: -30px;
@@ -104,7 +98,6 @@
             background: var(--siren-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
         .loader-progress-container {
             display: flex;
@@ -133,30 +126,15 @@
             transition: width 0.3s ease;
         }
         
-        /* Main Container */
-        .player-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            background: #000;
-        }
-        
-        /* Video Stack - all 8 videos layered */
-        .video-stack {
+        /* Splat Viewer Container */
+        .viewer-wrapper {
             position: absolute;
             inset: 0;
         }
-        .video-stack video {
-            position: absolute;
-            inset: 0;
+        .splat-iframe {
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .video-stack video.active {
-            opacity: 1;
+            border: none;
         }
         
         /* Controls Overlay */
@@ -164,11 +142,15 @@
             position: absolute;
             inset: 0;
             z-index: 10;
+            pointer-events: none;
             opacity: 0;
             transition: opacity 0.3s;
         }
         .controls-overlay.visible {
             opacity: 1;
+        }
+        .controls-overlay > * {
+            pointer-events: auto;
         }
         
         /* Top Bar */
@@ -196,9 +178,7 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .back-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
         .back-btn svg {
             width: 24px;
             height: 24px;
@@ -206,20 +186,10 @@
             fill: none;
             stroke-width: 2;
         }
-        .title-info {
-            text-align: center;
-            flex: 1;
-        }
-        .title-info h1 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-        .title-info span {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.6);
-        }
-        .angle-badge {
+        .title-info { text-align: center; flex: 1; }
+        .title-info h1 { font-size: 1rem; font-weight: 600; margin-bottom: 2px; }
+        .title-info span { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
+        .mode-badge {
             display: flex;
             align-items: center;
             gap: 6px;
@@ -229,110 +199,54 @@
             font-size: 0.8rem;
             font-weight: 600;
         }
-        .angle-badge svg {
-            width: 16px;
-            height: 16px;
-        }
+        .mode-badge svg { width: 16px; height: 16px; }
         
-        /* Bottom Controls */
-        .bottom-controls {
+        /* Scene Selector */
+        .scene-selector {
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 20px 24px;
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
-            background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 100%);
-        }
-        
-        /* Progress Bar */
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 2px;
-            margin-bottom: 16px;
-            cursor: pointer;
-            position: relative;
-        }
-        .progress-bar:hover {
-            height: 6px;
-        }
-        .progress-fill {
-            height: 100%;
-            background: var(--siren-gradient);
-            border-radius: 2px;
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-        
-        /* Control Buttons */
-        .controls-row {
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
         }
-        .controls-left, .controls-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .ctrl-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
+        .scene-btn {
+            padding: 8px 16px;
+            background: transparent;
             border: none;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: rgba(255,255,255,0.6);
+            font-family: inherit;
+            font-size: 0.8rem;
             cursor: pointer;
+            border-radius: 20px;
             transition: all 0.2s;
         }
-        .ctrl-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: scale(1.05);
+        .scene-btn:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
         }
-        .ctrl-btn svg {
-            width: 22px;
-            height: 22px;
-        }
-        .ctrl-btn.play-btn {
-            width: 56px;
-            height: 56px;
+        .scene-btn.active {
             background: var(--siren-gradient);
-        }
-        .ctrl-btn.play-btn svg {
-            width: 28px;
-            height: 28px;
-        }
-        .time-display {
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.8);
-            font-variant-numeric: tabular-nums;
+            color: #fff;
         }
         
-        /* Desktop Angle Selector - Right Side Wheel */
+        /* Desktop Angle Selector */
         .angle-selector-desktop {
             position: absolute;
             right: 24px;
             top: 50%;
             transform: translateY(-50%);
-            z-index: 20;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 8px;
         }
-        .angle-wheel {
-            position: relative;
-            width: 80px;
-            height: 400px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+        .angle-wheel { display: flex; flex-direction: column; gap: 6px; }
         .angle-item {
             position: relative;
             width: 80px;
@@ -343,21 +257,27 @@
             border: 2px solid transparent;
             transition: all 0.3s ease;
             opacity: 0.6;
+            background: var(--glass-bg);
+            backdrop-filter: blur(5px);
         }
-        .angle-item:hover {
-            opacity: 0.9;
-            transform: scale(1.05);
-        }
+        .angle-item:hover { opacity: 0.9; transform: scale(1.05); }
         .angle-item.active {
             border-color: var(--siren-red);
             opacity: 1;
             transform: scale(1.1);
             box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
         }
-        .angle-item img {
+        .angle-item-inner {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         .angle-item-number {
             position: absolute;
@@ -373,28 +293,24 @@
             align-items: center;
             justify-content: center;
         }
-        .angle-item.active .angle-item-number {
-            background: var(--siren-gradient);
-        }
+        .angle-item.active .angle-item-number { background: var(--siren-gradient); }
         .angle-label {
             font-size: 0.7rem;
             color: rgba(255,255,255,0.5);
             text-transform: uppercase;
             letter-spacing: 0.1em;
             writing-mode: vertical-rl;
-            text-orientation: mixed;
             transform: rotate(180deg);
             margin-top: 8px;
         }
         
-        /* Mobile Angle Selector - Bottom Strip */
+        /* Mobile Angle Selector */
         .angle-selector-mobile {
             display: none;
             position: absolute;
-            bottom: 100px;
+            bottom: 20px;
             left: 0;
             right: 0;
-            z-index: 15;
             padding: 0 16px;
         }
         .angle-strip {
@@ -412,208 +328,119 @@
             width: 70px;
             height: 50px;
             border-radius: 8px;
-            overflow: hidden;
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.2s;
             scroll-snap-align: center;
             position: relative;
+            background: var(--glass-bg);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .angle-strip-item.active {
             border-color: var(--siren-red);
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
         }
-        .angle-strip-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .angle-strip-item span { font-size: 0.55rem; color: rgba(255,255,255,0.8); text-transform: uppercase; }
         .angle-strip-number {
             position: absolute;
             bottom: 4px;
             right: 4px;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             background: rgba(0,0,0,0.8);
             border-radius: 50%;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .angle-strip-item.active .angle-strip-number {
-            background: var(--siren-gradient);
-        }
+        .angle-strip-item.active .angle-strip-number { background: var(--siren-gradient); }
         
-        /* Mobile Swipe Indicator */
-        .swipe-indicator {
-            display: none;
+        /* Angle Indicator */
+        .angle-indicator {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 16px 24px;
+            padding: 16px 28px;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             border: 1px solid var(--glass-border);
-            font-size: 1.5rem;
-            font-weight: 700;
             pointer-events: none;
             z-index: 30;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        .swipe-indicator.show {
-            display: block;
-            animation: fadeInOut 0.6s ease;
+        .angle-indicator.visible { opacity: 1; }
+        .angle-indicator-title {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
         }
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        .angle-indicator-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--siren-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
-        /* Center Play Button */
-        .center-play {
+        /* Controls Hint */
+        .controls-hint {
             position: absolute;
-            top: 50%;
+            bottom: 160px;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
+            transform: translateX(-50%);
+            padding: 10px 20px;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
+            border-radius: 8px;
             border: 1px solid var(--glass-border);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 25;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            white-space: nowrap;
         }
-        .center-play.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .center-play svg {
-            width: 36px;
-            height: 36px;
-            fill: #fff;
-            margin-left: 4px;
+        .controls-hint kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 4px;
+            margin: 0 4px;
+            font-family: inherit;
         }
         
-        /* Current Angle Indicator */
-        .current-angle {
+        /* Free Look Badge */
+        .free-look-badge {
             position: absolute;
             top: 80px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 8px 16px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
             border-radius: 20px;
-            border: 1px solid var(--glass-border);
-            font-size: 0.85rem;
-            font-weight: 500;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 20;
-        }
-        .current-angle.visible {
-            opacity: 1;
-        }
-        .current-angle span {
-            color: var(--siren-red);
-            font-weight: 700;
-        }
-        
-        /* Keyboard Hints (Desktop) */
-        .keyboard-hints {
-            position: absolute;
-            bottom: 100px;
-            left: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .controls-overlay.visible .keyboard-hints {
-            opacity: 0.5;
-        }
-        .keyboard-hint {
             font-size: 0.7rem;
-            color: rgba(255,255,255,0.6);
+            color: #22c55e;
+            display: none;
         }
-        .keyboard-hint kbd {
-            display: inline-block;
-            padding: 2px 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            font-family: inherit;
-            margin-right: 6px;
-        }
+        .free-look-badge.visible { display: block; }
         
-        /* Mobile Styles */
+        /* Mobile */
         @media (max-width: 768px) {
-            .angle-selector-desktop {
-                display: none;
-            }
-            .angle-selector-mobile {
-                display: block;
-            }
-            .keyboard-hints {
-                display: none;
-            }
-            .top-bar {
-                padding: 16px;
-            }
-            .title-info h1 {
-                font-size: 0.9rem;
-            }
-            .angle-badge {
-                padding: 6px 10px;
-                font-size: 0.7rem;
-            }
-            .bottom-controls {
-                padding: 16px;
-                padding-bottom: max(16px, env(safe-area-inset-bottom));
-            }
-            .ctrl-btn {
-                width: 40px;
-                height: 40px;
-            }
-            .ctrl-btn svg {
-                width: 20px;
-                height: 20px;
-            }
-            .ctrl-btn.play-btn {
-                width: 48px;
-                height: 48px;
-            }
-            .center-play {
-                width: 70px;
-                height: 70px;
-            }
-            .center-play svg {
-                width: 30px;
-                height: 30px;
-            }
-        }
-        
-        /* Landscape mobile adjustments */
-        @media (max-width: 900px) and (orientation: landscape) {
-            .angle-selector-mobile {
-                bottom: 70px;
-            }
-            .angle-strip-item {
-                width: 60px;
-                height: 40px;
-            }
+            .angle-selector-desktop { display: none; }
+            .angle-selector-mobile { display: block; }
+            .controls-hint { display: none; }
+            .top-bar { padding: 16px; }
+            .title-info h1 { font-size: 0.9rem; }
+            .mode-badge { padding: 6px 10px; font-size: 0.7rem; }
+            .scene-selector { bottom: 90px; }
         }
     </style>
 </head>
@@ -629,172 +456,160 @@
                 <div class="loader-logo">S</div>
             </div>
             <div class="loader-progress-container">
-                <div class="loader-status" id="loaderStatus">Loading angles...</div>
+                <div class="loader-status" id="loaderStatus">Initializing 3D...</div>
                 <div class="loader-progress-bar"><div class="loader-progress-fill" id="loaderProgress"></div></div>
             </div>
         </div>
     </div>
     
-    <!-- Player Container -->
-    <div class="player-container" id="playerContainer">
-        <!-- Video Stack - All 8 angles -->
-        <div class="video-stack" id="videoStack">
-            <!-- Videos will be created dynamically -->
+    <!-- Splat Viewer (iframe to antimatter15 viewer) -->
+    <div class="viewer-wrapper">
+        <iframe id="splatViewer" class="splat-iframe" allowfullscreen></iframe>
+    </div>
+    
+    <!-- Angle Indicator -->
+    <div class="angle-indicator" id="angleIndicator">
+        <div class="angle-indicator-title">Viewing Angle</div>
+        <div class="angle-indicator-name" id="angleIndicatorName">Front</div>
+    </div>
+    
+    <!-- Free Look Badge -->
+    <div class="free-look-badge" id="freeLookBadge">FREE LOOK MODE - Drag to explore</div>
+    
+    <!-- Controls Overlay -->
+    <div class="controls-overlay visible" id="controlsOverlay">
+        <div class="top-bar">
+            <button class="back-btn" onclick="window.location.href='../browse/'">
+                <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="title-info">
+                <h1 id="sceneTitle">Garden Scene</h1>
+                <span>Gaussian Splat • Move around freely</span>
+            </div>
+            <div class="mode-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                3D SPLAT
+            </div>
         </div>
         
-        <!-- Swipe Indicator -->
-        <div class="swipe-indicator" id="swipeIndicator">Angle 1</div>
-        
-        <!-- Center Play Button (when paused) -->
-        <div class="center-play" id="centerPlay">
-            <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+        <!-- Scene Selector -->
+        <div class="scene-selector">
+            <button class="scene-btn active" data-scene="garden">Garden</button>
+            <button class="scene-btn" data-scene="bicycle">Bicycle</button>
+            <button class="scene-btn" data-scene="stump">Stump</button>
+            <button class="scene-btn" data-scene="truck">Truck</button>
         </div>
         
-        <!-- Current Angle Indicator -->
-        <div class="current-angle" id="currentAngle">
-            Angle <span id="currentAngleNum">1</span> of 8
-        </div>
-        
-        <!-- Controls Overlay -->
-        <div class="controls-overlay" id="controlsOverlay">
-            <!-- Top Bar -->
-            <div class="top-bar">
-                <button class="back-btn" onclick="window.location.href='../browse/'">
-                    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                </button>
-                <div class="title-info">
-                    <h1>Sunset Session</h1>
-                    <span>Multi-Angle Experience</span>
-                </div>
-                <div class="angle-badge">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <circle cx="12" cy="12" r="3"/>
-                        <line x1="12" y1="2" x2="12" y2="6"/>
-                        <line x1="12" y1="18" x2="12" y2="22"/>
-                        <line x1="2" y1="12" x2="6" y2="12"/>
-                        <line x1="18" y1="12" x2="22" y2="12"/>
-                    </svg>
-                    8 ANGLES
-                </div>
-            </div>
-            
-            <!-- Bottom Controls -->
-            <div class="bottom-controls">
-                <div class="progress-bar" id="progressBar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="controls-row">
-                    <div class="controls-left">
-                        <button class="ctrl-btn play-btn" id="playPauseBtn">
-                            <svg viewBox="0 0 24 24" fill="currentColor" id="playIcon"><polygon points="5,3 19,12 5,21"/></svg>
-                        </button>
-                        <button class="ctrl-btn" id="skipBackBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
-                                <text x="10" y="14" font-size="6" fill="currentColor" stroke="none">10</text>
-                            </svg>
-                        </button>
-                        <button class="ctrl-btn" id="skipForwardBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/>
-                                <text x="10" y="14" font-size="6" fill="currentColor" stroke="none">10</text>
-                            </svg>
-                        </button>
-                        <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
-                    </div>
-                    <div class="controls-right">
-                        <button class="ctrl-btn" id="muteBtn">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                            </svg>
-                        </button>
-                        <button class="ctrl-btn" id="fullscreenBtn">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Keyboard Hints (Desktop) -->
-            <div class="keyboard-hints">
-                <div class="keyboard-hint"><kbd>1-8</kbd> Switch angles</div>
-                <div class="keyboard-hint"><kbd>Space</kbd> Play/Pause</div>
-                <div class="keyboard-hint"><kbd>F</kbd> Fullscreen</div>
-            </div>
+        <!-- Controls Hint -->
+        <div class="controls-hint">
+            <kbd>WASD</kbd> Look around
+            <kbd>Arrows</kbd> Move
+            <kbd>Click+Drag</kbd> Orbit
+            <kbd>1-8</kbd> Preset angles
         </div>
         
         <!-- Desktop Angle Selector -->
         <div class="angle-selector-desktop" id="angleSelectorDesktop">
-            <div class="angle-wheel" id="angleWheel">
-                <!-- Angle items will be generated -->
-            </div>
+            <div class="angle-wheel" id="angleWheel"></div>
             <div class="angle-label">ANGLES</div>
         </div>
         
         <!-- Mobile Angle Selector -->
         <div class="angle-selector-mobile" id="angleSelectorMobile">
-            <div class="angle-strip" id="angleStrip">
-                <!-- Angle items will be generated -->
-            </div>
+            <div class="angle-strip" id="angleStrip"></div>
         </div>
     </div>
     
     <script>
-        // Configuration
-        const ANGLE_COUNT = 8;
-        const SAMPLE_VIDEO = 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-        const ANGLE_NAMES = ['Front', 'Left', 'Right', 'Back', 'Top', 'Close-up', 'Wide', 'POV'];
-        const ANGLE_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+        // Scene configurations with different splat files
+        const SCENES = {
+            garden: {
+                name: 'Garden Scene',
+                url: 'garden.splat',
+                angles: [
+                    { name: 'Front', hash: '[1,0,0,0,0,1,0,0,0,0,1,0,0,0,5,1]' },
+                    { name: 'Left', hash: '[0,0,1,0,0,1,0,0,-1,0,0,0,-5,0,0,1]' },
+                    { name: 'Right', hash: '[0,0,-1,0,0,1,0,0,1,0,0,0,5,0,0,1]' },
+                    { name: 'Back', hash: '[-1,0,0,0,0,1,0,0,0,0,-1,0,0,0,-5,1]' },
+                    { name: 'Above', hash: '[1,0,0,0,0,0.5,0.87,0,0,-0.87,0.5,0,0,3,4,1]' },
+                    { name: 'Low', hash: '[1,0,0,0,0,0.87,-0.5,0,0,0.5,0.87,0,0,-2,4,1]' },
+                    { name: 'Corner L', hash: '[0.7,0,0.7,0,0,1,0,0,-0.7,0,0.7,0,-3,0,3,1]' },
+                    { name: 'Corner R', hash: '[0.7,0,-0.7,0,0,1,0,0,0.7,0,0.7,0,3,0,3,1]' }
+                ]
+            },
+            bicycle: {
+                name: 'Bicycle',
+                url: 'bicycle.splat',
+                angles: [
+                    { name: 'Front', hash: '[1,0,0,0,0,1,0,0,0,0,1,0,0,-0.5,3,1]' },
+                    { name: 'Left', hash: '[0,0,1,0,0,1,0,0,-1,0,0,0,-3,-0.5,0,1]' },
+                    { name: 'Right', hash: '[0,0,-1,0,0,1,0,0,1,0,0,0,3,-0.5,0,1]' },
+                    { name: 'Back', hash: '[-1,0,0,0,0,1,0,0,0,0,-1,0,0,-0.5,-3,1]' },
+                    { name: 'Above', hash: '[1,0,0,0,0,0.3,0.95,0,0,-0.95,0.3,0,0,2,2,1]' },
+                    { name: 'Low', hash: '[1,0,0,0,0,0.95,-0.3,0,0,0.3,0.95,0,0,-1.5,3,1]' },
+                    { name: 'Corner L', hash: '[0.7,0,0.7,0,0,1,0,0,-0.7,0,0.7,0,-2,-0.5,2,1]' },
+                    { name: 'Corner R', hash: '[0.7,0,-0.7,0,0,1,0,0,0.7,0,0.7,0,2,-0.5,2,1]' }
+                ]
+            },
+            stump: {
+                name: 'Tree Stump',
+                url: 'stump.splat',
+                angles: [
+                    { name: 'Front', hash: '[-0.86,-0.23,0.45,0,0.27,0.54,0.8,0,-0.43,0.81,-0.4,0,0.92,-2.02,4.1,1]' },
+                    { name: 'Left', hash: '[0.45,-0.23,-0.86,0,0.8,0.54,0.27,0,-0.4,0.81,0.43,0,-4,-2,0,1]' },
+                    { name: 'Right', hash: '[-0.45,-0.23,0.86,0,-0.8,0.54,-0.27,0,0.4,0.81,-0.43,0,4,-2,0,1]' },
+                    { name: 'Back', hash: '[0.86,-0.23,-0.45,0,-0.27,0.54,-0.8,0,0.43,0.81,0.4,0,-0.92,-2.02,-4.1,1]' },
+                    { name: 'Above', hash: '[1,0,0,0,0,0.2,0.98,0,0,-0.98,0.2,0,0,4,2,1]' },
+                    { name: 'Close', hash: '[-0.86,-0.23,0.45,0,0.27,0.54,0.8,0,-0.43,0.81,-0.4,0,0.5,-1,2,1]' },
+                    { name: 'Corner L', hash: '[-0.5,-0.23,0.84,0,0.6,0.54,0.6,0,-0.6,0.81,-0.1,0,-2,-2,3,1]' },
+                    { name: 'Corner R', hash: '[-0.84,-0.23,-0.5,0,-0.1,0.54,0.84,0,-0.54,0.81,-0.23,0,3,-2,2,1]' }
+                ]
+            },
+            truck: {
+                name: 'Truck',
+                url: 'truck.splat',
+                angles: [
+                    { name: 'Front', hash: '[1,0,0,0,0,1,0,0,0,0,1,0,0,0,5,1]' },
+                    { name: 'Left', hash: '[0,0,1,0,0,1,0,0,-1,0,0,0,-5,0,0,1]' },
+                    { name: 'Right', hash: '[0,0,-1,0,0,1,0,0,1,0,0,0,5,0,0,1]' },
+                    { name: 'Back', hash: '[-1,0,0,0,0,1,0,0,0,0,-1,0,0,0,-5,1]' },
+                    { name: 'Above', hash: '[1,0,0,0,0,0.3,0.95,0,0,-0.95,0.3,0,0,4,3,1]' },
+                    { name: 'Low', hash: '[1,0,0,0,0,0.95,-0.3,0,0,0.3,0.95,0,0,-1,5,1]' },
+                    { name: 'Corner L', hash: '[0.7,0,0.7,0,0,1,0,0,-0.7,0,0.7,0,-3,0,3,1]' },
+                    { name: 'Corner R', hash: '[0.7,0,-0.7,0,0,1,0,0,0.7,0,0.7,0,3,0,3,1]' }
+                ]
+            }
+        };
         
         // State
+        let currentScene = 'garden';
         let currentAngle = 0;
-        let isPlaying = false;
-        let videos = [];
-        let hideControlsTimeout;
-        let isMobile = window.innerWidth <= 768;
+        let isFreeLook = false;
         
         // Elements
         const siteLoader = document.getElementById('siteLoader');
         const loaderProgress = document.getElementById('loaderProgress');
         const loaderStatus = document.getElementById('loaderStatus');
-        const videoStack = document.getElementById('videoStack');
-        const controlsOverlay = document.getElementById('controlsOverlay');
-        const centerPlay = document.getElementById('centerPlay');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const playIcon = document.getElementById('playIcon');
-        const progressBar = document.getElementById('progressBar');
-        const progressFill = document.getElementById('progressFill');
-        const timeDisplay = document.getElementById('timeDisplay');
-        const currentAngleEl = document.getElementById('currentAngle');
-        const currentAngleNum = document.getElementById('currentAngleNum');
-        const swipeIndicator = document.getElementById('swipeIndicator');
+        const splatViewer = document.getElementById('splatViewer');
+        const sceneTitle = document.getElementById('sceneTitle');
+        const angleIndicator = document.getElementById('angleIndicator');
+        const angleIndicatorName = document.getElementById('angleIndicatorName');
+        const freeLookBadge = document.getElementById('freeLookBadge');
         const angleWheel = document.getElementById('angleWheel');
         const angleStrip = document.getElementById('angleStrip');
-        const muteBtn = document.getElementById('muteBtn');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const playerContainer = document.getElementById('playerContainer');
         
-        // Loader messages
-        const loaderMsgs = ['Loading angles...', 'Syncing streams...', 'Building views...', 'Almost ready...'];
+        // Loader
+        const loaderMsgs = ['Initializing 3D...', 'Loading Gaussian splats...', 'Building point cloud...', 'Rendering scene...', 'Almost ready...'];
         let loadProg = 0, msgIdx = 0;
         
         function hideLoader() {
-            siteLoader.style.transition = 'opacity 0.5s ease, visibility 0.5s ease';
-            siteLoader.style.opacity = '0';
-            siteLoader.style.visibility = 'hidden';
-            siteLoader.style.pointerEvents = 'none';
-            setTimeout(() => {
-                siteLoader.classList.add('hidden');
-                showControls();
-                centerPlay.classList.add('visible');
-            }, 500);
+            siteLoader.classList.add('hidden');
         }
         
         function updateLoader() {
-            loadProg += Math.random() * 18 + 6;
+            loadProg += Math.random() * 12 + 4;
             if (loadProg > 100) loadProg = 100;
             loaderProgress.style.width = loadProg + '%';
             
@@ -804,414 +619,133 @@
                     msgIdx = newIdx;
                     loaderStatus.textContent = loaderMsgs[msgIdx];
                 }
-                setTimeout(updateLoader, 180 + Math.random() * 250);
+                setTimeout(updateLoader, 200 + Math.random() * 300);
             } else {
                 loaderStatus.textContent = 'Enjoy';
-                setTimeout(hideLoader, 400);
-            }
-        }
-        
-        // Generate placeholder thumbnails with angle colors
-        function generateThumbnail(angleIndex) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 160;
-            canvas.height = 90;
-            const ctx = canvas.getContext('2d');
-            
-            // Gradient background
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, ANGLE_COLORS[angleIndex]);
-            gradient.addColorStop(1, '#1a1a2e');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Angle text
-            ctx.fillStyle = 'rgba(255,255,255,0.9)';
-            ctx.font = 'bold 14px Outfit';
-            ctx.textAlign = 'center';
-            ctx.fillText(ANGLE_NAMES[angleIndex], canvas.width/2, canvas.height/2 + 5);
-            
-            return canvas.toDataURL();
-        }
-        
-        // Initialize videos
-        function initVideos() {
-            for (let i = 0; i < ANGLE_COUNT; i++) {
-                const video = document.createElement('video');
-                video.src = SAMPLE_VIDEO;
-                video.playsInline = true;
-                video.preload = 'auto';
-                video.muted = i !== 0; // Only first angle has audio
-                video.loop = false;
-                if (i === 0) video.classList.add('active');
-                
-                video.addEventListener('loadedmetadata', () => {
-                    if (i === 0) updateTimeDisplay();
-                });
-                
-                video.addEventListener('timeupdate', () => {
-                    if (i === currentAngle) updateProgress();
-                });
-                
-                video.addEventListener('ended', () => {
-                    if (i === currentAngle) {
-                        isPlaying = false;
-                        updatePlayButton();
-                        showControls();
-                        centerPlay.classList.add('visible');
-                    }
-                });
-                
-                videoStack.appendChild(video);
-                videos.push(video);
+                setTimeout(hideLoader, 500);
             }
         }
         
         // Initialize angle selectors
         function initAngleSelectors() {
-            // Desktop wheel
-            for (let i = 0; i < ANGLE_COUNT; i++) {
+            angleWheel.innerHTML = '';
+            angleStrip.innerHTML = '';
+            
+            const scene = SCENES[currentScene];
+            scene.angles.forEach((angle, i) => {
+                // Desktop
                 const item = document.createElement('div');
                 item.className = 'angle-item' + (i === 0 ? ' active' : '');
-                item.dataset.angle = i;
-                item.innerHTML = `
-                    <img src="${generateThumbnail(i)}" alt="Angle ${i + 1}">
-                    <div class="angle-item-number">${i + 1}</div>
-                `;
+                item.innerHTML = `<div class="angle-item-inner">${angle.name}</div><div class="angle-item-number">${i + 1}</div>`;
                 item.addEventListener('click', () => switchAngle(i));
                 angleWheel.appendChild(item);
-            }
-            
-            // Mobile strip
-            for (let i = 0; i < ANGLE_COUNT; i++) {
-                const item = document.createElement('div');
-                item.className = 'angle-strip-item' + (i === 0 ? ' active' : '');
-                item.dataset.angle = i;
-                item.innerHTML = `
-                    <img src="${generateThumbnail(i)}" alt="Angle ${i + 1}">
-                    <div class="angle-strip-number">${i + 1}</div>
-                `;
-                item.addEventListener('click', () => switchAngle(i));
-                angleStrip.appendChild(item);
-            }
+                
+                // Mobile
+                const mobileItem = document.createElement('div');
+                mobileItem.className = 'angle-strip-item' + (i === 0 ? ' active' : '');
+                mobileItem.innerHTML = `<span>${angle.name}</span><div class="angle-strip-number">${i + 1}</div>`;
+                mobileItem.addEventListener('click', () => switchAngle(i));
+                angleStrip.appendChild(mobileItem);
+            });
         }
         
-        // Switch angle
-        function switchAngle(newAngle, showIndicator = true) {
-            if (newAngle === currentAngle) return;
-            if (newAngle < 0) newAngle = ANGLE_COUNT - 1;
-            if (newAngle >= ANGLE_COUNT) newAngle = 0;
+        // Load scene
+        function loadScene(sceneName) {
+            const scene = SCENES[sceneName];
+            if (!scene) return;
             
-            const currentTime = videos[currentAngle].currentTime;
-            const wasPlaying = isPlaying;
+            currentScene = sceneName;
+            currentAngle = 0;
             
-            // Update video states
-            videos[currentAngle].classList.remove('active');
-            videos[currentAngle].muted = true;
+            // Update UI
+            sceneTitle.textContent = scene.name;
+            document.querySelectorAll('.scene-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.scene === sceneName);
+            });
             
-            currentAngle = newAngle;
+            // Reinitialize angle selectors
+            initAngleSelectors();
             
-            videos[currentAngle].currentTime = currentTime;
-            videos[currentAngle].classList.add('active');
-            videos[currentAngle].muted = false;
+            // Load the splat viewer with the scene
+            const baseUrl = 'https://antimatter15.com/splat/';
+            const hash = scene.angles[0].hash;
+            splatViewer.src = `${baseUrl}?url=${scene.url}#${hash}`;
             
-            if (wasPlaying) {
-                videos[currentAngle].play();
-            }
+            showAngleIndicator(scene.angles[0].name);
+        }
+        
+        // Switch to preset angle
+        function switchAngle(index) {
+            const scene = SCENES[currentScene];
+            if (index < 0) index = scene.angles.length - 1;
+            if (index >= scene.angles.length) index = 0;
+            
+            currentAngle = index;
+            isFreeLook = false;
+            freeLookBadge.classList.remove('visible');
+            
+            const angle = scene.angles[index];
+            
+            // Update iframe URL with new camera position
+            const baseUrl = 'https://antimatter15.com/splat/';
+            splatViewer.src = `${baseUrl}?url=${scene.url}#${angle.hash}`;
             
             // Update UI
             updateAngleSelectors();
-            currentAngleNum.textContent = currentAngle + 1;
-            
-            // Show indicator
-            if (showIndicator) {
-                showSwipeIndicator();
-            }
-            
-            // Animate with GSAP
-            gsap.fromTo(videos[currentAngle], 
-                { scale: 1.02 },
-                { scale: 1, duration: 0.3, ease: 'power2.out' }
-            );
+            showAngleIndicator(angle.name);
         }
         
-        // Update angle selector UI
         function updateAngleSelectors() {
-            // Desktop
             document.querySelectorAll('.angle-item').forEach((item, i) => {
-                item.classList.toggle('active', i === currentAngle);
+                item.classList.toggle('active', i === currentAngle && !isFreeLook);
             });
-            
-            // Mobile
             document.querySelectorAll('.angle-strip-item').forEach((item, i) => {
-                item.classList.toggle('active', i === currentAngle);
-                if (i === currentAngle) {
-                    item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                }
+                item.classList.toggle('active', i === currentAngle && !isFreeLook);
+                if (i === currentAngle) item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             });
         }
         
-        // Show swipe indicator
-        function showSwipeIndicator() {
-            swipeIndicator.textContent = `Angle ${currentAngle + 1}`;
-            swipeIndicator.classList.remove('show');
-            void swipeIndicator.offsetWidth; // Trigger reflow
-            swipeIndicator.classList.add('show');
-            
-            currentAngleEl.classList.add('visible');
-            clearTimeout(window.angleIndicatorTimeout);
-            window.angleIndicatorTimeout = setTimeout(() => {
-                currentAngleEl.classList.remove('visible');
-            }, 2000);
+        function showAngleIndicator(name) {
+            angleIndicatorName.textContent = name;
+            angleIndicator.classList.add('visible');
+            clearTimeout(window.indicatorTimeout);
+            window.indicatorTimeout = setTimeout(() => angleIndicator.classList.remove('visible'), 1500);
         }
         
-        // Play/Pause
-        function togglePlay() {
-            if (isPlaying) {
-                videos.forEach(v => v.pause());
-                isPlaying = false;
-                centerPlay.classList.add('visible');
-            } else {
-                // Sync all videos to current time
-                const currentTime = videos[currentAngle].currentTime;
-                videos.forEach((v, i) => {
-                    v.currentTime = currentTime;
-                    v.play();
-                });
-                isPlaying = true;
-                centerPlay.classList.remove('visible');
-                hideControlsDelayed();
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '8') {
+                switchAngle(parseInt(e.key) - 1);
+            } else if (e.key === 'ArrowLeft' && e.shiftKey) {
+                switchAngle(currentAngle - 1);
+            } else if (e.key === 'ArrowRight' && e.shiftKey) {
+                switchAngle(currentAngle + 1);
             }
-            updatePlayButton();
-        }
+        });
         
-        // Update play button icon
-        function updatePlayButton() {
-            if (isPlaying) {
-                playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
-            } else {
-                playIcon.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
-            }
-        }
-        
-        // Update progress bar
-        function updateProgress() {
-            const video = videos[currentAngle];
-            const percent = (video.currentTime / video.duration) * 100;
-            progressFill.style.width = percent + '%';
-            updateTimeDisplay();
-        }
-        
-        // Update time display
-        function updateTimeDisplay() {
-            const video = videos[currentAngle];
-            const current = formatTime(video.currentTime);
-            const duration = formatTime(video.duration || 0);
-            timeDisplay.textContent = `${current} / ${duration}`;
-        }
-        
-        // Format time
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
-        
-        // Show controls
-        function showControls() {
-            controlsOverlay.classList.add('visible');
-            clearTimeout(hideControlsTimeout);
-        }
-        
-        // Hide controls delayed
-        function hideControlsDelayed() {
-            clearTimeout(hideControlsTimeout);
-            hideControlsTimeout = setTimeout(() => {
-                if (isPlaying) {
-                    controlsOverlay.classList.remove('visible');
-                }
-            }, 3000);
-        }
-        
-        // Seek
-        function seek(e) {
-            const rect = progressBar.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            const time = percent * videos[currentAngle].duration;
-            videos.forEach(v => v.currentTime = time);
-        }
-        
-        // Skip
-        function skip(seconds) {
-            const newTime = Math.max(0, Math.min(videos[currentAngle].duration, videos[currentAngle].currentTime + seconds));
-            videos.forEach(v => v.currentTime = newTime);
-        }
-        
-        // Toggle mute
-        function toggleMute() {
-            const video = videos[currentAngle];
-            video.muted = !video.muted;
-            
-            muteBtn.innerHTML = video.muted 
-                ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>'
-                : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
-        }
-        
-        // Toggle fullscreen
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                playerContainer.requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
-        }
-        
-        // Touch/Swipe handling for mobile
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchStartTime = 0;
-        
-        function handleTouchStart(e) {
-            if (e.target.closest('.angle-strip') || e.target.closest('button')) return;
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            touchStartTime = Date.now();
-        }
-        
-        function handleTouchEnd(e) {
-            if (e.target.closest('.angle-strip') || e.target.closest('button')) return;
-            
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
-            const diffX = touchEndX - touchStartX;
-            const diffY = touchEndY - touchStartY;
-            const elapsed = Date.now() - touchStartTime;
-            
-            // Horizontal swipe
-            if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY) && elapsed < 300) {
-                if (diffX > 0) {
-                    switchAngle(currentAngle - 1);
-                } else {
-                    switchAngle(currentAngle + 1);
-                }
-            } 
-            // Tap to toggle controls
-            else if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10 && elapsed < 200) {
-                if (controlsOverlay.classList.contains('visible')) {
-                    if (isPlaying) {
-                        controlsOverlay.classList.remove('visible');
-                    }
-                } else {
-                    showControls();
-                    hideControlsDelayed();
-                }
-            }
-        }
-        
-        // Keyboard controls
-        function handleKeydown(e) {
-            switch(e.key) {
-                case '1': case '2': case '3': case '4':
-                case '5': case '6': case '7': case '8':
-                    switchAngle(parseInt(e.key) - 1);
-                    break;
-                case ' ':
-                case 'k':
-                    e.preventDefault();
-                    togglePlay();
-                    break;
-                case 'f':
-                    toggleFullscreen();
-                    break;
-                case 'm':
-                    toggleMute();
-                    break;
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    skip(-10);
-                    showControls();
-                    hideControlsDelayed();
-                    break;
-                case 'ArrowRight':
-                    e.preventDefault();
-                    skip(10);
-                    showControls();
-                    hideControlsDelayed();
-                    break;
-                case 'ArrowUp':
-                    e.preventDefault();
-                    switchAngle(currentAngle - 1);
-                    break;
-                case 'ArrowDown':
-                    e.preventDefault();
-                    switchAngle(currentAngle + 1);
-                    break;
-            }
-        }
-        
-        // Event listeners
-        function initEventListeners() {
-            // Play/Pause
-            playPauseBtn.addEventListener('click', togglePlay);
-            centerPlay.addEventListener('click', togglePlay);
-            
-            // Progress bar
-            progressBar.addEventListener('click', seek);
-            
-            // Skip buttons
-            document.getElementById('skipBackBtn').addEventListener('click', () => skip(-10));
-            document.getElementById('skipForwardBtn').addEventListener('click', () => skip(10));
-            
-            // Mute & Fullscreen
-            muteBtn.addEventListener('click', toggleMute);
-            fullscreenBtn.addEventListener('click', toggleFullscreen);
-            
-            // Touch events (mobile)
-            playerContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
-            playerContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
-            
-            // Mouse events (desktop)
-            playerContainer.addEventListener('mousemove', () => {
-                showControls();
-                hideControlsDelayed();
+        // Scene selector buttons
+        document.querySelectorAll('.scene-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                loadScene(btn.dataset.scene);
             });
-            
-            playerContainer.addEventListener('click', (e) => {
-                if (e.target === playerContainer || e.target.closest('.video-stack')) {
-                    if (!e.target.closest('button') && !e.target.closest('.angle-item')) {
-                        togglePlay();
-                    }
-                }
-            });
-            
-            // Keyboard
-            document.addEventListener('keydown', handleKeydown);
-            
-            // Resize
-            window.addEventListener('resize', () => {
-                isMobile = window.innerWidth <= 768;
-            });
-        }
+        });
+        
+        // Track when user is in free look mode (interacting with iframe)
+        splatViewer.addEventListener('load', () => {
+            // After a short delay, consider free look active if user interacts
+        });
         
         // Initialize
-        function init() {
-            initVideos();
-            initAngleSelectors();
-            initEventListeners();
-            
-            // Start loader animation
-            setTimeout(updateLoader, 200);
-            
-            // Fallback loader hide after 6 seconds
-            setTimeout(() => {
-                if (!siteLoader.classList.contains('hidden')) {
-                    console.log('Loader failsafe triggered');
-                    hideLoader();
-                }
-            }, 6000);
-        }
+        initAngleSelectors();
+        loadScene('garden');
+        setTimeout(updateLoader, 300);
         
-        init();
+        // Failsafe loader hide
+        setTimeout(() => {
+            if (!siteLoader.classList.contains('hidden')) {
+                hideLoader();
+            }
+        }, 8000);
     </script>
 </body>
 </html>
