@@ -3627,7 +3627,7 @@
 </head>
 <body>
     <!-- VERSION INDICATOR -->
-    <div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">V.3</div>
+    <div style="position:fixed;top:10px;right:10px;background:red;color:white;padding:8px 12px;border-radius:8px;z-index:999999;font-size:14px;font-weight:bold;">V.4</div>
     
     <!-- Age Gate Overlay -->
     <div class="age-gate" id="ageGate">
@@ -5010,33 +5010,7 @@
         
         function enterSite() {
             localStorage.setItem(AGE_KEY, 'true');
-            
-            try {
-                // Check if user is logged in
-                var isLoggedIn = false;
-                try {
-                    isLoggedIn = typeof SIREN !== 'undefined' && SIREN.getCurrentUser && SIREN.getCurrentUser();
-                } catch(e) {}
-                
-                // Check if user has an account
-                var hasAccount = localStorage.getItem('siren_has_account') === 'true';
-                
-                if (isLoggedIn) {
-                    window.location.href = './browse/index.html';
-                } else if (hasAccount) {
-                    document.getElementById('ageGate').style.display = 'none';
-                    document.body.classList.remove('age-gate-active');
-                    window.afterAuthRedirect = './browse/index.html';
-                    openAuthModal('signin');
-                } else {
-                    document.getElementById('ageGate').style.display = 'none';
-                    document.body.classList.remove('age-gate-active');
-                }
-            } catch(e) {
-                // Fallback - just hide age gate
-                document.getElementById('ageGate').style.display = 'none';
-                document.body.classList.remove('age-gate-active');
-            }
+            document.getElementById('ageGate').style.display = 'none';
         }
         
         function exitSite() {
