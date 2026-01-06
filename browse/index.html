@@ -4873,6 +4873,16 @@
                         </button>
                     </div>
                 </section>
+
+                <!-- Dynamic Rows Container (loaded on scroll) -->
+                <div id="dynamicRows"></div>
+                
+                <!-- Loading Sentinel -->
+                <div id="loadingSentinel" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                    <div class="loading-more" style="display: none;">
+                        <div style="width: 30px; height: 30px; border: 2px solid rgba(255,255,255,0.1); border-top-color: #ef4444; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
@@ -5810,7 +5820,146 @@
             if (IS_MOBILE) {
                 initMobileGrid();
             }
+            
+            // Initialize infinite scroll (desktop only)
+            if (!IS_MOBILE) {
+                initInfiniteScroll();
+            }
         }, 500);
+        
+        // ========== INFINITE SCROLL SYSTEM ==========
+        function initInfiniteScroll() {
+            const dynamicRows = document.getElementById('dynamicRows');
+            const sentinel = document.getElementById('loadingSentinel');
+            const loadingMore = sentinel.querySelector('.loading-more');
+            
+            if (!dynamicRows || !sentinel) return;
+            
+            // Dynamic row templates based on "watch history"
+            const dynamicRowTypes = [
+                { title: 'Because You Watched "Midnight Rendezvous"', type: 'portrait', count: 20 },
+                { title: 'More From Luna Star', type: 'default', count: 16 },
+                { title: 'Steamy Encounters', type: 'portrait', count: 20 },
+                { title: 'Because You Watched "Golden Hour"', type: 'default', count: 16 },
+                { title: 'Award Winners', type: 'large', count: 12 },
+                { title: 'Trending in VR', type: 'default', count: 20 },
+                { title: 'Popular This Week', type: 'portrait', count: 20 },
+                { title: 'Because You Liked "Sunset Dreams"', type: 'default', count: 16 },
+                { title: 'Hidden Gems', type: 'portrait', count: 20 },
+                { title: 'Fan Favorites', type: 'large', count: 12 },
+                { title: 'Recently Added', type: 'default', count: 20 },
+                { title: 'Top Rated This Month', type: 'portrait', count: 20 }
+            ];
+            
+            let currentRowIndex = 0;
+            let isLoading = false;
+            
+            // Create a new row section
+            function createDynamicRow(rowConfig) {
+                const rowId = `dynamicRow${currentRowIndex}`;
+                const section = document.createElement('section');
+                section.className = 'content-section';
+                section.dataset.slider = rowId;
+                section.innerHTML = `
+                    <div class="section-header">
+                        <h2 class="section-title">${rowConfig.title}</h2>
+                        <div class="section-header-right">
+                            <ul class="pagination-indicator" id="${rowId}-pagination"></ul>
+                            <a href="#" class="section-link">See All</a>
+                        </div>
+                    </div>
+                    <div class="content-row-wrapper">
+                        <button class="row-scroll-btn btn-prev hidden" data-row="${rowId}" data-dir="prev">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <div class="slider-mask">
+                            <div class="content-row" id="${rowId}"></div>
+                        </div>
+                        <button class="row-scroll-btn btn-next" data-row="${rowId}" data-dir="next">
+                            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
+                `;
+                
+                dynamicRows.appendChild(section);
+                
+                // Populate the row
+                const row = document.getElementById(rowId);
+                for (let i = 0; i < rowConfig.count; i++) {
+                    const card = createContentCard(i + (currentRowIndex * 20), rowConfig.type);
+                    row.appendChild(card);
+                }
+                
+                // Initialize slider for this row
+                initSlider(rowId);
+                
+                // Setup scroll buttons
+                const prevBtn = section.querySelector('.btn-prev');
+                const nextBtn = section.querySelector('.btn-next');
+                
+                prevBtn.addEventListener('click', () => slideRow(rowId, 'prev'));
+                nextBtn.addEventListener('click', () => slideRow(rowId, 'next'));
+                
+                // Attach hover events to new cards
+                row.querySelectorAll('.content-card').forEach(card => {
+                    card.addEventListener('mouseenter', () => {
+                        if (IS_MOBILE || window.innerWidth < 900) return;
+                        clearTimeout(window.hideExpandedTimeout);
+                        window.showExpandedTimeout = setTimeout(() => {
+                            showExpandedCard(card);
+                        }, 400);
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        clearTimeout(window.showExpandedTimeout);
+                    });
+                });
+                
+                // Animate in
+                gsap.fromTo(section, 
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+                );
+                
+                currentRowIndex++;
+            }
+            
+            // Load more rows
+            function loadMoreRows() {
+                if (isLoading || currentRowIndex >= dynamicRowTypes.length) return;
+                
+                isLoading = true;
+                loadingMore.style.display = 'flex';
+                
+                // Simulate loading delay
+                setTimeout(() => {
+                    // Load 2 rows at a time
+                    for (let i = 0; i < 2 && currentRowIndex < dynamicRowTypes.length; i++) {
+                        createDynamicRow(dynamicRowTypes[currentRowIndex]);
+                    }
+                    
+                    loadingMore.style.display = 'none';
+                    isLoading = false;
+                    
+                    // Hide sentinel if no more rows
+                    if (currentRowIndex >= dynamicRowTypes.length) {
+                        sentinel.style.display = 'none';
+                    }
+                }, 800);
+            }
+            
+            // Setup IntersectionObserver
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        loadMoreRows();
+                    }
+                });
+            }, {
+                rootMargin: '200px'
+            });
+            
+            observer.observe(sentinel);
+        }
 
         // ========== MOBILE GRID SYSTEM ==========
         function initMobileGrid() {

@@ -745,7 +745,7 @@
     <script>
         // Configuration
         const ANGLE_COUNT = 8;
-        const SAMPLE_VIDEO = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+        const SAMPLE_VIDEO = 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
         const ANGLE_NAMES = ['Front', 'Left', 'Right', 'Back', 'Top', 'Close-up', 'Wide', 'POV'];
         const ANGLE_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
         
@@ -1038,18 +1038,13 @@
             const rect = progressBar.getBoundingClientRect();
             const percent = (e.clientX - rect.left) / rect.width;
             const time = percent * videos[currentAngle].duration;
-            
-            videos.forEach(v => {
-                v.currentTime = time;
-            });
+            videos.forEach(v => v.currentTime = time);
         }
         
         // Skip
         function skip(seconds) {
             const newTime = Math.max(0, Math.min(videos[currentAngle].duration, videos[currentAngle].currentTime + seconds));
-            videos.forEach(v => {
-                v.currentTime = newTime;
-            });
+            videos.forEach(v => v.currentTime = newTime);
         }
         
         // Toggle mute
