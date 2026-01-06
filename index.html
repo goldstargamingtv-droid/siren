@@ -2809,6 +2809,7 @@
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
             animation: ageBtnShine 3s ease-in-out infinite;
+            pointer-events: none;
         }
         
         @keyframes ageBtnShine { 0% { left: -100%; } 50%, 100% { left: 100%; } }
@@ -4987,15 +4988,19 @@
                     { opacity: 1, duration: 0.6, ease: 'power2.out', delay: 1.1 }
                 );
             } else {
-                // Just show everything immediately on mobile
-                document.querySelector('.age-gate-logo').style.opacity = 1;
-                document.querySelector('.age-gate-content').style.opacity = 1;
-                document.querySelector('.age-gate-terms').style.opacity = 1;
-                // Make sure buttons are visible too
+                // Just show everything immediately on mobile - force inline styles
+                const logo = document.querySelector('.age-gate-logo');
+                if (logo) logo.style.cssText = 'opacity:1!important;visibility:visible!important;';
+                
+                const content = document.querySelector('.age-gate-content');
+                if (content) content.style.cssText = 'opacity:1!important;';
+                
+                const terms = document.querySelector('.age-gate-terms');
+                if (terms) terms.style.cssText = 'opacity:1!important;';
+                
+                // Force buttons to be visible and clickable
                 document.querySelectorAll('.age-btn').forEach(btn => {
-                    btn.style.opacity = 1;
-                    btn.style.filter = 'none';
-                    btn.style.transform = 'none';
+                    btn.style.cssText = 'opacity:1!important;visibility:visible!important;pointer-events:auto!important;';
                 });
             }
         }

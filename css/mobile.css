@@ -325,8 +325,8 @@
         flex-direction: column !important;
         align-items: center !important;
         justify-content: flex-start !important;
-        padding: 10px 16px !important;
-        padding-top: calc(10px + var(--safe-area-top)) !important;
+        padding: 16px !important;
+        padding-top: calc(16px + var(--safe-area-top)) !important;
         z-index: 99999 !important;
         background: #08080c !important;
         overflow-y: auto !important;
@@ -337,11 +337,19 @@
         transition: none !important;
     }
 
-    .age-gate::before { display: none !important; }
+    .age-gate::before { display: none !important; pointer-events: none !important; }
 
     .age-gate-logo {
-        font-size: 1.2rem !important;
-        margin: 6px 0 !important;
+        font-size: 1.5rem !important;
+        margin: 8px 0 12px !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: block !important;
+        background: linear-gradient(135deg, #ef4444, #f97316) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+        filter: none !important;
     }
 
     .age-gate-logo::before, .age-gate-logo::after { display: none !important; }
@@ -349,31 +357,30 @@
     .age-gate-content {
         opacity: 1 !important;
         width: 100% !important;
-        pointer-events: auto !important;
     }
 
     .age-gate-box {
-        padding: 12px 14px !important;
-        border-radius: 10px !important;
+        padding: 14px 16px !important;
+        border-radius: 12px !important;
         backdrop-filter: none !important;
         background: rgba(30, 30, 35, 0.95) !important;
         border: 1px solid rgba(255,255,255,0.1) !important;
-        pointer-events: auto !important;
     }
 
     .age-gate h2 {
-        font-size: 0.7rem !important;
-        line-height: 1.25 !important;
-        margin-bottom: 6px !important;
+        font-size: 0.75rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 8px !important;
         text-align: center !important;
+        opacity: 1 !important;
     }
 
-    .age-gate h2 span { font-size: 1.1em !important; }
+    .age-gate h2 span { font-size: 1.2em !important; }
 
     .age-gate-box > p {
-        font-size: 0.6rem !important;
-        line-height: 1.35 !important;
-        margin-bottom: 10px !important;
+        font-size: 0.65rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 12px !important;
         text-align: center !important;
         color: rgba(255,255,255,0.6) !important;
     }
@@ -381,84 +388,83 @@
     .age-buttons {
         display: flex !important;
         flex-direction: row !important;
-        gap: 8px !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        position: relative !important;
-        z-index: 10 !important;
-        pointer-events: auto !important;
+        gap: 10px !important;
     }
 
     .age-btn {
         flex: 1 !important;
-        padding: 10px 6px !important;
-        border-radius: 8px !important;
-        font-size: 0.8rem !important;
+        padding: 14px 8px !important;
+        border-radius: 10px !important;
+        font-size: 0.9rem !important;
         font-weight: 600 !important;
         border: none !important;
         opacity: 1 !important;
         visibility: visible !important;
+        position: relative !important;
+        z-index: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         filter: none !important;
         transform: none !important;
-        pointer-events: auto !important;
-        cursor: pointer !important;
-        -webkit-tap-highlight-color: transparent !important;
     }
 
     .age-btn-primary {
         background: linear-gradient(135deg, #ef4444, #dc2626) !important;
         color: #fff !important;
-        position: relative !important;
-        overflow: hidden !important;
     }
 
-    .age-btn-primary::before {
+    .age-btn-primary::before,
+    .age-btn-primary::after {
         display: none !important;
+        content: none !important;
     }
 
     .age-btn-secondary {
         background: rgba(255,255,255,0.08) !important;
         color: rgba(255,255,255,0.6) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
     }
 
+    /* Terms - show all, no scroll */
     .age-gate-terms {
-        margin-top: 8px !important;
+        margin-top: 12px !important;
         opacity: 1 !important;
         width: 100% !important;
     }
 
     .age-gate-terms-title {
-        font-size: 0.5rem !important;
-        margin-bottom: 3px !important;
-        text-align: center !important;
-        color: rgba(255,255,255,0.4) !important;
-    }
-
-    .age-gate-terms > p {
-        font-size: 0.5rem !important;
+        font-size: 0.55rem !important;
         margin-bottom: 4px !important;
         text-align: center !important;
         color: rgba(255,255,255,0.4) !important;
     }
 
+    .age-gate-terms > p {
+        font-size: 0.55rem !important;
+        margin-bottom: 6px !important;
+        text-align: center !important;
+        color: rgba(255,255,255,0.4) !important;
+    }
+
     .age-gate-terms-scroll {
-        max-height: 80px !important;
-        overflow-y: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
         font-size: 0.5rem !important;
-        padding: 6px !important;
-        background: rgba(0,0,0,0.25) !important;
+        padding: 8px !important;
+        background: rgba(0,0,0,0.2) !important;
         border-radius: 6px !important;
     }
 
     .age-gate-terms-scroll ul {
         margin: 0 !important;
-        padding-left: 12px !important;
+        padding-left: 14px !important;
     }
 
     .age-gate-terms-scroll li {
-        font-size: 0.45rem !important;
-        margin-bottom: 3px !important;
-        line-height: 1.3 !important;
+        font-size: 0.5rem !important;
+        margin-bottom: 4px !important;
+        line-height: 1.35 !important;
         color: rgba(255,255,255,0.5) !important;
     }
 
