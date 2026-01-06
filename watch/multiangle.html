@@ -16,7 +16,8 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #000; color: #fff; overflow: hidden; }
-        #canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+        #canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+        #canvas:active { cursor: grabbing; }
         
         .site-loader {
             position: fixed; inset: 0; background: #000; z-index: 1000;
@@ -123,7 +124,7 @@
     </div>
 
     <script type="module">
-        console.log('%c[SIREN 4D v2.2.0 - gsplat Manual Camera]', 'background:#ef4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
+        console.log('%c[SIREN 4D v2.2.1 - Crispy Controls]', 'background:#ef4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         
         import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
         
@@ -132,44 +133,36 @@
             bonsai: { name: 'Bonsai', url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/bonsai/bonsai-7k.splat' }
         };
         
-        // Camera angles as spherical coords (theta=horizontal, phi=vertical, radius)
+        // Camera angles - cartesian positions
         const CAMERA_ANGLES = [
-            { name: 'Front', theta: 0, phi: 0.4, r: 5 },
-            { name: 'Left', theta: Math.PI/2, phi: 0.4, r: 5 },
-            { name: 'Right', theta: -Math.PI/2, phi: 0.4, r: 5 },
-            { name: 'Back', theta: Math.PI, phi: 0.4, r: 5 },
-            { name: 'Above', theta: 0, phi: 1.2, r: 5 },
-            { name: 'Low', theta: 0, phi: 0.1, r: 5 },
-            { name: 'Corner L', theta: Math.PI/4, phi: 0.5, r: 5 },
-            { name: 'Corner R', theta: -Math.PI/4, phi: 0.5, r: 5 }
+            { name: 'Front', x: 0, y: 1, z: 5 },
+            { name: 'Left', x: 5, y: 1, z: 0 },
+            { name: 'Right', x: -5, y: 1, z: 0 },
+            { name: 'Back', x: 0, y: 1, z: -5 },
+            { name: 'Above', x: 0, y: 6, z: 2 },
+            { name: 'Low', x: 0, y: -1, z: 5 },
+            { name: 'Corner L', x: 4, y: 2, z: 4 },
+            { name: 'Corner R', x: -4, y: 2, z: 4 }
         ];
         
-        // Hotspot screen positions (fixed on screen, not 3D projected)
+        // Hotspot screen positions
         const HOTSPOT_POSITIONS = [
-            { x: 50, y: 50 },   // Front - center
-            { x: 15, y: 50 },   // Left
-            { x: 85, y: 50 },   // Right
-            { x: 50, y: 85 },   // Back - bottom
-            { x: 50, y: 15 },   // Above - top
-            { x: 50, y: 70 },   // Low
-            { x: 25, y: 30 },   // Corner L
-            { x: 75, y: 30 }    // Corner R
+            { x: 50, y: 50 }, { x: 12, y: 50 }, { x: 88, y: 50 }, { x: 50, y: 88 },
+            { x: 50, y: 12 }, { x: 50, y: 75 }, { x: 20, y: 25 }, { x: 80, y: 25 }
         ];
         
         let renderer, scene, camera, currentSplat;
         let currentScene = 'stump', currentAngle = 0;
+        let isAnimating = false;
         
-        // Manual orbit state
-        let orbitTheta = 0;
-        let orbitPhi = 0.4;
-        let orbitRadius = 5;
-        let targetTheta = 0;
-        let targetPhi = 0.4;
-        let targetRadius = 5;
+        // Camera state
+        let camX = 0, camY = 1, camZ = 5;
+        let velX = 0, velY = 0, velZ = 0;
         
         // Drag state
         let isDragging = false;
         let lastX = 0, lastY = 0;
+        let dragVelX = 0, dragVelY = 0;
         
         const canvas = document.getElementById('canvas');
         const siteLoader = document.getElementById('siteLoader');
@@ -181,32 +174,37 @@
         const sceneSelector = document.getElementById('sceneSelector');
         const sceneTitle = document.getElementById('sceneTitle');
         
-        // Convert spherical to cartesian
-        function sphericalToCartesian(theta, phi, r) {
-            return {
-                x: r * Math.sin(phi) * Math.sin(theta),
-                y: r * Math.cos(phi),
-                z: r * Math.sin(phi) * Math.cos(theta)
-            };
-        }
-        
-        // Update camera from orbit state
+        // Update camera position with inertia
         function updateCamera() {
-            // Smooth interpolation
-            orbitTheta += (targetTheta - orbitTheta) * 0.1;
-            orbitPhi += (targetPhi - orbitPhi) * 0.1;
-            orbitRadius += (targetRadius - orbitRadius) * 0.1;
+            if (isAnimating) return; // GSAP is controlling camera
             
-            // Clamp phi
-            orbitPhi = Math.max(0.1, Math.min(Math.PI - 0.1, orbitPhi));
+            // Apply velocity with damping
+            camX += velX;
+            camY += velY;
+            camZ += velZ;
+            velX *= 0.92;
+            velY *= 0.92;
+            velZ *= 0.92;
             
-            const pos = sphericalToCartesian(orbitTheta, orbitPhi, orbitRadius);
-            camera.position.x = pos.x;
-            camera.position.y = pos.y;
-            camera.position.z = pos.z;
+            // Apply drag inertia (rotate around Y axis)
+            if (!isDragging && (Math.abs(dragVelX) > 0.001 || Math.abs(dragVelY) > 0.001)) {
+                const dist = Math.sqrt(camX * camX + camZ * camZ);
+                const angle = Math.atan2(camX, camZ);
+                const newAngle = angle - dragVelX * 0.01;
+                camX = Math.sin(newAngle) * dist;
+                camZ = Math.cos(newAngle) * dist;
+                camY += dragVelY * 0.05;
+                camY = Math.max(-3, Math.min(8, camY));
+                dragVelX *= 0.95;
+                dragVelY *= 0.95;
+            }
+            
+            camera.position.x = camX;
+            camera.position.y = camY;
+            camera.position.z = camZ;
         }
         
-        // Create hotspots (fixed screen positions)
+        // Create hotspots
         function createHotspots() {
             hotspotsContainer.innerHTML = '';
             CAMERA_ANGLES.forEach((angle, i) => {
@@ -221,15 +219,34 @@
             });
         }
         
-        // Switch angle
+        // Switch angle with GSAP animation
         function switchAngle(i) {
             currentAngle = i;
             const angle = CAMERA_ANGLES[i];
             
-            // Set target (will smoothly interpolate)
-            targetTheta = angle.theta;
-            targetPhi = angle.phi;
-            targetRadius = angle.r;
+            // Stop any inertia
+            velX = velY = velZ = 0;
+            dragVelX = dragVelY = 0;
+            
+            isAnimating = true;
+            
+            // Smooth GSAP animation directly on camera position
+            gsap.to(camera.position, {
+                x: angle.x,
+                y: angle.y,
+                z: angle.z,
+                duration: 0.8,
+                ease: 'power2.inOut',
+                onUpdate: () => {
+                    // Sync our state
+                    camX = camera.position.x;
+                    camY = camera.position.y;
+                    camZ = camera.position.z;
+                },
+                onComplete: () => {
+                    isAnimating = false;
+                }
+            });
             
             document.querySelectorAll('.hotspot').forEach((el, j) => el.classList.toggle('active', j === i));
             showIndicator(angle.name);
@@ -280,13 +297,12 @@
                     else loaderStatus.textContent = 'Almost ready...';
                 });
                 
-                // Reset to front angle
-                targetTheta = 0;
-                targetPhi = 0.4;
-                targetRadius = 5;
-                orbitTheta = targetTheta;
-                orbitPhi = targetPhi;
-                orbitRadius = targetRadius;
+                // Reset camera to front
+                camX = 0; camY = 1; camZ = 5;
+                velX = velY = velZ = 0;
+                camera.position.x = camX;
+                camera.position.y = camY;
+                camera.position.z = camZ;
                 
                 loaderProgress.style.width = '100%';
                 loaderStatus.textContent = 'Enjoy!';
@@ -298,54 +314,134 @@
             }
         }
         
-        // Mouse/touch controls
+        // Mouse/touch controls - IMMEDIATE response
         function initControls() {
             canvas.addEventListener('mousedown', (e) => {
+                if (isAnimating) return;
                 isDragging = true;
                 lastX = e.clientX;
                 lastY = e.clientY;
+                dragVelX = 0;
+                dragVelY = 0;
             });
             
             window.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
+                if (!isDragging || isAnimating) return;
+                
                 const dx = e.clientX - lastX;
                 const dy = e.clientY - lastY;
-                targetTheta -= dx * 0.005;
-                targetPhi += dy * 0.005;
-                targetPhi = Math.max(0.1, Math.min(Math.PI - 0.1, targetPhi));
+                
+                // Immediate rotation around Y axis
+                const dist = Math.sqrt(camX * camX + camZ * camZ);
+                const angle = Math.atan2(camX, camZ);
+                const newAngle = angle - dx * 0.005;
+                camX = Math.sin(newAngle) * dist;
+                camZ = Math.cos(newAngle) * dist;
+                
+                // Vertical movement
+                camY += dy * 0.02;
+                camY = Math.max(-3, Math.min(8, camY));
+                
+                // Track velocity for inertia
+                dragVelX = dx;
+                dragVelY = dy;
+                
                 lastX = e.clientX;
                 lastY = e.clientY;
+                
+                // Immediately update camera
+                camera.position.x = camX;
+                camera.position.y = camY;
+                camera.position.z = camZ;
             });
             
-            window.addEventListener('mouseup', () => isDragging = false);
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
             
+            // Zoom - immediate
             canvas.addEventListener('wheel', (e) => {
+                if (isAnimating) return;
                 e.preventDefault();
-                targetRadius += e.deltaY * 0.01;
-                targetRadius = Math.max(2, Math.min(15, targetRadius));
+                
+                const zoomFactor = 1 + e.deltaY * 0.001;
+                const dist = Math.sqrt(camX * camX + camY * camY + camZ * camZ);
+                const newDist = Math.max(2, Math.min(15, dist * zoomFactor));
+                const scale = newDist / dist;
+                
+                camX *= scale;
+                camY *= scale;
+                camZ *= scale;
+                
+                camera.position.x = camX;
+                camera.position.y = camY;
+                camera.position.z = camZ;
             }, { passive: false });
             
-            // Touch
+            // Touch controls
+            let lastTouchDist = 0;
+            
             canvas.addEventListener('touchstart', (e) => {
+                if (isAnimating) return;
                 if (e.touches.length === 1) {
                     isDragging = true;
                     lastX = e.touches[0].clientX;
                     lastY = e.touches[0].clientY;
+                    dragVelX = dragVelY = 0;
+                } else if (e.touches.length === 2) {
+                    lastTouchDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
                 }
             });
             
             canvas.addEventListener('touchmove', (e) => {
-                if (!isDragging || e.touches.length !== 1) return;
-                const dx = e.touches[0].clientX - lastX;
-                const dy = e.touches[0].clientY - lastY;
-                targetTheta -= dx * 0.005;
-                targetPhi += dy * 0.005;
-                targetPhi = Math.max(0.1, Math.min(Math.PI - 0.1, targetPhi));
-                lastX = e.touches[0].clientX;
-                lastY = e.touches[0].clientY;
-            });
+                if (isAnimating) return;
+                e.preventDefault();
+                
+                if (e.touches.length === 1 && isDragging) {
+                    const dx = e.touches[0].clientX - lastX;
+                    const dy = e.touches[0].clientY - lastY;
+                    
+                    const dist = Math.sqrt(camX * camX + camZ * camZ);
+                    const angle = Math.atan2(camX, camZ);
+                    const newAngle = angle - dx * 0.005;
+                    camX = Math.sin(newAngle) * dist;
+                    camZ = Math.cos(newAngle) * dist;
+                    camY += dy * 0.02;
+                    camY = Math.max(-3, Math.min(8, camY));
+                    
+                    dragVelX = dx;
+                    dragVelY = dy;
+                    
+                    lastX = e.touches[0].clientX;
+                    lastY = e.touches[0].clientY;
+                    
+                    camera.position.x = camX;
+                    camera.position.y = camY;
+                    camera.position.z = camZ;
+                } else if (e.touches.length === 2) {
+                    // Pinch zoom
+                    const newDist = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    const scale = lastTouchDist / newDist;
+                    const camDist = Math.sqrt(camX*camX + camY*camY + camZ*camZ);
+                    const newCamDist = Math.max(2, Math.min(15, camDist * scale));
+                    const s = newCamDist / camDist;
+                    camX *= s; camY *= s; camZ *= s;
+                    camera.position.x = camX;
+                    camera.position.y = camY;
+                    camera.position.z = camZ;
+                    lastTouchDist = newDist;
+                }
+            }, { passive: false });
             
-            canvas.addEventListener('touchend', () => isDragging = false);
+            canvas.addEventListener('touchend', () => {
+                isDragging = false;
+            });
         }
         
         // Keyboard
@@ -359,13 +455,18 @@
             scene = new SPLAT.Scene();
             camera = new SPLAT.Camera();
             
+            // Set initial position
+            camera.position.x = camX;
+            camera.position.y = camY;
+            camera.position.z = camZ;
+            
             initControls();
             createHotspots();
             initSceneSelector();
             
             await loadScene('stump');
             
-            // Render loop - NO OrbitControls, we control camera manually
+            // Render loop
             function frame() {
                 updateCamera();
                 renderer.render(scene, camera);
