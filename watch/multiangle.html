@@ -3,119 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="robots" content="noindex, nofollow">
-    <title>SIREN - 3D Immersive</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>SIREN | 4D Gaussian Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --siren-red: #ef4444;
             --siren-orange: #f97316;
-            --siren-gradient: linear-gradient(135deg, #ef4444, #f97316);
-            --glass-bg: rgba(10, 10, 15, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --siren-gradient: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            --glass-bg: rgba(0,0,0,0.6);
+            --glass-border: rgba(255,255,255,0.1);
         }
-        
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
             background: #000;
-            font-family: 'Outfit', sans-serif;
             color: #fff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
         }
         
         /* Loader */
         .site-loader {
             position: fixed;
             inset: 0;
-            background: rgba(5, 5, 7, 0.98);
-            backdrop-filter: blur(20px);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s, visibility 0.5s;
-        }
-        .site-loader.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .loader-container {
+            background: #000;
+            z-index: 1000;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3rem;
+            justify-content: center;
+            transition: opacity 0.4s;
         }
-        .loader-rings {
-            position: relative;
-            width: 160px;
-            height: 160px;
-        }
+        .site-loader.hidden { opacity: 0; pointer-events: none; }
+        .loader-container { position: relative; width: 80px; height: 80px; margin-bottom: 24px; }
         .loader-ring {
             position: absolute;
-            border-radius: 50%;
-            border: 2px solid transparent;
-        }
-        .loader-ring-1 {
             inset: 0;
+            border: 2px solid transparent;
             border-top-color: var(--siren-red);
-            border-right-color: var(--siren-orange);
-            animation: spin 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-        }
-        .loader-ring-2 {
-            inset: 15px;
-            border-bottom-color: var(--siren-orange);
-            border-left-color: #ec4899;
-            animation: spin 2s ease-in-out infinite reverse;
-        }
-        .loader-ring-3 {
-            inset: 30px;
-            border-top-color: #ec4899;
-            animation: spin 2.5s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .loader-glow {
-            position: absolute;
-            inset: -30px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, transparent 70%);
-            animation: pulse 2s ease-in-out infinite;
+            animation: spin 1s linear infinite;
         }
-        @keyframes pulse {
-            0%, 100% { transform: scale(0.8); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-        }
+        .loader-ring-2 { inset: 8px; border-top-color: var(--siren-orange); animation-duration: 1.5s; animation-direction: reverse; }
+        .loader-ring-3 { inset: 16px; border-top-color: var(--siren-red); animation-duration: 2s; }
         .loader-logo {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2.5rem;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
             font-weight: 700;
             background: var(--siren-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .loader-progress-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            min-width: 260px;
-        }
-        .loader-status {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.5);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-progress-container { text-align: center; }
+        .loader-status { font-size: 0.85rem; color: rgba(255,255,255,0.7); margin-bottom: 12px; }
         .loader-progress-bar {
-            width: 100%;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.1);
+            width: 200px;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
             border-radius: 2px;
             overflow: hidden;
         }
@@ -123,19 +75,17 @@
             height: 100%;
             background: var(--siren-gradient);
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.3s;
         }
         
         /* Controls Overlay */
         .controls-overlay {
-            position: absolute;
+            position: fixed;
             inset: 0;
             z-index: 10;
             pointer-events: none;
         }
-        .controls-overlay > * {
-            pointer-events: auto;
-        }
+        .controls-overlay > * { pointer-events: auto; }
         
         /* Top Bar */
         .top-bar {
@@ -163,13 +113,7 @@
             transition: all 0.2s;
         }
         .back-btn:hover { background: rgba(255,255,255,0.2); }
-        .back-btn svg {
-            width: 24px;
-            height: 24px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-        }
+        .back-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
         .title-info { text-align: center; flex: 1; }
         .title-info h1 { font-size: 1rem; font-weight: 600; margin-bottom: 2px; }
         .title-info span { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
@@ -185,7 +129,74 @@
         }
         .mode-badge svg { width: 16px; height: 16px; }
         
-        /* Bottom Controls */
+        /* 3D Hotspots */
+        .hotspots-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 15;
+            overflow: hidden;
+        }
+        .hotspot {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.2s;
+        }
+        .hotspot:hover { transform: translate(-50%, -50%) scale(1.2); }
+        .hotspot:hover .hotspot-label { opacity: 1; }
+        .hotspot-dot {
+            position: absolute;
+            inset: 6px;
+            border-radius: 50%;
+            background: var(--siren-gradient);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+        }
+        .hotspot-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            animation: hotspot-pulse 2s ease-out infinite;
+        }
+        .hotspot-ring-2 { animation-delay: 0.5s; }
+        .hotspot-num {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .hotspot-label {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            padding: 4px 10px;
+            background: rgba(0,0,0,0.9);
+            border-radius: 6px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .hotspot.active .hotspot-dot {
+            background: #fff;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
+        }
+        @keyframes hotspot-pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+        
+        /* Bottom Bar */
         .bottom-bar {
             position: absolute;
             bottom: 0;
@@ -199,8 +210,6 @@
             align-items: center;
             gap: 16px;
         }
-        
-        /* Scene Selector */
         .scene-selector {
             display: flex;
             gap: 8px;
@@ -221,176 +230,19 @@
             border-radius: 20px;
             transition: all 0.2s;
         }
-        .scene-btn:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.1);
-        }
-        .scene-btn.active {
-            background: var(--siren-gradient);
-            color: #fff;
-        }
-        
-        /* Controls Hint */
+        .scene-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .scene-btn.active { background: var(--siren-gradient); color: #fff; }
         .controls-hint {
             display: flex;
             gap: 16px;
-            flex-wrap: wrap;
-            justify-content: center;
             font-size: 0.7rem;
             color: rgba(255,255,255,0.5);
-        }
-        .controls-hint span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
         .controls-hint kbd {
             padding: 3px 8px;
             background: rgba(255,255,255,0.1);
             border-radius: 4px;
-            font-family: inherit;
-        }
-        
-        /* Angle Selector - Hidden, replaced by 3D hotspots */
-        .angle-selector {
-            display: none;
-        }
-        
-        /* 3D Hotspots */
-        .hotspots-container {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 15;
-            overflow: hidden;
-        }
-        .hotspot {
-            --hs-scale: 1;
-            position: absolute;
-            width: 36px;
-            height: 36px;
-            transform: translate(-50%, -50%) scale(var(--hs-scale));
-            pointer-events: auto;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-        .hotspot:hover {
-            --hs-scale: 1.3 !important;
-        }
-        .hotspot:hover .hotspot-label {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        .hotspot-dot {
-            position: absolute;
-            inset: 4px;
-            border-radius: 50%;
-            background: var(--siren-gradient);
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
-        }
-        .hotspot-ring {
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            border: 2px solid rgba(239, 68, 68, 0.5);
-            animation: hotspot-pulse 2s ease-out infinite;
-        }
-        .hotspot-ring-2 {
-            animation-delay: 0.5s;
-        }
-        .hotspot-num {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-        }
-        .hotspot-label {
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(5px);
-            margin-top: 8px;
-            padding: 4px 10px;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            white-space: nowrap;
-            color: #fff;
-            opacity: 0;
-            transition: all 0.2s;
-            pointer-events: none;
-        }
-        .hotspot.active .hotspot-dot {
-            background: #fff;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
-        }
-        .hotspot.active .hotspot-ring {
-            border-color: rgba(255, 255, 255, 0.6);
-        }
-        @keyframes hotspot-pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            100% { transform: scale(2); opacity: 0; }
-        }
-        
-        /* Legacy angle button styles kept for mobile strip */
-        .angle-btn {
-            width: 80px;
-            height: 40px;
-            border-radius: 8px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(5px);
-            border: 2px solid transparent;
-            color: rgba(255,255,255,0.7);
-            font-family: inherit;
-            font-size: 0.65rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            opacity: 0.7;
-        }
-        .angle-btn:hover {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-        .angle-btn.active {
-            border-color: var(--siren-red);
-            opacity: 1;
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
-        }
-        .angle-btn .num {
-            width: 18px;
-            height: 18px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-        .angle-btn.active .num {
-            background: var(--siren-gradient);
-        }
-        .angle-label {
-            font-size: 0.65rem;
-            color: rgba(255,255,255,0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            writing-mode: vertical-rl;
-            transform: rotate(180deg);
-            margin-top: 10px;
-            text-align: center;
+            margin-right: 4px;
         }
         
         /* Angle Indicator */
@@ -403,20 +255,13 @@
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border-radius: 12px;
-            border: 1px solid var(--glass-border);
             z-index: 100;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s;
         }
         .angle-indicator.visible { opacity: 1; }
-        .angle-indicator-title {
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.5);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 4px;
-        }
+        .angle-indicator-title { font-size: 0.7rem; color: rgba(255,255,255,0.5); text-transform: uppercase; margin-bottom: 4px; }
         .angle-indicator-name {
             font-size: 1.5rem;
             font-weight: 700;
@@ -425,88 +270,42 @@
             -webkit-text-fill-color: transparent;
         }
         
-        /* Mobile Angle Strip */
-        .angle-strip-mobile {
-            display: none;
-            width: 100%;
-            overflow-x: auto;
-            padding: 8px 0;
-            scrollbar-width: none;
-        }
-        .angle-strip-mobile::-webkit-scrollbar { display: none; }
-        .angle-strip-inner {
-            display: flex;
-            gap: 8px;
-            padding: 0 16px;
-        }
-        .angle-strip-btn {
-            flex-shrink: 0;
-            padding: 8px 14px;
-            background: var(--glass-bg);
-            border: 2px solid transparent;
-            border-radius: 20px;
-            color: rgba(255,255,255,0.7);
-            font-family: inherit;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .angle-strip-btn.active {
-            border-color: var(--siren-red);
-            color: #fff;
-        }
-        
-        /* Mobile */
         @media (max-width: 768px) {
-            .angle-selector { display: none; }
-            .angle-strip-mobile { display: block; }
-            .top-bar { padding: 16px; }
-            .title-info h1 { font-size: 0.9rem; }
-            .mode-badge { padding: 6px 10px; font-size: 0.7rem; }
             .controls-hint { display: none; }
+            .hotspot { width: 36px; height: 36px; }
         }
     </style>
 </head>
 <body>
-    <!-- Loader -->
     <div class="site-loader" id="siteLoader">
         <div class="loader-container">
-            <div class="loader-rings">
-                <div class="loader-glow"></div>
-                <div class="loader-ring loader-ring-1"></div>
-                <div class="loader-ring loader-ring-2"></div>
-                <div class="loader-ring loader-ring-3"></div>
-                <div class="loader-logo">S</div>
-            </div>
-            <div class="loader-progress-container">
-                <div class="loader-status" id="loaderStatus">Loading 3D Scene...</div>
-                <div class="loader-progress-bar"><div class="loader-progress-fill" id="loaderProgress"></div></div>
-            </div>
+            <div class="loader-ring"></div>
+            <div class="loader-ring loader-ring-2"></div>
+            <div class="loader-ring loader-ring-3"></div>
+            <div class="loader-logo">S</div>
+        </div>
+        <div class="loader-progress-container">
+            <div class="loader-status" id="loaderStatus">Initializing...</div>
+            <div class="loader-progress-bar"><div class="loader-progress-fill" id="loaderProgress"></div></div>
         </div>
     </div>
     
-    <!-- 3D Canvas -->
-    <canvas id="canvas" style="position:absolute;inset:0;width:100%;height:100%;display:block;background:#000;"></canvas>
-    
-    <!-- 3D Hotspots Container -->
+    <div id="viewer"></div>
     <div class="hotspots-container" id="hotspotsContainer"></div>
     
-    <!-- Angle Indicator -->
     <div class="angle-indicator" id="angleIndicator">
         <div class="angle-indicator-title">Viewing Angle</div>
         <div class="angle-indicator-name" id="angleIndicatorName">Front</div>
     </div>
     
-    <!-- Controls Overlay -->
-    <div class="controls-overlay" id="controlsOverlay">
+    <div class="controls-overlay">
         <div class="top-bar">
             <button class="back-btn" onclick="window.location.href='../browse/'">
                 <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
             <div class="title-info">
                 <h1 id="sceneTitle">Tree Stump</h1>
-                <span>Gaussian Splat • Drag orbit, Scroll zoom, Right-drag pan</span>
+                <span>4D Gaussian • Click hotspots or drag to orbit</span>
             </div>
             <div class="mode-badge">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -515,34 +314,35 @@
                 8-ANGLE
             </div>
         </div>
-        
-        <!-- Desktop Angle Selector -->
-        <div class="angle-selector" id="angleSelector"></div>
-        
         <div class="bottom-bar">
-            <!-- Mobile Angle Strip -->
-            <div class="angle-strip-mobile" id="angleStripMobile">
-                <div class="angle-strip-inner" id="angleStripInner"></div>
-            </div>
-            
-            <!-- Scene Selector -->
             <div class="scene-selector" id="sceneSelector"></div>
-            
-            <!-- Controls Hint -->
             <div class="controls-hint">
                 <span><kbd>Drag</kbd> Orbit</span>
                 <span><kbd>Scroll</kbd> Zoom</span>
-                <span><kbd>Right Drag</kbd> Pan</span>
                 <span><kbd>1-8</kbd> Angles</span>
             </div>
         </div>
     </div>
 
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/"
+        }
+    }
+    </script>
+    
     <script type="module">
-        console.log('%c[SIREN MULTIANGLE v1.3.0 - Custom Controls]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
-        import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
+        console.log('%c[SIREN 4D v2.0.0 - Three.js + GaussianSplats3D]', 'background:#ef4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         
-        // Scene configurations - from dylanebert's Hugging Face 3dgs dataset
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        
+        // Load GaussianSplats3D
+        const GS3D = await import('https://cdn.jsdelivr.net/npm/@mkkellogg/gaussian-splats-3d@0.4.6/build/gaussian-splats-3d.module.min.js');
+        
+        // Scenes
         const SCENES = {
             stump: {
                 name: 'Tree Stump',
@@ -554,255 +354,109 @@
             }
         };
         
-        // Camera preset angles (where camera moves TO when clicking hotspot)
+        // Camera angles - positions around the scene
         const CAMERA_ANGLES = [
-            { name: 'Front', theta: 0, phi: 0.5, dist: 5 },
-            { name: 'Left', theta: Math.PI/2, phi: 0.5, dist: 5 },
-            { name: 'Right', theta: -Math.PI/2, phi: 0.5, dist: 5 },
-            { name: 'Back', theta: Math.PI, phi: 0.5, dist: 5 },
-            { name: 'Above', theta: 0, phi: 1.2, dist: 5 },
-            { name: 'Low', theta: 0, phi: 0.2, dist: 5 },
-            { name: 'Corner L', theta: Math.PI/4, phi: 0.6, dist: 5 },
-            { name: 'Corner R', theta: -Math.PI/4, phi: 0.6, dist: 5 }
+            { name: 'Front', pos: [0, 1, 5], target: [0, 0, 0] },
+            { name: 'Left', pos: [5, 1, 0], target: [0, 0, 0] },
+            { name: 'Right', pos: [-5, 1, 0], target: [0, 0, 0] },
+            { name: 'Back', pos: [0, 1, -5], target: [0, 0, 0] },
+            { name: 'Above', pos: [0, 6, 2], target: [0, 0, 0] },
+            { name: 'Low', pos: [0, -1, 5], target: [0, 0, 0] },
+            { name: 'Corner L', pos: [4, 2, 4], target: [0, 0, 0] },
+            { name: 'Corner R', pos: [-4, 2, 4], target: [0, 0, 0] }
         ];
         
-        // Hotspot 3D positions (floating in scene, ring around center)
-        const HOTSPOT_POSITIONS = [
-            { x: 0, y: 0.3, z: 2.5 },       // Front
-            { x: 2.5, y: 0.3, z: 0 },       // Left  
-            { x: -2.5, y: 0.3, z: 0 },      // Right
-            { x: 0, y: 0.3, z: -2.5 },      // Back
-            { x: 0, y: 2.5, z: 0 },         // Above
-            { x: 0, y: -0.5, z: 2 },        // Low
-            { x: 1.8, y: 0.5, z: 1.8 },     // Corner L
-            { x: -1.8, y: 0.5, z: 1.8 }     // Corner R
+        // Hotspot 3D positions (where dots appear in scene)
+        const HOTSPOT_3D = [
+            new THREE.Vector3(0, 0.5, 2),
+            new THREE.Vector3(2, 0.5, 0),
+            new THREE.Vector3(-2, 0.5, 0),
+            new THREE.Vector3(0, 0.5, -2),
+            new THREE.Vector3(0, 2.5, 0),
+            new THREE.Vector3(0, -0.3, 2),
+            new THREE.Vector3(1.5, 0.8, 1.5),
+            new THREE.Vector3(-1.5, 0.8, 1.5)
         ];
         
         // State
-        let currentScene = 'stump';
-        let currentAngle = 0;
-        let renderer, scene, camera, currentSplat;
-        
-        // Custom orbit state (we control this, not OrbitControls)
-        let orbitAlpha = 0;      // horizontal angle
-        let orbitBeta = 0.5;     // vertical angle  
-        let orbitRadius = 5;     // distance
-        let targetAlpha = 0;
-        let targetBeta = 0.5;
-        let targetRadius = 5;
-        
-        // Drag state
-        let isDragging = false;
-        let lastMouseX = 0;
-        let lastMouseY = 0;
-        
-        // Elements
-        const canvas = document.getElementById('canvas');
-        const siteLoader = document.getElementById('siteLoader');
-        const loaderProgress = document.getElementById('loaderProgress');
-        const loaderStatus = document.getElementById('loaderStatus');
-        const sceneTitle = document.getElementById('sceneTitle');
-        const angleIndicator = document.getElementById('angleIndicator');
-        const angleIndicatorName = document.getElementById('angleIndicatorName');
-        const angleSelector = document.getElementById('angleSelector');
-        const angleStripInner = document.getElementById('angleStripInner');
-        const sceneSelector = document.getElementById('sceneSelector');
-        const hotspotsContainer = document.getElementById('hotspotsContainer');
-        
-        // Hotspot elements array
+        let viewer, currentScene = 'stump', currentAngle = 0;
+        let threeScene, threeCamera, threeRenderer, controls;
         let hotspotElements = [];
         
-        // Spherical to cartesian
-        function toCartesian(theta, phi, dist) {
-            return {
-                x: dist * Math.cos(phi) * Math.sin(theta),
-                y: dist * Math.sin(phi),
-                z: dist * Math.cos(phi) * Math.cos(theta)
-            };
+        const loaderStatus = document.getElementById('loaderStatus');
+        const loaderProgress = document.getElementById('loaderProgress');
+        const siteLoader = document.getElementById('siteLoader');
+        const sceneSelector = document.getElementById('sceneSelector');
+        const hotspotsContainer = document.getElementById('hotspotsContainer');
+        const angleIndicator = document.getElementById('angleIndicator');
+        const angleIndicatorName = document.getElementById('angleIndicatorName');
+        const sceneTitle = document.getElementById('sceneTitle');
+        
+        // Initialize Three.js
+        function initThree() {
+            threeScene = new THREE.Scene();
+            threeCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            threeCamera.position.set(0, 1, 5);
+            
+            threeRenderer = new THREE.WebGLRenderer({ antialias: true });
+            threeRenderer.setSize(window.innerWidth, window.innerHeight);
+            threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.getElementById('viewer').appendChild(threeRenderer.domElement);
+            
+            controls = new OrbitControls(threeCamera, threeRenderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.target.set(0, 0, 0);
+            
+            window.addEventListener('resize', () => {
+                threeCamera.aspect = window.innerWidth / window.innerHeight;
+                threeCamera.updateProjectionMatrix();
+                threeRenderer.setSize(window.innerWidth, window.innerHeight);
+            });
         }
         
-        // Project 3D point to screen coordinates
-        function project3DToScreen(point3D, camera, canvas) {
-            if (!camera) return null;
-            
-            // Get camera position - try different ways
-            let camX = 0, camY = 0, camZ = 5;
-            
-            if (camera.position) {
-                camX = camera.position.x || 0;
-                camY = camera.position.y || 0;
-                camZ = camera.position.z || 5;
-            } else if (camera.data && camera.data.position) {
-                camX = camera.data.position[0] || 0;
-                camY = camera.data.position[1] || 0;
-                camZ = camera.data.position[2] || 5;
-            }
-            
-            // Vector from point to camera (for visibility check)
-            const toCamX = camX - point3D.x;
-            const toCamY = camY - point3D.y;
-            const toCamZ = camZ - point3D.z;
-            
-            // Distance from camera to point
-            const dist = Math.sqrt(toCamX*toCamX + toCamY*toCamY + toCamZ*toCamZ);
-            
-            // Look direction (camera points toward origin)
-            const lookLen = Math.sqrt(camX*camX + camY*camY + camZ*camZ);
-            const lookX = -camX / (lookLen || 1);
-            const lookY = -camY / (lookLen || 1);
-            const lookZ = -camZ / (lookLen || 1);
-            
-            // Right vector (cross look with up)
-            const upX = 0, upY = 1, upZ = 0;
-            let rightX = lookY * upZ - lookZ * upY;
-            let rightY = lookZ * upX - lookX * upZ;
-            let rightZ = lookX * upY - lookY * upX;
-            const rightLen = Math.sqrt(rightX*rightX + rightY*rightY + rightZ*rightZ);
-            rightX /= (rightLen || 1);
-            rightY /= (rightLen || 1);
-            rightZ /= (rightLen || 1);
-            
-            // Up vector (cross right with look)
-            const realUpX = rightY * lookZ - rightZ * lookY;
-            const realUpY = rightZ * lookX - rightX * lookZ;
-            const realUpZ = rightX * lookY - rightY * lookX;
-            
-            // Vector from camera to point
-            const dx = point3D.x - camX;
-            const dy = point3D.y - camY;
-            const dz = point3D.z - camZ;
-            
-            // Project onto view axes
-            const depth = dx * lookX + dy * lookY + dz * lookZ;
-            const screenX = dx * rightX + dy * rightY + dz * rightZ;
-            const screenY = dx * realUpX + dy * realUpY + dz * realUpZ;
-            
-            // Behind camera check
-            const behind = depth < 0.1;
-            
-            // Perspective divide
-            const fov = 75;
-            const scale = canvas.height / (2 * Math.tan(fov * Math.PI / 360));
-            
-            const projX = (screenX / Math.abs(depth)) * scale + canvas.width / 2;
-            const projY = (-screenY / Math.abs(depth)) * scale + canvas.height / 2;
-            
-            return { x: projX, y: projY, behind, dist };
-        }
-        
-        // Initialize 3D hotspots
-        function initHotspots() {
+        // Create hotspots
+        function createHotspots() {
             hotspotsContainer.innerHTML = '';
             hotspotElements = [];
             
-            HOTSPOT_POSITIONS.forEach((pos, i) => {
-                const hotspot = document.createElement('div');
-                hotspot.className = 'hotspot' + (i === 0 ? ' active' : '');
-                hotspot.innerHTML = `
+            CAMERA_ANGLES.forEach((angle, i) => {
+                const el = document.createElement('div');
+                el.className = 'hotspot' + (i === 0 ? ' active' : '');
+                el.innerHTML = `
                     <div class="hotspot-ring"></div>
                     <div class="hotspot-ring hotspot-ring-2"></div>
                     <div class="hotspot-dot"></div>
                     <div class="hotspot-num">${i + 1}</div>
-                    <div class="hotspot-label">${CAMERA_ANGLES[i].name}</div>
+                    <div class="hotspot-label">${angle.name}</div>
                 `;
-                hotspot.addEventListener('click', () => switchAngle(i));
-                hotspotsContainer.appendChild(hotspot);
-                hotspotElements.push({ element: hotspot, position: pos });
+                el.addEventListener('click', () => switchAngle(i));
+                hotspotsContainer.appendChild(el);
+                hotspotElements.push({ el, pos3D: HOTSPOT_3D[i] });
             });
         }
         
         // Update hotspot screen positions
         function updateHotspots() {
-            if (!camera || !canvas) return;
-            
             hotspotElements.forEach((hs, i) => {
-                const screen = project3DToScreen(hs.position, camera, canvas);
-                if (screen) {
-                    // Only update if on screen
-                    const onScreen = screen.x > -50 && screen.x < canvas.width + 50 &&
-                                   screen.y > -50 && screen.y < canvas.height + 50;
-                    
-                    if (onScreen && !screen.behind) {
-                        hs.element.style.left = screen.x + 'px';
-                        hs.element.style.top = screen.y + 'px';
-                        hs.element.style.display = 'block';
-                        hs.element.classList.remove('behind');
-                        
-                        // Scale based on distance (closer = bigger)
-                        const scale = Math.max(0.6, Math.min(1.2, 4 / screen.dist));
-                        hs.element.style.setProperty('--hs-scale', scale);
-                    } else {
-                        hs.element.style.display = 'none';
-                    }
+                const screenPos = hs.pos3D.clone().project(threeCamera);
+                const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-screenPos.y * 0.5 + 0.5) * window.innerHeight;
+                
+                // Check if in front of camera
+                const camDir = new THREE.Vector3();
+                threeCamera.getWorldDirection(camDir);
+                const toHotspot = hs.pos3D.clone().sub(threeCamera.position).normalize();
+                const dot = camDir.dot(toHotspot);
+                
+                if (dot > 0 && x > -50 && x < window.innerWidth + 50 && y > -50 && y < window.innerHeight + 50) {
+                    hs.el.style.display = 'block';
+                    hs.el.style.left = x + 'px';
+                    hs.el.style.top = y + 'px';
+                } else {
+                    hs.el.style.display = 'none';
                 }
             });
-        }
-        
-        // Initialize angle selectors (kept for mobile strip)
-        function initAngleSelectors() {
-            angleSelector.innerHTML = '';
-            angleStripInner.innerHTML = '';
-            
-            CAMERA_ANGLES.forEach((angle, i) => {
-                const btn = document.createElement('button');
-                btn.className = 'angle-btn' + (i === 0 ? ' active' : '');
-                btn.innerHTML = `<span class="num">${i + 1}</span>${angle.name}`;
-                btn.addEventListener('click', () => switchAngle(i));
-                angleSelector.appendChild(btn);
-                
-                const mobileBtn = document.createElement('button');
-                mobileBtn.className = 'angle-strip-btn' + (i === 0 ? ' active' : '');
-                mobileBtn.textContent = `${i + 1}. ${angle.name}`;
-                mobileBtn.addEventListener('click', () => switchAngle(i));
-                angleStripInner.appendChild(mobileBtn);
-            });
-            
-            const label = document.createElement('div');
-            label.className = 'angle-label';
-            label.textContent = 'ANGLES';
-            angleSelector.appendChild(label);
-        }
-        
-        // Initialize scene selector
-        function initSceneSelector() {
-            sceneSelector.innerHTML = '';
-            Object.keys(SCENES).forEach(key => {
-                const btn = document.createElement('button');
-                btn.className = 'scene-btn' + (key === currentScene ? ' active' : '');
-                btn.textContent = SCENES[key].name;
-                btn.addEventListener('click', () => loadScene(key));
-                sceneSelector.appendChild(btn);
-            });
-        }
-        
-        // Show angle indicator
-        function showAngleIndicator(name) {
-            angleIndicatorName.textContent = name;
-            angleIndicator.classList.add('visible');
-            clearTimeout(window.indicatorTimeout);
-            window.indicatorTimeout = setTimeout(() => {
-                angleIndicator.classList.remove('visible');
-            }, 1500);
-        }
-        
-        // Animation state
-        let isAnimating = false;
-        
-        // Update camera position from orbit state
-        function updateCameraFromOrbit() {
-            if (!camera) return;
-            
-            // Clamp beta to avoid gimbal lock
-            orbitBeta = Math.max(0.1, Math.min(Math.PI - 0.1, orbitBeta));
-            
-            // Spherical to cartesian
-            const x = orbitRadius * Math.sin(orbitBeta) * Math.sin(orbitAlpha);
-            const y = orbitRadius * Math.cos(orbitBeta);
-            const z = orbitRadius * Math.sin(orbitBeta) * Math.cos(orbitAlpha);
-            
-            camera.position.x = x;
-            camera.position.y = y;
-            camera.position.z = z;
         }
         
         // Switch camera angle
@@ -810,26 +464,46 @@
             currentAngle = index;
             const angle = CAMERA_ANGLES[index];
             
-            console.log('[SIREN] Switching to angle', index, angle.name);
+            // Animate camera
+            gsap.to(threeCamera.position, {
+                x: angle.pos[0],
+                y: angle.pos[1],
+                z: angle.pos[2],
+                duration: 0.8,
+                ease: 'power2.inOut'
+            });
             
-            // Set orbit state directly
-            orbitAlpha = angle.theta;
-            orbitBeta = Math.PI/2 - angle.phi; // Convert phi to beta
-            orbitRadius = angle.dist;
-            
-            // Update camera immediately
-            updateCameraFromOrbit();
-            
-            console.log('[SIREN] Orbit set to alpha:', orbitAlpha, 'beta:', orbitBeta, 'radius:', orbitRadius);
+            gsap.to(controls.target, {
+                x: angle.target[0],
+                y: angle.target[1],
+                z: angle.target[2],
+                duration: 0.8,
+                ease: 'power2.inOut'
+            });
             
             // Update UI
-            document.querySelectorAll('.angle-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
-            document.querySelectorAll('.angle-strip-btn').forEach((btn, i) => {
-                btn.classList.toggle('active', i === index);
-                if (i === index) btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            });
-            document.querySelectorAll('.hotspot').forEach((hs, i) => hs.classList.toggle('active', i === index));
+            document.querySelectorAll('.hotspot').forEach((el, i) => el.classList.toggle('active', i === index));
             showAngleIndicator(angle.name);
+        }
+        
+        // Show angle indicator
+        function showAngleIndicator(name) {
+            angleIndicatorName.textContent = name;
+            angleIndicator.classList.add('visible');
+            clearTimeout(window.indicatorTimeout);
+            window.indicatorTimeout = setTimeout(() => angleIndicator.classList.remove('visible'), 1500);
+        }
+        
+        // Init scene selector
+        function initSceneSelector() {
+            sceneSelector.innerHTML = '';
+            Object.entries(SCENES).forEach(([key, data]) => {
+                const btn = document.createElement('button');
+                btn.className = 'scene-btn' + (key === currentScene ? ' active' : '');
+                btn.textContent = data.name;
+                btn.addEventListener('click', () => loadScene(key));
+                sceneSelector.appendChild(btn);
+            });
         }
         
         // Load scene
@@ -842,7 +516,6 @@
             loaderStatus.textContent = 'Loading ' + sceneData.name + '...';
             
             currentScene = sceneName;
-            currentAngle = 0;
             sceneTitle.textContent = sceneData.name;
             
             document.querySelectorAll('.scene-btn').forEach(btn => {
@@ -850,136 +523,68 @@
             });
             
             try {
-                // Remove old splat
-                if (currentSplat) {
-                    scene.removeObject(currentSplat);
-                    currentSplat = null;
+                // Remove old viewer if exists
+                if (viewer) {
+                    viewer.dispose();
+                    viewer = null;
                 }
                 
-                // Load new splat
-                currentSplat = await SPLAT.Loader.LoadAsync(
-                    sceneData.url,
-                    scene,
-                    (progress) => {
-                        const pct = Math.round(progress * 100);
-                        loaderProgress.style.width = pct + '%';
-                        if (pct < 30) loaderStatus.textContent = 'Downloading...';
-                        else if (pct < 70) loaderStatus.textContent = 'Processing...';
+                // Create new viewer
+                viewer = new GS3D.Viewer({
+                    cameraUp: [0, 1, 0],
+                    initialCameraPosition: [0, 1, 5],
+                    initialCameraLookAt: [0, 0, 0],
+                    sharedMemoryForWorkers: false,
+                    dynamicScene: false,
+                    selfDrivenMode: false,
+                    renderer: threeRenderer,
+                    camera: threeCamera,
+                    threeScene: threeScene
+                });
+                
+                await viewer.addSplatScene(sceneData.url, {
+                    progressiveLoad: true,
+                    onProgress: (pct) => {
+                        loaderProgress.style.width = (pct * 100) + '%';
+                        if (pct < 0.3) loaderStatus.textContent = 'Downloading...';
+                        else if (pct < 0.7) loaderStatus.textContent = 'Processing splats...';
                         else loaderStatus.textContent = 'Almost ready...';
                     }
-                );
-                
-                // Reset to front view
-                orbitAlpha = 0;
-                orbitBeta = Math.PI/2 - 0.5;
-                orbitRadius = 5;
-                updateCameraFromOrbit();
-                
-                initAngleSelectors();
+                });
                 
                 loaderProgress.style.width = '100%';
-                loaderStatus.textContent = 'Enjoy';
+                loaderStatus.textContent = 'Enjoy!';
                 setTimeout(() => siteLoader.classList.add('hidden'), 400);
+                
+                // Reset to front angle
+                switchAngle(0);
                 
             } catch (err) {
                 console.error('Load error:', err);
                 loaderStatus.textContent = 'Error loading scene';
-                setTimeout(() => siteLoader.classList.add('hidden'), 2000);
             }
         }
         
-        // Main init
-        async function init() {
-            renderer = new SPLAT.WebGLRenderer(canvas);
-            scene = new SPLAT.Scene();
-            camera = new SPLAT.Camera();
-            
-            // Set initial camera position
-            updateCameraFromOrbit();
-            
-            initSceneSelector();
-            initAngleSelectors();
-            initHotspots();
-            
-            // Mouse controls for orbiting
-            canvas.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                lastMouseX = e.clientX;
-                lastMouseY = e.clientY;
-            });
-            
-            window.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                
-                const deltaX = e.clientX - lastMouseX;
-                const deltaY = e.clientY - lastMouseY;
-                
-                orbitAlpha -= deltaX * 0.005;
-                orbitBeta += deltaY * 0.005;
-                
-                updateCameraFromOrbit();
-                
-                lastMouseX = e.clientX;
-                lastMouseY = e.clientY;
-            });
-            
-            window.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-            
-            // Scroll to zoom
-            canvas.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                orbitRadius += e.deltaY * 0.01;
-                orbitRadius = Math.max(2, Math.min(15, orbitRadius));
-                updateCameraFromOrbit();
-            }, { passive: false });
-            
-            // Touch controls
-            let lastTouchX = 0, lastTouchY = 0;
-            canvas.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 1) {
-                    lastTouchX = e.touches[0].clientX;
-                    lastTouchY = e.touches[0].clientY;
-                }
-            });
-            
-            canvas.addEventListener('touchmove', (e) => {
-                if (e.touches.length === 1) {
-                    const deltaX = e.touches[0].clientX - lastTouchX;
-                    const deltaY = e.touches[0].clientY - lastTouchY;
-                    
-                    orbitAlpha -= deltaX * 0.005;
-                    orbitBeta += deltaY * 0.005;
-                    
-                    updateCameraFromOrbit();
-                    
-                    lastTouchX = e.touches[0].clientX;
-                    lastTouchY = e.touches[0].clientY;
-                }
-            });
-            
-            await loadScene('stump');
-            
-            // Render loop
-            const frame = () => {
-                renderer.render(scene, camera);
-                updateHotspots();
-                requestAnimationFrame(frame);
-            };
-            requestAnimationFrame(frame);
-            
-            window.addEventListener('resize', () => renderer.setSize(window.innerWidth, window.innerHeight));
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            if (viewer) viewer.update();
+            updateHotspots();
+            threeRenderer.render(threeScene, threeCamera);
         }
         
         // Keyboard
         document.addEventListener('keydown', (e) => {
             if (e.key >= '1' && e.key <= '8') switchAngle(parseInt(e.key) - 1);
-            else if (e.key === 'ArrowLeft') switchAngle((currentAngle - 1 + 8) % 8);
-            else if (e.key === 'ArrowRight') switchAngle((currentAngle + 1) % 8);
         });
         
-        init();
+        // Init
+        initThree();
+        initSceneSelector();
+        createHotspots();
+        animate();
+        await loadScene('stump');
     </script>
 </body>
 </html>
