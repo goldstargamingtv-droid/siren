@@ -2690,6 +2690,12 @@
             -webkit-user-select: none;
         }
 
+        /* Mobile elements - hidden on desktop */
+        .mobile-browse-tabs,
+        .mobile-content-grid {
+            display: none;
+        }
+
         /* Pagination indicator */
         .pagination-indicator {
             display: flex;
@@ -4694,6 +4700,20 @@
                 </div>
             </section>
 
+            <!-- Mobile Category Tabs (hidden on desktop) -->
+            <div class="mobile-browse-tabs" id="mobileTabs">
+                <button class="mobile-tab active" data-category="all">All</button>
+                <button class="mobile-tab" data-category="trending">Trending</button>
+                <button class="mobile-tab" data-category="new">New</button>
+                <button class="mobile-tab" data-category="popular">Popular</button>
+                <button class="mobile-tab" data-category="vr">VR</button>
+            </div>
+
+            <!-- Mobile Grid View (hidden on desktop) -->
+            <div class="mobile-content-grid" id="mobileGrid">
+                <!-- Populated by JS -->
+            </div>
+
             <!-- Content Area -->
             <div class="content-area">
                 <!-- Continue Watching -->
@@ -5735,7 +5755,114 @@
             initSliderButtons();
             initAllSliders();
             initDragScroll();
+            
+            // Initialize mobile grid if on mobile
+            if (IS_MOBILE) {
+                initMobileGrid();
+            }
         }, 500);
+
+        // ========== MOBILE GRID SYSTEM ==========
+        function initMobileGrid() {
+            const grid = document.getElementById('mobileGrid');
+            const tabs = document.querySelectorAll('.mobile-tab');
+            
+            if (!grid) return;
+            
+            // Content data for grid
+            const mobileContent = {
+                all: [
+                    { section: 'Continue Watching', items: generateItems(4, 'continue') },
+                    { section: 'Trending Now', items: generateItems(6, 'trending') },
+                    { section: 'New Releases', items: generateItems(6, 'new') },
+                    { section: 'Popular', items: generateItems(4, 'popular') }
+                ],
+                trending: [
+                    { section: null, items: generateItems(12, 'trending') }
+                ],
+                new: [
+                    { section: null, items: generateItems(12, 'new') }
+                ],
+                popular: [
+                    { section: null, items: generateItems(12, 'popular') }
+                ],
+                vr: [
+                    { section: null, items: generateItems(8, 'vr') }
+                ]
+            };
+            
+            function generateItems(count, type) {
+                const items = [];
+                const badges = {
+                    trending: ['HOT', 'TRENDING', '🔥', null, null],
+                    new: ['NEW', 'JUST ADDED', null, null],
+                    vr: ['VR', '360°', 'IMMERSIVE', null],
+                    popular: ['POPULAR', 'TOP RATED', null, null],
+                    continue: [null, null, null]
+                };
+                
+                for (let i = 0; i < count; i++) {
+                    const imgNum = ((i + (type.charCodeAt(0) % 10)) % 13) + 1;
+                    const badgeOptions = badges[type] || [null];
+                    const badge = badgeOptions[Math.floor(Math.random() * badgeOptions.length)];
+                    
+                    items.push({
+                        id: `${type}-${i}`,
+                        img: `../images/${imgNum}.jpg`,
+                        title: sceneNames[i % sceneNames.length],
+                        performer: performerNames[i % performerNames.length],
+                        duration: durations[i % durations.length],
+                        badge: badge,
+                        isVR: type === 'vr'
+                    });
+                }
+                return items;
+            }
+            
+            function renderGrid(category) {
+                const content = mobileContent[category] || mobileContent.all;
+                grid.innerHTML = '';
+                
+                content.forEach(section => {
+                    // Section header (if exists)
+                    if (section.section) {
+                        const header = document.createElement('div');
+                        header.className = 'mobile-grid-section-header';
+                        header.textContent = section.section;
+                        grid.appendChild(header);
+                    }
+                    
+                    // Cards
+                    section.items.forEach(item => {
+                        const card = document.createElement('a');
+                        card.href = '../watch/index.html';
+                        card.className = 'mobile-grid-card';
+                        card.innerHTML = `
+                            <img src="${item.img}" alt="${item.title}" loading="lazy">
+                            ${item.badge ? `<div class="mobile-grid-card-badge">${item.badge}</div>` : ''}
+                            <div class="mobile-grid-card-duration">${item.duration}</div>
+                            <div class="mobile-grid-card-overlay">
+                                <div class="mobile-grid-card-title">${item.title}</div>
+                                <div class="mobile-grid-card-meta">${item.performer}</div>
+                            </div>
+                        `;
+                        grid.appendChild(card);
+                    });
+                });
+            }
+            
+            // Tab click handler
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    renderGrid(tab.dataset.category);
+                });
+            });
+            
+            // Initial render
+            renderGrid('all');
+        }
         
         // Reinit on resize
         let resizeTimer;
