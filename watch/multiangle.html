@@ -539,7 +539,7 @@
     </div>
 
     <script type="module">
-        console.log('%c[SIREN MULTIANGLE v1.2.1]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
+        console.log('%c[SIREN MULTIANGLE v1.2.2]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         import * as SPLAT from 'https://cdn.jsdelivr.net/npm/gsplat@1.0.2/dist/index.js';
         
         // Scene configurations - from dylanebert's Hugging Face 3dgs dataset
@@ -809,7 +809,17 @@
                     camera.position.z = start.z;
                 },
                 onComplete: () => {
+                    // Final position set
+                    camera.position.x = target.x;
+                    camera.position.y = target.y;
+                    camera.position.z = target.z;
+                    
+                    // Recreate controls to sync with new camera position
+                    controls.dispose && controls.dispose();
+                    controls = new SPLAT.OrbitControls(camera, canvas);
+                    
                     isAnimating = false;
+                    console.log('[SIREN] Animation complete, controls recreated');
                 }
             });
             
