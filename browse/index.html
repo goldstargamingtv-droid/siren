@@ -4904,6 +4904,9 @@
     </div>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Global mobile check - disable heavy animations
+        const IS_MOBILE = window.innerWidth <= 768;
+        
         // Mock data
         const sceneNames = [
             "Velvet Dreams", "Golden Hour", "After Dark", "Private Suite", 
@@ -5139,6 +5142,12 @@
             const glow = document.querySelector('.sidebar-glow');
             
             sidebarExpanded = !sidebarExpanded;
+            
+            // Skip animations on mobile for performance
+            if (IS_MOBILE) {
+                sidebar.classList.toggle('expanded', sidebarExpanded);
+                return;
+            }
             
             // Kill any ongoing animations
             gsap.killTweensOf([sidebar, toggleBtn, arrow, searchContainer, navSections, navItems, glow]);
@@ -5472,6 +5481,9 @@
         
         // Attach hover events to all content cards
         function attachCardHoverEvents() {
+            // Skip hover events on mobile - they don't apply
+            if (IS_MOBILE) return;
+            
             document.querySelectorAll('.content-card:not(.performer-card)').forEach(card => {
                 card.addEventListener('mouseenter', () => {
                     if (isDraggingRow) return;
@@ -5732,7 +5744,7 @@
         // ========== DRAG TO SCROLL ==========
         function initDragScroll() {
             // Skip on mobile - use native touch scroll
-            if (window.innerWidth <= 768) return;
+            if (IS_MOBILE) return;
             
             document.querySelectorAll('.content-row').forEach(row => {
                 let isDown = false;

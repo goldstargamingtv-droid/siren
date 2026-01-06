@@ -5282,9 +5282,9 @@ async function handleWelcomeSignIn(e) {
 document.addEventListener('DOMContentLoaded', function() {
     // Wait for auth system to initialize
     setTimeout(function() {
-        // If user is already logged in, redirect to browse
+        // If user is already logged in, don't redirect - let them view homepage
         if (typeof SIREN !== 'undefined' && SIREN.getCurrentUser && SIREN.getCurrentUser()) {
-            window.location.href = 'browse/index.html';
+            // User is logged in, they can view homepage normally
             return;
         }
         

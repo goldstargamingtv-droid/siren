@@ -383,9 +383,10 @@
 
     .content-row {
         gap: 12px !important;
-        touch-action: pan-x !important;
         cursor: default !important;
         transform: none !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
     }
 
     /* Hide scroll buttons */
@@ -398,7 +399,14 @@
         width: 140px !important;
         min-width: 140px !important;
         flex-shrink: 0 !important;
-        touch-action: pan-y !important;
+    }
+
+    /* CRITICAL: Allow vertical scrolling on cards */
+    .content-card,
+    .content-card *,
+    .card-image,
+    .card-image * {
+        touch-action: pan-y pan-x !important;
     }
 
     .card-image {
