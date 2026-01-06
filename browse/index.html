@@ -5151,7 +5151,7 @@
                 
                 if (timeDiff < 300 && distX < 10 && distY < 10) {
                     if (card.dataset.is3d === 'true') {
-                        window.location.href = '../watch/?type=splat';
+                        window.location.href = '../watch/multiangle.html';
                     } else if (card.dataset.multiangle === 'true') {
                         window.location.href = '../watch/multiangle.html';
                     } else {
@@ -5187,7 +5187,7 @@
                 // Check content type
                 if (card.dataset.is3d === 'true') {
                     console.log('[SIREN] Navigating to 3D splat viewer');
-                    window.location.href = '../watch/?type=splat';
+                    window.location.href = '../watch/multiangle.html';
                 } else if (card.dataset.multiangle === 'true') {
                     console.log('[SIREN] Navigating to multiangle viewer');
                     window.location.href = '../watch/multiangle.html';
@@ -6951,7 +6951,7 @@
                 // Check if parent card is 3D or multi-angle
                 const card = btn.closest('.content-card');
                 if (card && card.dataset.is3d === 'true') {
-                    window.location.href = '../watch/?type=splat';
+                    window.location.href = '../watch/multiangle.html';
                 } else if (card && card.dataset.multiangle === 'true') {
                     window.location.href = '../watch/multiangle.html';
                 } else {
@@ -6964,7 +6964,7 @@
                 e.stopPropagation();
                 const card = btn.closest('.content-card');
                 if (card && card.dataset.is3d === 'true') {
-                    window.location.href = '../watch/?type=splat';
+                    window.location.href = '../watch/multiangle.html';
                 } else if (card && card.dataset.multiangle === 'true') {
                     window.location.href = '../watch/multiangle.html';
                 } else {
@@ -6999,7 +6999,7 @@
                 // Only navigate if it was a tap (not drag)
                 if (timeDiff < 300 && distX < 10 && distY < 10) {
                     if (card.dataset.is3d === 'true') {
-                        window.location.href = '../watch/?type=splat';
+                        window.location.href = '../watch/multiangle.html';
                     } else if (card.dataset.multiangle === 'true') {
                         window.location.href = '../watch/multiangle.html';
                     } else {
@@ -7033,7 +7033,7 @@
                 
                 // Check content type
                 if (card.dataset.is3d === 'true') {
-                    window.location.href = '../watch/?type=splat';
+                    window.location.href = '../watch/multiangle.html';
                 } else if (card.dataset.multiangle === 'true') {
                     window.location.href = '../watch/multiangle.html';
                 } else {
