@@ -5919,6 +5919,8 @@
         let currentSlide = 0;
         const slides = document.querySelectorAll('.featured-slide');
         const dots = document.querySelectorAll('.carousel-dot');
+        let carouselInterval = null;
+        let isCarouselHovered = false;
 
         function goToSlide(index) {
             // Pause current video
@@ -5941,9 +5943,9 @@
             dots[index].classList.add('active');
             currentSlide = index;
 
-            // Play new video
+            // Only play video if carousel is hovered
             const newVideo = slides[index].querySelector('video');
-            if (newVideo) {
+            if (newVideo && isCarouselHovered) {
                 newVideo.currentTime = 0;
                 newVideo.play();
             }
@@ -5961,7 +5963,28 @@
             });
         });
 
-        let carouselInterval = setInterval(() => {
+        // Pause carousel by default, only play on hover
+        const heroSection = document.querySelector('.featured-hero');
+        if (heroSection) {
+            heroSection.addEventListener('mouseenter', () => {
+                isCarouselHovered = true;
+                const currentVideo = slides[currentSlide].querySelector('video');
+                if (currentVideo) {
+                    currentVideo.currentTime = 0;
+                    currentVideo.play();
+                }
+            });
+            
+            heroSection.addEventListener('mouseleave', () => {
+                isCarouselHovered = false;
+                const currentVideo = slides[currentSlide].querySelector('video');
+                if (currentVideo) {
+                    currentVideo.pause();
+                }
+            });
+        }
+
+        carouselInterval = setInterval(() => {
             goToSlide((currentSlide + 1) % slides.length);
         }, 7000);
 

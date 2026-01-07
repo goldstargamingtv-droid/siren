@@ -2147,6 +2147,14 @@
         (async () => {
             const isAuthed = await checkAuth();
             if (isAuthed) {
+                // Attach nav button click listeners
+                document.querySelectorAll('.nav-item[data-panel]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const panel = btn.getAttribute('data-panel');
+                        switchPanel(panel);
+                    });
+                });
+                
                 loadDashboardStats().catch(err => console.error('Dashboard load error:', err));
                 console.log('Admin panel ready');
             }
