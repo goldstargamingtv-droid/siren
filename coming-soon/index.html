@@ -633,17 +633,15 @@
             bottom: 0;
             left: 0;
             right: 0;
-            z-index: 10;
+            z-index: 150;
             padding: 0.75rem 2rem;
             text-align: center;
             background: linear-gradient(0deg, rgba(10,10,10,0.9) 0%, transparent 100%);
-            pointer-events: none;
         }
 
         .footer-text {
             font-size: 0.7rem;
             color: var(--text-muted);
-            pointer-events: auto;
         }
 
         .footer-links {
@@ -651,7 +649,6 @@
             justify-content: center;
             gap: 1.5rem;
             margin-top: 0.35rem;
-            pointer-events: auto;
         }
 
         .footer-links a {
@@ -659,6 +656,9 @@
             color: var(--text-muted);
             text-decoration: none;
             transition: color 0.2s;
+            cursor: pointer;
+            position: relative;
+            z-index: 20;
         }
 
         .footer-links a:hover {
