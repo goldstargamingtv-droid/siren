@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIREN - Brand Story</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --red: #ef4444;
+            --orange: #f97316;
+            --gold: #fbbf24;
+            --black: #0a0a0a;
+            --dark: #111111;
+            --darker: #0d0d0d;
+            --gray: #71717a;
+            --light-gray: #a1a1aa;
+            --off-white: #e4e4e7;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--black);
+            color: #fff;
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--black);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--red), var(--orange));
+            border-radius: 4px;
+        }
+
+        /* Preloader */
+        .preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--black);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .preloader-logo {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: 0.5em;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+        }
+
+        .preloader-line {
+            width: 200px;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .preloader-progress {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--red), var(--orange));
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: linear-gradient(180deg, rgba(10,10,10,0.95) 0%, transparent 100%);
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 0.3em;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--red);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(239, 68, 68, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(249, 115, 22, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(239, 68, 68, 0.08) 0%, transparent 50%);
+        }
+
+        .hero-particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--red);
+            border-radius: 50%;
+            opacity: 0;
+            filter: blur(1px);
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 10;
+            padding: 2rem;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--orange);
+            margin-bottom: 2rem;
+            opacity: 0;
+        }
+
+        .hero-title {
+            font-size: clamp(4rem, 15vw, 10rem);
+            font-weight: 800;
+            letter-spacing: 0.4em;
+            line-height: 0.9;
+            margin-bottom: 2rem;
+            opacity: 0;
+        }
+
+        .hero-title span {
+            display: inline-block;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-tagline {
+            font-size: clamp(1.25rem, 3vw, 2rem);
+            font-weight: 300;
+            color: rgba(255,255,255,0.8);
+            letter-spacing: 0.15em;
+            opacity: 0;
+        }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            opacity: 0;
+        }
+
+        .hero-scroll span {
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gray);
+        }
+
+        .scroll-indicator {
+            width: 24px;
+            height: 40px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .scroll-dot {
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 8px;
+            background: var(--red);
+            border-radius: 2px;
+            animation: scrollBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollBounce {
+            0%, 100% { top: 6px; opacity: 1; }
+            50% { top: 20px; opacity: 0.3; }
+        }
+
+        /* Generic Section Styles */
+        section {
+            padding: 8rem 4rem;
+            position: relative;
+        }
+
+        .section-number {
+            font-size: 8rem;
+            font-weight: 900;
+            position: absolute;
+            top: 4rem;
+            left: 4rem;
+            background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(249,115,22,0.03));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--orange);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 2rem;
+        }
+
+        .section-title .highlight {
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .container-wide {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Prose / Body Text */
+        .prose {
+            font-size: 1.15rem;
+            line-height: 1.9;
+            color: var(--off-white);
+        }
+
+        .prose p {
+            margin-bottom: 1.75rem;
+        }
+
+        .prose p:first-of-type::first-letter {
+            font-size: 4.5rem;
+            float: left;
+            line-height: 1;
+            margin-right: 1rem;
+            margin-top: 0.4rem;
+            font-weight: 700;
+            font-family: 'Cormorant Garamond', serif;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .prose strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .prose em {
+            font-style: italic;
+            color: var(--light-gray);
+        }
+
+        .prose-highlight {
+            color: var(--red);
+            font-weight: 600;
+        }
+
+        /* Divider */
+        .divider {
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--red), var(--orange));
+            margin: 4rem auto;
+            border-radius: 3px;
+        }
+
+        /* Quote Styles */
+        .blockquote {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-style: italic;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.9);
+            border-left: 3px solid var(--red);
+            padding-left: 2rem;
+            margin: 3rem 0;
+        }
+
+        .blockquote cite {
+            display: block;
+            font-size: 0.9rem;
+            font-style: normal;
+            font-family: 'Outfit', sans-serif;
+            color: var(--gray);
+            margin-top: 1rem;
+            letter-spacing: 0.1em;
+        }
+
+        /* Large Quote Section */
+        .quote-section {
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: var(--darker);
+            position: relative;
+        }
+
+        .quote-section::before {
+            content: '"';
+            position: absolute;
+            font-size: 40rem;
+            font-weight: 900;
+            font-family: 'Cormorant Garamond', serif;
+            color: rgba(239,68,68,0.03);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -60%);
+            line-height: 1;
+        }
+
+        .quote-large {
+            max-width: 900px;
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+        }
+
+        .quote-large-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .quote-large-text .em {
+            font-weight: 600;
+            font-style: normal;
+            color: var(--red);
+        }
+
+        .quote-attribution {
+            font-size: 0.85rem;
+            color: var(--gray);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        /* Dark Section */
+        .section-dark {
+            background: var(--darker);
+        }
+
+        .section-gradient {
+            background: linear-gradient(180deg, var(--black) 0%, var(--darker) 50%, var(--black) 100%);
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(239,68,68,0.2);
+            transform: translateY(-4px);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: #fff;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .card p {
+            color: var(--light-gray);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+
+        /* Value Cards */
+        .value-card {
+            padding: 2.5rem;
+            position: relative;
+            border-left: 3px solid transparent;
+            background: linear-gradient(var(--black), var(--black)) padding-box,
+                        linear-gradient(180deg, var(--red), var(--orange)) border-box;
+        }
+
+        .value-card-number {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            color: var(--orange);
+            margin-bottom: 1rem;
+        }
+
+        .value-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .value-card p {
+            color: var(--light-gray);
+            line-height: 1.8;
+        }
+
+        /* Stat Cards */
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--red), var(--orange));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--light-gray);
+            line-height: 1.5;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            margin-top: 3rem;
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .comparison-row.header {
+            border-bottom: 2px solid rgba(239,68,68,0.3);
+            margin-bottom: 0.5rem;
+        }
+
+        .comparison-cell {
+            padding: 1.25rem 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        .comparison-cell.old {
+            color: var(--gray);
+            text-decoration: line-through;
+            text-decoration-color: rgba(255,255,255,0.2);
+        }
+
+        .comparison-cell.new {
+            color: #fff;
+            font-weight: 500;
+            background: linear-gradient(90deg, rgba(239,68,68,0.08), transparent);
+        }
+
+        .comparison-row.header .comparison-cell {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+        }
+
+        .comparison-row.header .comparison-cell.old {
+            color: var(--gray);
+        }
+
+        .comparison-row.header .comparison-cell.new {
+            color: var(--orange);
+            background: none;
+        }
+
+        /* Voice Example Cards */
+        .voice-example {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .voice-example-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .voice-example-label.bad {
+            color: var(--gray);
+        }
+
+        .voice-example-label.good {
+            color: var(--red);
+        }
+
+        .voice-example p {
+            font-size: 1rem;
+            color: var(--off-white);
+            font-style: italic;
+        }
+
+        /* Tagline Display */
+        .tagline-display {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, rgba(239,68,68,0.05), rgba(249,115,22,0.03));
+            border-radius: 24px;
+            margin: 3rem 0;
+        }
+
+        .tagline-primary {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .tagline-sub {
+            font-size: 1rem;
+            color: var(--gray);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        /* Alternative Taglines */
+        .taglines-alt {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .tagline-chip {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: var(--off-white);
+            transition: all 0.3s ease;
+        }
+
+        .tagline-chip:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        /* Lists */
+        .styled-list {
+            list-style: none;
+        }
+
+        .styled-list li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: var(--off-white);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .styled-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            border-radius: 50%;
+        }
+
+        /* Reference Table */
+        .ref-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+
+        .ref-table th,
+        .ref-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .ref-table th {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--orange);
+            background: rgba(239,68,68,0.05);
+        }
+
+        .ref-table td {
+            color: var(--off-white);
+        }
+
+        /* CTA Section */
+        .cta {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: 
+                radial-gradient(ellipse at 50% 50%, rgba(239,68,68,0.12) 0%, transparent 60%),
+                var(--black);
+            position: relative;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-tagline {
+            font-size: clamp(2.5rem, 7vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-tagline .gradient {
+            background: linear-gradient(135deg, var(--red), var(--orange), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cta-subtitle {
+            font-size: 1.15rem;
+            color: var(--light-gray);
+            margin-bottom: 2.5rem;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem 3rem;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            border: none;
+            border-radius: 60px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 40px rgba(239,68,68,0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 60px rgba(239,68,68,0.4);
+        }
+
+        .cta-button svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover svg {
+            transform: translateX(5px);
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 0.3em;
+            background: linear-gradient(135deg, var(--red), var(--orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        /* Utility */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-4 {
+            margin-top: 4rem;
+        }
+
+        .mt-6 {
+            margin-top: 6rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 2rem;
+        }
+
+        /* Animations */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            section {
+                padding: 5rem 2rem;
+            }
+
+            .nav {
+                padding: 1rem 2rem;
+            }
+
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .section-number {
+                font-size: 5rem;
+                top: 2rem;
+                left: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
+                letter-spacing: 0.1em;
+            }
+
+            .comparison-row {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-cell.old {
+                border-bottom: none;
+                padding-bottom: 0.5rem;
+            }
+
+            .comparison-cell.new {
+                padding-top: 0.5rem;
+            }
+
+            .blockquote {
+                font-size: 1.5rem;
+                padding-left: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-logo">SIREN</div>
+        <div class="preloader-line">
+            <div class="preloader-progress" id="preloaderProgress"></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-logo">SIREN</div>
+        <div class="nav-links">
+            <a href="#name">The Name</a>
+            <a href="#positioning">Positioning</a>
+            <a href="#values">Values</a>
+            <a href="#identity">Identity</a>
+            <a href="#voice">Voice</a>
+            <a href="#audience">Audience</a>
+            <a href="#investor">Investor</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-particles" id="particles"></div>
+        <div class="hero-content">
+            <div class="hero-eyebrow">Brand Story</div>
+            <h1 class="hero-title"><span>SIREN</span></h1>
+            <p class="hero-tagline">The Complete Brand Narrative</p>
+        </div>
+        <div class="hero-scroll">
+            <span>Scroll to explore</span>
+            <div class="scroll-indicator">
+                <div class="scroll-dot"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 01: THE NAME -->
+    <section id="name">
+        <span class="section-number">01</span>
+        <div class="container">
+            <div class="section-label">The Name</div>
+            <h2 class="section-title">The Origin of <span class="highlight">SIREN</span></h2>
+            
+            <div class="prose fade-up">
+                <p>In Greek mythology, Sirens were ethereal beings of impossible beauty whose enchanting songs drew sailors irresistibly toward them. No one who heard their call could turn away. The Siren's power wasn't force—it was pure, magnetic allure.</p>
+                
+                <p><strong class="prose-highlight">SIREN</strong> captures this essence: an experience so captivating, so immersive, that looking away isn't an option.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SECTION 02: BRAND POSITIONING -->
+    <section class="section-dark" id="positioning">
+        <span class="section-number">02</span>
+        <div class="container">
+            <div class="section-label">Brand Positioning</div>
+            <h2 class="section-title">How We <span class="highlight">Position</span> Ourselves</h2>
+            
+            <div class="fade-up">
+                <h3 style="font-size: 1.25rem; color: var(--orange); margin-bottom: 1rem; margin-top: 3rem;">The One-Liner</h3>
+                <blockquote class="blockquote">
+                    "Immersive adult entertainment you can't look away from."
+                </blockquote>
+            </div>
+            
+            <div class="fade-up">
+                <h3 style="font-size: 1.25rem; color: var(--orange); margin-bottom: 1rem; margin-top: 3rem;">The Elevator Pitch</h3>
+                <blockquote class="blockquote">
+                    SIREN is the first adult streaming platform built on 4D Gaussian Splatting technology—transforming passive viewers into present participants. We're not just streaming content; we're transporting audiences into the scene itself.
+                </blockquote>
+            </div>
+            
+            <div class="fade-up mt-6">
+                <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem;">The Full Story</h3>
+                <div class="prose">
+                    <p>The adult entertainment industry generates $97 billion annually, yet the viewing experience hasn't fundamentally changed in decades. Viewers still watch flat rectangles, passive observers behind a screen.</p>
+                    
+                    <p><strong class="prose-highlight">SIREN changes everything.</strong></p>
+                    
+                    <p>Using breakthrough 4D Gaussian Splatting technology, SIREN creates volumetric, navigable experiences where viewers control their perspective in real-time. Move through the scene. Choose your angle. Feel present in the moment.</p>
+                    
+                    <p>This isn't VR that requires clunky headsets. This isn't 360° video with its warped edges. This is true volumetric capture—photorealistic, fluid, and accessible on any device.</p>
+                    
+                    <p>Like the mythological Sirens whose call sailors couldn't resist, our platform creates an irresistible pull—the magnetic draw of being <em>there</em> rather than just watching.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quote Break -->
+    <section class="quote-section">
+        <div class="quote-large fade-up">
+            <p class="quote-large-text">"What if we could <span class="em">remove the glass</span> between viewer and experience? What if watching became <span class="em">being there</span>?"</p>
+            <p class="quote-attribution">— The Question That Started Everything</p>
+        </div>
+    </section>
+
+    <!-- SECTION 03: BRAND VALUES -->
+    <section id="values">
+        <span class="section-number">03</span>
+        <div class="container-wide">
+            <div class="section-label">Brand Values</div>
+            <h2 class="section-title">What We <span class="highlight">Stand For</span></h2>
+            
+            <div class="grid-2 mt-4">
+                <div class="value-card fade-up">
+                    <div class="value-card-number">01</div>
+                    <h3>Immersion Over Observation</h3>
+                    <p>We don't make videos. We create experiences. Every technological choice we make serves one goal: dissolving the barrier between viewer and content.</p>
+                </div>
+                
+                <div class="value-card fade-up">
+                    <div class="value-card-number">02</div>
+                    <h3>Premium Without Pretension</h3>
+                    <p>Elegant, sophisticated, desirable—but never exclusionary. SIREN is aspirational yet accessible, like a luxury hotel that still makes you feel at home.</p>
+                </div>
+                
+                <div class="value-card fade-up">
+                    <div class="value-card-number">03</div>
+                    <h3>Innovation as Standard</h3>
+                    <p>4D Gaussian Splatting today. Whatever comes next, tomorrow. We're not a tech company that does adult content—we're an experience company that happens to be pushing technological boundaries.</p>
+                </div>
+                
+                <div class="value-card fade-up">
+                    <div class="value-card-number">04</div>
+                    <h3>Respect at Every Level</h3>
+                    <p>For our performers, who are artists and collaborators. For our subscribers, whose privacy and experience matter. For the industry, which deserves better than it's gotten.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SECTION 04: VISUAL IDENTITY -->
+    <section class="section-dark" id="identity">
+        <span class="section-number">04</span>
+        <div class="container-wide">
+            <div class="section-label">Visual Identity</div>
+            <h2 class="section-title">How We <span class="highlight">Look</span></h2>
+            
+            <div class="grid-3 mt-4">
+                <div class="card fade-up">
+                    <h3>Color Palette</h3>
+                    <ul class="styled-list" style="margin-top: 1rem;">
+                        <li><strong>Primary:</strong> Deep reds (#ef4444) to warm oranges (#f97316)</li>
+                        <li><strong>Background:</strong> Rich blacks (#0a0a0a) with subtle warmth</li>
+                        <li><strong>Accents:</strong> Soft golds for premium moments</li>
+                    </ul>
+                </div>
+                
+                <div class="card fade-up">
+                    <h3>Design Philosophy</h3>
+                    <ul class="styled-list" style="margin-top: 1rem;">
+                        <li><strong>Glassmorphism:</strong> Layers, depth, translucency—mirrors our content's dimensionality</li>
+                        <li><strong>Cinematic scale:</strong> Hero moments that breathe, typography that commands</li>
+                        <li><strong>Fluid motion:</strong> Everything moves with purpose; nothing is static</li>
+                    </ul>
+                </div>
+                
+                <div class="card fade-up">
+                    <h3>Typography</h3>
+                    <ul class="styled-list" style="margin-top: 1rem;">
+                        <li>Clean, modern sans-serif (Outfit)</li>
+                        <li>Bold weights for impact, light weights for elegance</li>
+                        <li>Generous spacing—luxury needs room to breathe</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 05: VOICE & TONE -->
+    <section id="voice">
+        <span class="section-number">05</span>
+        <div class="container">
+            <div class="section-label">Voice & Tone</div>
+            <h2 class="section-title">How We <span class="highlight">Sound</span></h2>
+            
+            <div class="grid-2 mt-4">
+                <div class="fade-up">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--off-white);">We Sound Like:</h3>
+                    <ul class="styled-list">
+                        <li>A sophisticated friend who knows the best-kept secrets</li>
+                        <li>Confident but never arrogant</li>
+                        <li>Warm, inviting, subtly playful</li>
+                        <li>Direct without being crude</li>
+                    </ul>
+                </div>
+                
+                <div class="fade-up">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--off-white);">We Don't Sound Like:</h3>
+                    <ul class="styled-list">
+                        <li>Clinical or technical (even when discussing tech)</li>
+                        <li>Desperate or salesy</li>
+                        <li>Crude, crass, or explicit in marketing</li>
+                        <li>Cold or corporate</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--off-white);">Example Copy:</h3>
+                
+                <div class="voice-example fade-up">
+                    <div class="voice-example-label bad">✗ Too Crude</div>
+                    <p>"Watch hot videos in 3D!"</p>
+                </div>
+                
+                <div class="voice-example fade-up">
+                    <div class="voice-example-label bad">✗ Too Clinical</div>
+                    <p>"Experience volumetric video content rendered via Gaussian Splatting algorithms."</p>
+                </div>
+                
+                <div class="voice-example fade-up">
+                    <div class="voice-example-label good">✓ Just Right</div>
+                    <p>"Step into the scene. Move freely. Experience moments, not just watch them."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SECTION 06: TAGLINES -->
+    <section class="section-dark">
+        <span class="section-number">06</span>
+        <div class="container">
+            <div class="section-label">Taglines & Headlines</div>
+            <h2 class="section-title">Our <span class="highlight">Words</span></h2>
+            
+            <div class="tagline-display fade-up">
+                <div class="tagline-sub">Primary Tagline</div>
+                <div class="tagline-primary">"The Experience Awaits"</div>
+            </div>
+            
+            <div class="text-center fade-up">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--off-white);">Alternative Taglines</h3>
+                <div class="taglines-alt">
+                    <span class="tagline-chip">Impossible to Resist</span>
+                    <span class="tagline-chip">Experience the Pull</span>
+                    <span class="tagline-chip">Beyond Watching</span>
+                    <span class="tagline-chip">Step Inside</span>
+                    <span class="tagline-chip">Presence, Redefined</span>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <h3 style="font-size: 1.25rem; margin-bottom: 2rem; color: var(--off-white);">Headlines for Different Contexts:</h3>
+                
+                <div class="grid-2">
+                    <div class="card fade-up">
+                        <h4 style="color: var(--orange); font-size: 0.8rem; letter-spacing: 0.1em; margin-bottom: 0.75rem;">HOMEPAGE HERO</h4>
+                        <p style="font-size: 1.25rem; font-weight: 600;">"You've never experienced anything like this."</p>
+                    </div>
+                    
+                    <div class="card fade-up">
+                        <h4 style="color: var(--orange); font-size: 0.8rem; letter-spacing: 0.1em; margin-bottom: 0.75rem;">TECHNOLOGY PAGE</h4>
+                        <p style="font-size: 1.25rem; font-weight: 600;">"Not VR. Not 360°. Something entirely new."</p>
+                    </div>
+                    
+                    <div class="card fade-up">
+                        <h4 style="color: var(--orange); font-size: 0.8rem; letter-spacing: 0.1em; margin-bottom: 0.75rem;">SUBSCRIPTION CTA</h4>
+                        <p style="font-size: 1.25rem; font-weight: 600;">"Ready to step inside?"</p>
+                    </div>
+                    
+                    <div class="card fade-up">
+                        <h4 style="color: var(--orange); font-size: 0.8rem; letter-spacing: 0.1em; margin-bottom: 0.75rem;">4D FEATURE</h4>
+                        <p style="font-size: 1.25rem; font-weight: 600;">"Your perspective. Your control. Your experience."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 07: THE SIREN DIFFERENCE -->
+    <section>
+        <span class="section-number">07</span>
+        <div class="container">
+            <div class="section-label">The Difference</div>
+            <h2 class="section-title">Traditional vs. <span class="highlight">SIREN</span></h2>
+            
+            <div class="comparison-table">
+                <div class="comparison-row header">
+                    <div class="comparison-cell old">Traditional Streaming</div>
+                    <div class="comparison-cell new">SIREN</div>
+                </div>
+                <div class="comparison-row fade-up">
+                    <div class="comparison-cell old">Watch content</div>
+                    <div class="comparison-cell new">Experience moments</div>
+                </div>
+                <div class="comparison-row fade-up">
+                    <div class="comparison-cell old">Fixed camera angles</div>
+                    <div class="comparison-cell new">Infinite perspectives</div>
+                </div>
+                <div class="comparison-row fade-up">
+                    <div class="comparison-cell old">Passive viewing</div>
+                    <div class="comparison-cell new">Active presence</div>
+                </div>
+                <div class="comparison-row fade-up">
+                    <div class="comparison-cell old">2D rectangles</div>
+                    <div class="comparison-cell new">Volumetric space</div>
+                </div>
+                <div class="comparison-row fade-up">
+                    <div class="comparison-cell old">Behind the screen</div>
+                    <div class="comparison-cell new">Inside the scene</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SECTION 08: TARGET AUDIENCE -->
+    <section class="section-dark" id="audience">
+        <span class="section-number">08</span>
+        <div class="container-wide">
+            <div class="section-label">Target Audience</div>
+            <h2 class="section-title">Who We're <span class="highlight">For</span></h2>
+            
+            <div class="grid-2 mt-4">
+                <div class="card fade-up">
+                    <h3 style="color: var(--orange); margin-bottom: 1rem;">Primary: The Experience Seeker</h3>
+                    <ul class="styled-list">
+                        <li>28-45, higher disposable income</li>
+                        <li>Early adopter of premium services</li>
+                        <li>Values quality over quantity</li>
+                        <li>Subscribes to best-in-class (Netflix, Spotify Premium, etc.)</li>
+                        <li>Privacy-conscious</li>
+                        <li>Willing to pay for exceptional experiences</li>
+                    </ul>
+                </div>
+                
+                <div class="card fade-up">
+                    <h3 style="color: var(--orange); margin-bottom: 1rem;">Secondary: The Tech Enthusiast</h3>
+                    <ul class="styled-list">
+                        <li>25-40, highly technical</li>
+                        <li>Excited by innovation itself</li>
+                        <li>Wants to experience cutting-edge before mainstream</li>
+                        <li>Will evangelize to peers</li>
+                        <li>Values being "first"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 09: COMPETITIVE POSITIONING -->
+    <section>
+        <span class="section-number">09</span>
+        <div class="container">
+            <div class="section-label">Competitive Positioning</div>
+            <h2 class="section-title">Where We <span class="highlight">Stand</span></h2>
+            
+            <div class="grid-2 mt-4">
+                <div class="fade-up">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--gray);">We are NOT:</h3>
+                    <ul class="styled-list">
+                        <li>A tube site with ads (Pornhub, xVideos)</li>
+                        <li>A cam site (Chaturbate, OnlyFans)</li>
+                        <li>A traditional studio subscription (Brazzers, etc.)</li>
+                        <li>A VR-only platform (requires headsets)</li>
+                    </ul>
+                </div>
+                
+                <div class="fade-up">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--red);">We ARE:</h3>
+                    <ul class="styled-list">
+                        <li>The Netflix of immersive adult entertainment</li>
+                        <li>Premium, curated, technologically superior</li>
+                        <li>Accessible on any device</li>
+                        <li>The future, available today</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SECTION 10: INVESTOR NARRATIVE -->
+    <section class="section-gradient" id="investor">
+        <span class="section-number">10</span>
+        <div class="container">
+            <div class="section-label">Investor Narrative</div>
+            <h2 class="section-title">The <span class="highlight">Business Case</span></h2>
+            
+            <div class="fade-up mt-4">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--red);">The Problem</h3>
+                <div class="prose">
+                    <p>Adult entertainment is a $97B industry stuck in technological stagnation. Viewers are bored. Engagement is declining. The experience hasn't evolved meaningfully since the jump from DVD to streaming.</p>
+                </div>
+            </div>
+            
+            <div class="fade-up mt-4">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--orange);">The Solution</h3>
+                <div class="prose">
+                    <p>SIREN introduces 4D Gaussian Splatting to adult content—volumetric capture technology that transforms passive viewing into active presence. Viewers navigate scenes in real-time, choosing their own perspective without VR headsets.</p>
+                </div>
+            </div>
+            
+            <div class="fade-up mt-6">
+                <h3 style="font-size: 1.5rem; margin-bottom: 2rem; color: var(--off-white);">The Market Opportunity</h3>
+                <div class="grid-4">
+                    <div class="stat-card">
+                        <div class="stat-number">15%</div>
+                        <div class="stat-label">YoY growth in premium adult subscriptions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">340%</div>
+                        <div class="stat-label">VR/immersive demand increase since 2020</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">73%</div>
+                        <div class="stat-label">Would pay more for immersive experiences</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Major players in premium-immersive</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="fade-up mt-6">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--off-white);">The Traction</h3>
+                <ul class="styled-list">
+                    <li>Platform built and functional</li>
+                    <li>Content pipeline established</li>
+                    <li>Technology proven and scalable</li>
+                    <li>Ready for launch</li>
+                </ul>
+            </div>
+            
+            <div class="fade-up mt-4">
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--gold);">The Ask</h3>
+                <div class="prose">
+                    <p>Investment to scale content production, expand technology infrastructure, and capture first-mover advantage in the immersive premium segment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 11: THE NARRATIVE -->
+    <section class="section-dark">
+        <span class="section-number">11</span>
+        <div class="container">
+            <div class="section-label">Brand Story: The Narrative Version</div>
+            <h2 class="section-title">Our <span class="highlight">Story</span>, Told</h2>
+            <p style="color: var(--gray); margin-bottom: 3rem; font-style: italic;">For pitch decks, about pages, press releases</p>
+            
+            <div class="prose fade-up">
+                <p>In ancient waters, sailors spoke of the Sirens—beings of such captivating beauty that their songs pulled ships off course. To hear them was to be drawn in completely. Resistance was impossible.</p>
+                
+                <p>SIREN was founded on a simple observation: despite being a $97 billion industry, adult entertainment has remained stubbornly two-dimensional. Viewers watch. They don't experience. They observe from behind glass.</p>
+                
+                <p>We asked: <strong>what if we could remove the glass?</strong></p>
+                
+                <p>Using 4D Gaussian Splatting—the same volumetric capture technology reshaping gaming, film, and virtual production—SIREN creates content you don't just watch. You inhabit it. Move through it. Experience it from any angle, in real-time, on any device.</p>
+                
+                <p>No VR headset required. No special equipment. Just presence.</p>
+                
+                <p>Like the mythological beings we're named for, SIREN creates a call that's impossible to ignore—the magnetic pull of truly being <em>there</em>. Not watching a moment, but sharing it.</p>
+                
+                <p>This is adult entertainment for the experience economy. Premium, immersive, and unlike anything that exists today.</p>
+                
+                <p style="font-size: 1.5rem; font-weight: 700; color: var(--red); margin-top: 3rem;">SIREN. Answer the call.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- SECTION 12: QUICK REFERENCE -->
+    <section>
+        <span class="section-number">12</span>
+        <div class="container">
+            <div class="section-label">Quick Reference</div>
+            <h2 class="section-title">Brand <span class="highlight">At a Glance</span></h2>
+            
+            <table class="ref-table fade-up">
+                <tr>
+                    <th>Element</th>
+                    <th>Details</th>
+                </tr>
+                <tr>
+                    <td><strong>Name</strong></td>
+                    <td>SIREN</td>
+                </tr>
+                <tr>
+                    <td><strong>Tagline</strong></td>
+                    <td>"The Experience Awaits"</td>
+                </tr>
+                <tr>
+                    <td><strong>Positioning</strong></td>
+                    <td>Premium immersive adult streaming</td>
+                </tr>
+                <tr>
+                    <td><strong>Key Technology</strong></td>
+                    <td>4D Gaussian Splatting</td>
+                </tr>
+                <tr>
+                    <td><strong>Primary Colors</strong></td>
+                    <td>Red (#ef4444), Orange (#f97316), Black (#0a0a0a)</td>
+                </tr>
+                <tr>
+                    <td><strong>Font</strong></td>
+                    <td>Outfit</td>
+                </tr>
+                <tr>
+                    <td><strong>Voice</strong></td>
+                    <td>Sophisticated, warm, confident</td>
+                </tr>
+                <tr>
+                    <td><strong>Target Audience</strong></td>
+                    <td>Premium experience seekers, 28-45</td>
+                </tr>
+            </table>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="cta-content">
+            <h2 class="cta-tagline fade-up"><span class="gradient">The Experience Awaits</span></h2>
+            <p class="cta-subtitle fade-up">This is the SIREN story. Now let's make it reality.</p>
+            <a href="../browse/" class="cta-button fade-up">
+                Experience SIREN
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">SIREN</div>
+        <p class="footer-text">Brand Story Document v1.0 • January 2026</p>
+        <p class="footer-text" style="margin-top: 0.5rem;">© 2026 SIREN. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Register GSAP plugins
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Preloader
+        const preloader = document.getElementById('preloader');
+        const preloaderProgress = document.getElementById('preloaderProgress');
+        const preloaderLogo = document.querySelector('.preloader-logo');
+
+        gsap.to(preloaderLogo, { opacity: 1, duration: 0.5 });
+        gsap.to(preloaderProgress, { 
+            width: '100%', 
+            duration: 1.5, 
+            ease: 'power2.inOut',
+            onComplete: () => {
+                gsap.to(preloader, {
+                    opacity: 0,
+                    duration: 0.5,
+                    onComplete: () => {
+                        preloader.style.display = 'none';
+                        initAnimations();
+                    }
+                });
+            }
+        });
+
+        function initAnimations() {
+            // Nav
+            gsap.to('#nav', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' });
+
+            // Hero
+            gsap.to('.hero-eyebrow', { opacity: 1, duration: 0.8, delay: 0.2 });
+            gsap.to('.hero-title', { opacity: 1, duration: 1, delay: 0.4 });
+            gsap.to('.hero-tagline', { opacity: 1, duration: 0.8, delay: 0.8 });
+            gsap.to('.hero-scroll', { opacity: 1, duration: 0.8, delay: 1.2 });
+
+            // Particles
+            createParticles();
+
+            // Scroll animations
+            gsap.utils.toArray('.fade-up').forEach(el => {
+                gsap.fromTo(el, 
+                    { opacity: 0, y: 40 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top 85%',
+                            toggleActions: 'play none none none'
+                        }
+                    }
+                );
+            });
+
+            // Section numbers parallax
+            gsap.utils.toArray('.section-number').forEach(num => {
+                gsap.to(num, {
+                    y: -80,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: num.parentElement,
+                        start: 'top bottom',
+                        end: 'bottom top',
+                        scrub: 1
+                    }
+                });
+            });
+
+            // Blockquotes
+            gsap.utils.toArray('.blockquote').forEach(quote => {
+                gsap.fromTo(quote, 
+                    { opacity: 0, x: -30 },
+                    {
+                        opacity: 1,
+                        x: 0,
+                        duration: 0.8,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: quote,
+                            start: 'top 80%',
+                            toggleActions: 'play none none none'
+                        }
+                    }
+                );
+            });
+        }
+
+        // Particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 40;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                container.appendChild(particle);
+
+                gsap.to(particle, {
+                    opacity: Math.random() * 0.4 + 0.1,
+                    scale: Math.random() * 2 + 0.5,
+                    duration: Math.random() * 3 + 2,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'sine.inOut',
+                    delay: Math.random() * 2
+                });
+
+                gsap.to(particle, {
+                    y: (Math.random() - 0.5) * 80,
+                    x: (Math.random() - 0.5) * 80,
+                    duration: Math.random() * 10 + 10,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'sine.inOut'
+                });
+            }
+        }
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
