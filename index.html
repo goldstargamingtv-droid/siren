@@ -4664,7 +4664,7 @@
                 <ul class="footer-links">
                     <li><a href="/legal/contact/">Help Center</a></li>
                     <li><a href="/support/vr-setup/">VR Device Setup</a></li>
-                    <li><a href="/account/">My Account</a></li>
+                    <li><a href="#" onclick="handleMyAccount(); return false;">My Account</a></li>
                     <li><a href="/legal/contact/">Billing Support</a></li>
                 </ul>
             </nav>
@@ -5187,6 +5187,22 @@ subscribeBtn.addEventListener('click', () => {
 <script src="js/supabase-client.js"></script>
 <script src="js/auth-modal.js"></script>
 <script src="js/mobile.js"></script>
+<script>
+// Handle My Account link - check auth state
+async function handleMyAccount() {
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+            window.location.href = '/account/';
+        } else {
+            window.afterAuthRedirect = '/account/';
+            openAuthModal('signin');
+        }
+    } else {
+        openAuthModal('signin');
+    }
+}
+</script>
 
 <!-- Mobile Landing Carousel (App-style, hidden on desktop) -->
 <div class="mobile-landing" id="mobileLanding">
