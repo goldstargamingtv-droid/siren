@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Device Setup - SIREN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: #161616;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            color: var(--accent-orange);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--accent-red);
+        }
+
+        .page-header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .intro-box {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(249, 115, 22, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .intro-box p {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .intro-box strong {
+            color: var(--text-primary);
+        }
+
+        .device-section {
+            margin-bottom: 3rem;
+        }
+
+        .device-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .device-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .device-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .device-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .step {
+            display: flex;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
+            transition: border-color 0.2s;
+        }
+
+        .step:hover {
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .step-content h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .step-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .step-content code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--accent-orange);
+        }
+
+        .tip-box {
+            background: rgba(249, 115, 22, 0.1);
+            border-left: 3px solid var(--accent-orange);
+            padding: 1rem 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin-top: 1rem;
+        }
+
+        .tip-box strong {
+            color: var(--accent-orange);
+        }
+
+        .tip-box p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .requirements {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .requirements h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .requirements ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .requirements li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .requirements li::before {
+            content: '✓';
+            color: #22c55e;
+            font-weight: bold;
+        }
+
+        .help-section {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .help-section h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .help-section p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .help-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .help-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Legal Footer */
+        .legal-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(0deg, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.8) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 100;
+            font-size: 0.7rem;
+        }
+
+        .legal-footer a {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        .legal-footer a:hover {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .legal-footer span {
+            color: rgba(255,255,255,0.25);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1rem 5rem;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .device-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .requirements ul {
+                grid-template-columns: 1fr;
+            }
+
+            .legal-footer {
+                font-size: 0.6rem;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to SIREN</a>
+
+        <header class="page-header">
+            <h1 class="page-title">VR Device Setup</h1>
+            <p class="page-subtitle">Get started with immersive adult content on your favorite VR headset. Follow our simple setup guides below.</p>
+        </header>
+
+        <div class="intro-box">
+            <p><strong>🎉 Good news!</strong> SIREN works directly in your headset's web browser — no app installation required. Just put on your headset, open the browser, and visit <strong>viewsiren.com</strong>.</p>
+        </div>
+
+        <div class="requirements">
+            <h3>📋 General Requirements</h3>
+            <ul>
+                <li>Stable WiFi connection (5GHz recommended)</li>
+                <li>VR headset with web browser</li>
+                <li>SIREN Premium subscription</li>
+                <li>Minimum 25 Mbps internet speed</li>
+            </ul>
+        </div>
+
+        <!-- Meta Quest -->
+        <section class="device-section">
+            <div class="device-header">
+                <div class="device-icon">🥽</div>
+                <div>
+                    <h2 class="device-title">Meta Quest 2 / 3 / Pro</h2>
+                    <p class="device-subtitle">Most popular VR headset for adult content</p>
+                </div>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Open Meta Quest Browser</h4>
+                        <p>From your home environment, select the <strong>Browser</strong> app (globe icon) from your app library.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Navigate to SIREN</h4>
+                        <p>Type <code>viewsiren.com</code> in the address bar and press enter.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Sign In & Enjoy</h4>
+                        <p>Log in with your SIREN account and browse our VR content library. Select any VR video to begin streaming.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="tip-box">
+                <p><strong>💡 Pro Tip:</strong> Bookmark SIREN for quick access! Press the star icon in the browser while on our site.</p>
+            </div>
+        </section>
+
+        <!-- Apple Vision Pro -->
+        <section class="device-section">
+            <div class="device-header">
+                <div class="device-icon">🍎</div>
+                <div>
+                    <h2 class="device-title">Apple Vision Pro</h2>
+                    <p class="device-subtitle">Premium spatial computing experience</p>
+                </div>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Open Safari</h4>
+                        <p>Look at the Safari icon in your home view and tap your fingers together to open it.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Visit SIREN</h4>
+                        <p>Enter <code>viewsiren.com</code> in the address bar using the virtual keyboard or voice dictation.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Expand to Full Environment</h4>
+                        <p>Use the Digital Crown to expand the video into a fully immersive environment for the best experience.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="tip-box">
+                <p><strong>💡 Pro Tip:</strong> Enable "Immersive Mode" in video settings for the most realistic experience on Vision Pro.</p>
+            </div>
+        </section>
+
+        <!-- PlayStation VR2 -->
+        <section class="device-section">
+            <div class="device-header">
+                <div class="device-icon">🎮</div>
+                <div>
+                    <h2 class="device-title">PlayStation VR2</h2>
+                    <p class="device-subtitle">Console VR gaming headset</p>
+                </div>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Open Web Browser</h4>
+                        <p>Navigate to the Media section on your PS5 home screen and select the web browser.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Go to SIREN</h4>
+                        <p>Enter <code>viewsiren.com</code> and sign in to your account.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Select VR Content</h4>
+                        <p>Browse our VR category and select any video. It will automatically play in VR mode.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PC VR -->
+        <section class="device-section">
+            <div class="device-header">
+                <div class="device-icon">🖥️</div>
+                <div>
+                    <h2 class="device-title">PC VR (Valve Index, HTC Vive, etc.)</h2>
+                    <p class="device-subtitle">Desktop-powered virtual reality</p>
+                </div>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Launch SteamVR</h4>
+                        <p>Start SteamVR from Steam and put on your headset.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Open Desktop View</h4>
+                        <p>Access the SteamVR dashboard and open the Desktop view, then launch your preferred browser.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Navigate to SIREN</h4>
+                        <p>Visit <code>viewsiren.com</code> and start streaming. Use the VR video player for full immersion.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="tip-box">
+                <p><strong>💡 Pro Tip:</strong> For best performance, use a wired connection or WiFi 6 router with your PC.</p>
+            </div>
+        </section>
+
+        <!-- Help Section -->
+        <section class="help-section">
+            <h3>Need Help?</h3>
+            <p>Our support team is here to assist with any setup issues.</p>
+            <a href="/legal/contact/" class="help-link">
+                Contact Support
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </section>
+    </div>
+
+    <!-- Legal Footer -->
+    <footer class="legal-footer">
+        <a href="/legal/terms/">Terms</a>
+        <a href="/legal/privacy/">Privacy</a>
+        <a href="/legal/2257/">2257</a>
+        <a href="/legal/dmca/">DMCA</a>
+        <span>© 2025 SIREN</span>
+    </footer>
+</body>
+</html>
