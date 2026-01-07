@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- Primary SEO Meta Tags -->
+    <title>SIREN - Premium Adult Entertainment | 360° Multi-Angle | Coming Soon</title>
+    <meta name="title" content="SIREN - Premium Adult Entertainment | 360° Multi-Angle | Coming Soon">
+    <meta name="description" content="SIREN is a premium adult entertainment streaming platform featuring 4K content, revolutionary 360° multi-angle viewing, and upcoming 4D volumetric technology. Join the waitlist for early access.">
+    <meta name="keywords" content="SIREN, adult entertainment, adult streaming, 360 video, multi-angle porn, 4K adult content, VR porn, premium adult, volumetric video, immersive adult entertainment">
+    <meta name="author" content="SIREN">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://siren.xxx/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://siren.xxx/">
+    <meta property="og:title" content="SIREN - Premium Adult Entertainment Reimagined">
+    <meta property="og:description" content="Premium adult streaming with 4K content, 360° multi-angle viewing, and upcoming 4D technology. Join the waitlist.">
+    <meta property="og:image" content="https://siren.xxx/images/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="SIREN">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://siren.xxx/">
+    <meta name="twitter:title" content="SIREN - Premium Adult Entertainment Reimagined">
+    <meta name="twitter:description" content="Premium adult streaming with 4K content, 360° multi-angle viewing, and upcoming 4D technology.">
+    <meta name="twitter:image" content="https://siren.xxx/images/twitter-image.jpg">
+    
+    <!-- Additional SEO -->
+    <meta name="rating" content="adult">
+    <meta name="distribution" content="global">
+    <meta name="revisit-after" content="7 days">
+    <!-- TODO: Add favicon files -->
+    <!-- <link rel="icon" type="image/x-icon" href="/favicon.ico"> -->
+    <!-- <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"> -->
+    
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "SIREN",
+        "url": "https://siren.xxx/",
+        "description": "Premium adult entertainment streaming platform featuring 4K content, 360° multi-angle viewing, and upcoming 4D volumetric technology.",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://siren.xxx/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --accent-crimson: #dc2626;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .bg-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(239, 68, 68, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 100% 50%, rgba(249, 115, 22, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 0% 50%, rgba(220, 38, 38, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse 80% 50% at 50% 120%, rgba(239, 68, 68, 0.12) 0%, transparent 50%);
+        }
+
+        .bg-noise {
+            position: absolute;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        .bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 0%, transparent 70%);
+        }
+
+        /* Floating Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.25) 0%, transparent 70%);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: -7s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(220, 38, 38, 0.2) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 30px) scale(1.02); }
+        }
+
+        .orb-3 {
+            animation-name: floatCenter;
+        }
+
+        @keyframes floatCenter {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            25% { transform: translate(-45%, -55%) scale(1.1); }
+            50% { transform: translate(-55%, -45%) scale(0.9); }
+            75% { transform: translate(-48%, -52%) scale(1.05); }
+        }
+
+        /* Particle System */
+        .particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            opacity: 0;
+            animation: rise 15s linear infinite;
+            animation-fill-mode: backwards;
+        }
+
+        @keyframes rise {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 2rem;
+            min-height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Logo */
+        .logo-container {
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo {
+            font-size: clamp(3rem, 12vw, 7rem);
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            position: relative;
+            display: inline-block;
+            text-transform: uppercase;
+            
+            /* Base gradient - matches browse page */
+            background: linear-gradient(
+                180deg, 
+                #fcd7a0 0%,
+                #f97316 25%,
+                #ef4444 50%,
+                #dc2626 75%,
+                #991b1b 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            
+            /* Embossed depth */
+            filter: drop-shadow(0 1px 0 rgba(255, 200, 150, 0.3))
+                    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4))
+                    drop-shadow(0 4px 8px rgba(239, 68, 68, 0.15))
+                    drop-shadow(0 0 60px rgba(239, 68, 68, 0.4))
+                    drop-shadow(0 0 120px rgba(249, 115, 22, 0.2));
+        }
+
+        /* Warm glow behind */
+        .logo::before {
+            content: 'SIREN';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: blur(15px);
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        /* Shine sweep effect - matches browse page */
+        .logo::after {
+            content: 'SIREN';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                120deg, 
+                transparent 0%,
+                transparent 30%,
+                rgba(255, 255, 255, 0.7) 48%,
+                rgba(255, 220, 180, 0.8) 50%,
+                rgba(255, 255, 255, 0.7) 52%,
+                transparent 70%,
+                transparent 100%
+            );
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: logoShine 5s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes logoShine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Underline glow */
+        .logo-underline {
+            width: 80%;
+            height: 2px;
+            margin: 0 auto;
+            margin-top: -5px;
+            background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.8), rgba(239, 68, 68, 0.8), transparent);
+            filter: blur(1px);
+        }
+
+        /* Tagline */
+        .tagline {
+            font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+            font-weight: 300;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            opacity: 0;
+        }
+
+        /* Feature Pills */
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+        }
+
+        .feature-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .feature-pill:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(249, 115, 22, 0.3);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .feature-pill svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--accent-orange);
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .feature-pill.highlight {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.1));
+            border-color: rgba(249, 115, 22, 0.4);
+            color: var(--text-primary);
+        }
+
+        .feature-pill.highlight svg {
+            stroke: var(--accent-red);
+        }
+
+        .feature-pill.coming-soon-pill {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.15);
+            border-style: dashed;
+            color: var(--text-muted);
+        }
+
+        .feature-pill.coming-soon-pill svg {
+            stroke: var(--text-muted);
+        }
+
+        /* Description */
+        .description {
+            max-width: 550px;
+            text-align: center;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+        }
+
+        .description strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Email Form */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            width: 100%;
+            max-width: 420px;
+            margin-bottom: 1.25rem;
+            opacity: 0;
+        }
+
+        .form-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .input-group {
+            display: flex;
+            width: 100%;
+            gap: 0;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .input-group:focus-within {
+            border-color: rgba(249, 115, 22, 0.5);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.15);
+        }
+
+        .email-input {
+            flex: 1;
+            padding: 0.75rem 1.25rem;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .email-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .submit-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-crimson));
+            border: none;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+            transform: scale(1.02);
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .form-note {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Success State */
+        .email-form.success .input-group {
+            display: none;
+        }
+
+        .success-message {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+        }
+
+        .email-form.success .success-message {
+            display: flex;
+        }
+
+        .success-message svg {
+            width: 48px;
+            height: 48px;
+            stroke: #22c55e;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .success-message span {
+            font-weight: 600;
+            color: #22c55e;
+        }
+
+        /* Countdown */
+        .countdown-container {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            opacity: 0;
+        }
+
+        .countdown-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 50px;
+        }
+
+        .countdown-value {
+            font-size: clamp(1.5rem, 4vw, 2.25rem);
+            font-weight: 800;
+            background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.6) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .countdown-unit {
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+        }
+
+        .countdown-separator {
+            font-size: 1.75rem;
+            font-weight: 300;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+
+        .countdown-note {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.75rem;
+            font-style: italic;
+            opacity: 0.7;
+        }
+
+        /* Social Links */
+        .social-links {
+            display: flex;
+            gap: 0.75rem;
+            opacity: 0;
+        }
+
+        .social-link {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(249, 115, 22, 0.4);
+            color: var(--text-primary);
+            transform: translateY(-3px);
+        }
+
+        .social-link svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* Footer */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            padding: 0.75rem 2rem;
+            text-align: center;
+            background: linear-gradient(0deg, rgba(10,10,10,0.9) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .footer-text {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            pointer-events: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 0.35rem;
+            pointer-events: auto;
+        }
+
+        .footer-links a {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-secondary);
+        }
+
+        /* Age Gate */
+        .age-notice {
+            position: fixed;
+            bottom: 50px;
+            left: 0;
+            right: 0;
+            padding: 0.75rem 2rem;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            z-index: 100;
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        .age-notice.visible {
+            transform: translateY(0);
+            opacity: 1;
+            transition: all 0.5s ease 1.5s;
+        }
+
+        .age-notice-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .age-notice-btn {
+            padding: 0.4rem 1rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .age-notice-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+                justify-content: center;
+                max-height: none;
+                overflow: visible;
+            }
+
+            .logo {
+                letter-spacing: 0.15em;
+            }
+
+            .tagline {
+                letter-spacing: 0.25em;
+                margin-bottom: 1.25rem;
+            }
+
+            .features {
+                gap: 0.5rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .feature-pill {
+                padding: 0.35rem 0.75rem;
+                font-size: 0.7rem;
+            }
+
+            .description {
+                margin-bottom: 1.25rem;
+                font-size: 0.85rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+                border-radius: 10px;
+            }
+
+            .email-input {
+                text-align: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .submit-btn {
+                width: 100%;
+                border-radius: 0 0 9px 9px;
+            }
+
+            .countdown {
+                gap: 0.75rem;
+            }
+
+            .countdown-item {
+                min-width: 45px;
+            }
+
+            .countdown-separator {
+                font-size: 1.25rem;
+            }
+
+            .age-notice {
+                flex-direction: column;
+                text-align: center;
+                padding: 1rem;
+                bottom: 45px;
+            }
+            
+            .footer {
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .feature-pill {
+                width: 100%;
+                max-width: 200px;
+                justify-content: center;
+            }
+        }
+        
+        /* Large desktop - ensure no scroll */
+        @media (min-height: 800px) {
+            .main-content {
+                gap: 0.25rem;
+            }
+        }
+
+        /* Preloader */
+        .preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .preloader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .preloader-logo {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 0.3em;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-logo">SIREN</div>
+    </div>
+
+    <!-- Animated Background -->
+    <div class="bg-container">
+        <div class="bg-gradient"></div>
+        <div class="bg-noise"></div>
+        <div class="bg-grid"></div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="logo-container">
+            <h1 class="logo">SIREN</h1>
+            <div class="logo-underline"></div>
+        </div>
+
+        <p class="tagline">Premium Adult Entertainment Reimagined</p>
+
+        <div class="features">
+            <div class="feature-pill highlight">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    <line x1="2" y1="12" x2="22" y2="12"/>
+                </svg>
+                360° Multi-Angle
+            </div>
+            <div class="feature-pill">
+                <svg viewBox="0 0 24 24">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                4K Ultra HD
+            </div>
+            <div class="feature-pill">
+                <svg viewBox="0 0 24 24">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                Exclusive Content
+            </div>
+            <div class="feature-pill coming-soon-pill">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                4D Tech Coming Soon
+            </div>
+        </div>
+
+        <p class="description">
+            A new era in adult entertainment is coming. Launch with <strong>stunning 4K content</strong> and our revolutionary <strong>360° multi-angle viewer</strong> — choose your perspective in real-time. Plus, we're developing cutting-edge <strong>4D volumetric technology</strong> for true immersion coming soon.
+        </p>
+
+        <div class="countdown-container">
+            <div class="countdown-label">Launching In</div>
+            <div class="countdown">
+                <div class="countdown-item">
+                    <span class="countdown-value" id="days">00</span>
+                    <span class="countdown-unit">Days</span>
+                </div>
+                <span class="countdown-separator">:</span>
+                <div class="countdown-item">
+                    <span class="countdown-value" id="hours">00</span>
+                    <span class="countdown-unit">Hours</span>
+                </div>
+                <span class="countdown-separator">:</span>
+                <div class="countdown-item">
+                    <span class="countdown-value" id="minutes">00</span>
+                    <span class="countdown-unit">Minutes</span>
+                </div>
+                <span class="countdown-separator">:</span>
+                <div class="countdown-item">
+                    <span class="countdown-value" id="seconds">00</span>
+                    <span class="countdown-unit">Seconds</span>
+                </div>
+            </div>
+            <p class="countdown-note">You're early! Official countdown begins soon ✨</p>
+        </div>
+
+        <form class="email-form" id="emailForm">
+            <span class="form-title">Get Early Access</span>
+            <div class="input-group">
+                <input type="email" class="email-input" placeholder="Enter your email" required>
+                <button type="submit" class="submit-btn">Join Waitlist</button>
+            </div>
+            <span class="form-note">Be first to experience premium adult content reimagined. No spam.</span>
+            <div class="success-message">
+                <svg viewBox="0 0 24 24">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <span>You're on the list! We'll be in touch soon.</span>
+            </div>
+        </form>
+
+        <div class="social-links">
+            <a href="#" class="social-link" title="Twitter/X">
+                <svg viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+            </a>
+            <a href="#" class="social-link" title="Instagram">
+                <svg viewBox="0 0 24 24">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="17.5" cy="6.5" r="1.5"/>
+                </svg>
+            </a>
+            <a href="#" class="social-link" title="Discord">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                </svg>
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">© 2025 SIREN. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Contact</a>
+        </div>
+    </footer>
+
+    <!-- Age Notice -->
+    <div class="age-notice" id="ageNotice">
+        <span class="age-notice-text">🔞 This website contains explicit adult content. You must be 18+ years old to enter.</span>
+        <button class="age-notice-btn" onclick="dismissAgeNotice()">I Am 18+</button>
+    </div>
+
+    <script>
+        // Generate particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = (10 + Math.random() * 20) + 's';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Countdown Timer - Set launch date (90 days from now or specific date)
+        const launchDate = new Date('2025-03-31T00:00:00').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = launchDate - now;
+
+            if (distance < 0) {
+                document.getElementById('days').textContent = '00';
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // Supabase client
+        const SUPABASE_URL = 'https://oyqpmhaujuebwvawfyhj.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95cXBtaGF1anVlYnd2YXdmeWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5NDE0NjMsImV4cCI6MjA1MTUxNzQ2M30.qViwqNhKJ5icpfnjB8pFZfdmeVNeWlPJdOIfrU8wZz8';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Email form submission
+        const emailForm = document.getElementById('emailForm');
+        const emailInput = emailForm.querySelector('.email-input');
+        const submitBtn = emailForm.querySelector('.submit-btn');
+        
+        emailForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            if (!email) return;
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Joining...';
+            
+            try {
+                // Call the join_waitlist function
+                const { data, error } = await supabaseClient.rpc('join_waitlist', {
+                    p_email: email,
+                    p_source: 'coming-soon',
+                    p_referrer: document.referrer || null
+                });
+                
+                if (error) throw error;
+                
+                if (data.success) {
+                    // Show success state
+                    emailForm.classList.add('success');
+                    
+                    // Animate success
+                    gsap.fromTo('.success-message', 
+                        { opacity: 0, y: 20 },
+                        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+                    );
+                    
+                    // Update message if already subscribed
+                    if (data.message === 'already_subscribed') {
+                        document.querySelector('.success-message span').textContent = 
+                            "You're already on the list! We'll be in touch soon.";
+                    }
+                } else {
+                    throw new Error(data.message || 'Failed to join waitlist');
+                }
+                
+            } catch (err) {
+                console.error('Waitlist error:', err);
+                
+                // Show error state
+                submitBtn.textContent = 'Try Again';
+                submitBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Join Waitlist';
+                    submitBtn.style.background = '';
+                }, 2000);
+            }
+        });
+
+        // Age notice
+        function dismissAgeNotice() {
+            const notice = document.getElementById('ageNotice');
+            notice.style.transform = 'translateY(100%)';
+            notice.style.opacity = '0';
+            localStorage.setItem('siren_age_dismissed', 'true');
+        }
+
+        // Preloader and animations
+        window.addEventListener('load', function() {
+            // Hide preloader
+            setTimeout(() => {
+                document.getElementById('preloader').classList.add('hidden');
+                
+                // Animate content in
+                const tl = gsap.timeline({ delay: 0.3 });
+                
+                tl.to('.logo-container', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1,
+                    ease: 'power3.out'
+                })
+                .to('.tagline', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power2.out'
+                }, '-=0.6')
+                .to('.features', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power2.out'
+                }, '-=0.5')
+                .to('.description', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power2.out'
+                }, '-=0.5')
+                .to('.countdown-container', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power2.out'
+                }, '-=0.5')
+                .to('.email-form', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power2.out'
+                }, '-=0.5')
+                .to('.social-links', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power2.out'
+                }, '-=0.5');
+
+                // Show age notice after content loads
+                if (!localStorage.getItem('siren_age_dismissed')) {
+                    document.getElementById('ageNotice').classList.add('visible');
+                }
+            }, 800);
+        });
+
+        // Parallax effect on mouse move (desktop only)
+        if (window.innerWidth > 768) {
+            document.addEventListener('mousemove', function(e) {
+                const moveX = (e.clientX - window.innerWidth / 2) * 0.01;
+                const moveY = (e.clientY - window.innerHeight / 2) * 0.01;
+                
+                gsap.to('.orb-1', { x: moveX * 2, y: moveY * 2, duration: 1 });
+                gsap.to('.orb-2', { x: -moveX * 1.5, y: -moveY * 1.5, duration: 1 });
+                gsap.to('.orb-3', { x: moveX, y: moveY, duration: 1 });
+            });
+        }
+    </script>
+</body>
+</html>
