@@ -66,7 +66,6 @@ function initAuthListener() {
     supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (session?.user) {
             currentUser = session.user;
-            updateUIForAuth(true);
             
             // Only load profile once, skip if already pending
             if (!profileLoadPending && !currentProfile) {
@@ -76,9 +75,12 @@ function initAuthListener() {
                     updateUIForAuth(true);
                 } catch (e) {
                     console.error('loadUserProfile failed:', e);
+                    updateUIForAuth(true); // Still show UI even if profile fails
                 } finally {
                     profileLoadPending = false;
                 }
+            } else {
+                updateUIForAuth(true);
             }
         } else {
             currentUser = null;
@@ -98,7 +100,7 @@ async function loadUserProfile() {
     try {
         // Add timeout to prevent hanging
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Profile load timeout')), 5000)
+            setTimeout(() => reject(new Error('Profile load timeout')), 10000)
         );
         
         const queryPromise = supabaseClient
