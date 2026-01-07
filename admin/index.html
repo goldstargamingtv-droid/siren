@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIREN Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: #161616;
+            --bg-hover: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+            border-right: 2px solid var(--accent-red);
+        }
+
+        .nav-item svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .nav-item .badge {
+            margin-left: auto;
+            background: var(--accent-red);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .admin-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .admin-info {
+            flex: 1;
+        }
+
+        .admin-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .admin-role {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .page-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            gap: 0.5rem;
+        }
+
+        .search-box input {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            width: 200px;
+            outline: none;
+        }
+
+        .search-box svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-muted);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--border-hover);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .content-area {
+            padding: 2rem;
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon.users { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .stat-icon.content { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
+        .stat-icon.performers { background: rgba(236, 72, 153, 0.1); color: #ec4899; }
+        .stat-icon.views { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+        .stat-icon.waitlist { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+        .stat-icon.revenue { background: rgba(234, 179, 8, 0.1); color: #eab308; }
+
+        .stat-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .stat-change.positive {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Tables */
+        .data-table-wrapper {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .data-table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .data-table-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 1rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .data-table td {
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .data-table tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .status-badge.inactive {
+            background: rgba(113, 113, 122, 0.1);
+            color: var(--text-muted);
+        }
+
+        .status-badge.verified {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .status-badge.premium {
+            background: rgba(168, 85, 247, 0.1);
+            color: #a855f7;
+        }
+
+        .status-badge.featured {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--accent-orange);
+        }
+
+        .tier-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .tier-badge.free { background: rgba(113, 113, 122, 0.2); color: var(--text-secondary); }
+        .tier-badge.basic { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .tier-badge.premium { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        .tier-badge.ultimate { background: rgba(249, 115, 22, 0.2); color: var(--accent-orange); }
+
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .action-btn.danger:hover {
+            border-color: rgba(239, 68, 68, 0.5);
+            color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .action-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Panels/Sections */
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-red);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-checkbox input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-red);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .toast.success { border-left: 3px solid var(--success); }
+        .toast.error { border-left: 3px solid var(--danger); }
+        .toast.warning { border-left: 3px solid var(--warning); }
+
+        .toast-message {
+            font-size: 0.9rem;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--accent-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .pagination-info {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .page-btn {
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-btn.active {
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+            color: white;
+        }
+
+        /* Quick Stats Row */
+        .quick-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .quick-stat strong {
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar-header, .sidebar-footer, .nav-section-title {
+                display: none;
+            }
+
+            .nav-item {
+                justify-content: center;
+                padding: 1rem;
+            }
+
+            .nav-item span, .nav-item .badge {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">SIREN</div>
+            <div class="sidebar-subtitle">Admin Panel</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <button class="nav-item active" data-panel="dashboard">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span>Dashboard</span>
+                </button>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Content</div>
+                <button class="nav-item" data-panel="content">
+                    <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                    <span>Videos</span>
+                </button>
+                <button class="nav-item" data-panel="performers">
+                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Performers</span>
+                </button>
+                <button class="nav-item" data-panel="categories">
+                    <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    <span>Categories</span>
+                </button>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Users</div>
+                <button class="nav-item" data-panel="users">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Users</span>
+                </button>
+                <button class="nav-item" data-panel="waitlist">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <span>Waitlist</span>
+                    <span class="badge" id="waitlistBadge">0</span>
+                </button>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Moderation</div>
+                <button class="nav-item" data-panel="comments">
+                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <span>Comments</span>
+                </button>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="admin-user">
+                <div class="admin-avatar" id="adminAvatar">A</div>
+                <div class="admin-info">
+                    <div class="admin-name" id="adminName">Admin</div>
+                    <div class="admin-role">Administrator</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title" id="pageTitle">Dashboard</h1>
+            <div class="top-bar-actions">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" placeholder="Search..." id="globalSearch">
+                </div>
+                <a href="/browse/" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    View Site
+                </a>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Dashboard Panel -->
+            <div class="panel active" id="panel-dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon users">
+                                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            </div>
+                            <span class="stat-change positive">+12%</span>
+                        </div>
+                        <div class="stat-value" id="statUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon waitlist">
+                                <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            </div>
+                            <span class="stat-change positive">+8%</span>
+                        </div>
+                        <div class="stat-value" id="statWaitlist">0</div>
+                        <div class="stat-label">Waitlist Signups</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon content">
+                                <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="statContent">0</div>
+                        <div class="stat-label">Total Videos</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon performers">
+                                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value" id="statPerformers">0</div>
+                        <div class="stat-label">Performers</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon views">
+                                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </div>
+                            <span class="stat-change positive">+24%</span>
+                        </div>
+                        <div class="stat-value" id="statViews">0</div>
+                        <div class="stat-label">Total Views</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon revenue">
+                                <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                            </div>
+                        </div>
+                        <div class="stat-value">$0</div>
+                        <div class="stat-label">Revenue (Coming Soon)</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="data-table-wrapper">
+                    <div class="data-table-header">
+                        <h3 class="data-table-title">Recent Waitlist Signups</h3>
+                        <button class="btn btn-secondary" onclick="switchPanel('waitlist')">View All</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Source</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentWaitlist">
+                            <tr><td colspan="3" class="loading"><div class="spinner"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Panel -->
+            <div class="panel" id="panel-users">
+                <div class="section-header">
+                    <h2 class="section-title">Users</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary" onclick="refreshUsers()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Tier</th>
+                                <th>Age Verified</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Waitlist Panel -->
+            <div class="panel" id="panel-waitlist">
+                <div class="section-header">
+                    <h2 class="section-title">Waitlist</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary" onclick="exportWaitlist()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Export CSV
+                        </button>
+                        <button class="btn btn-secondary" onclick="refreshWaitlist()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Source</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="waitlistTableBody">
+                            <tr><td colspan="4" class="loading"><div class="spinner"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Performers Panel -->
+            <div class="panel" id="panel-performers">
+                <div class="section-header">
+                    <h2 class="section-title">Performers</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="openPerformerModal()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Performer
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Performer</th>
+                                <th>Scenes</th>
+                                <th>Followers</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="performersTableBody">
+                            <tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Content Panel -->
+            <div class="panel" id="panel-content">
+                <div class="section-header">
+                    <h2 class="section-title">Videos</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="openContentModal()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Video
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Tier</th>
+                                <th>Views</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contentTableBody">
+                            <tr><td colspan="6" class="loading"><div class="spinner"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Categories Panel -->
+            <div class="panel" id="panel-categories">
+                <div class="section-header">
+                    <h2 class="section-title">Categories</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="openCategoryModal()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Category
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Slug</th>
+                                <th>Content Count</th>
+                                <th>Featured</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                            <tr><td colspan="5" class="loading"><div class="spinner"></div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Comments Panel -->
+            <div class="panel" id="panel-comments">
+                <div class="section-header">
+                    <h2 class="section-title">Comments</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary" onclick="refreshComments()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Comment</th>
+                                <th>Content</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commentsTableBody">
+                            <tr><td colspan="5" class="empty-state">No comments yet</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Performer Modal -->
+    <div class="modal-overlay" id="performerModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="performerModalTitle">Add Performer</h3>
+                <button class="modal-close" onclick="closeModal('performerModal')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="performerForm">
+                    <input type="hidden" id="performerId">
+                    <div class="form-group">
+                        <label class="form-label">Stage Name *</label>
+                        <input type="text" class="form-input" id="performerName" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Slug</label>
+                            <input type="text" class="form-input" id="performerSlug" placeholder="auto-generated">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-input" id="performerLocation" placeholder="Los Angeles, CA">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bio</label>
+                        <textarea class="form-input" id="performerBio" placeholder="Performer biography..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Avatar URL</label>
+                            <input type="url" class="form-input" id="performerAvatar" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Banner URL</label>
+                            <input type="url" class="form-input" id="performerBanner" placeholder="https://...">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-checkbox">
+                                <input type="checkbox" id="performerVerified">
+                                <span>Verified</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-checkbox">
+                                <input type="checkbox" id="performerExclusive">
+                                <span>Exclusive</span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('performerModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="savePerformer()">Save Performer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Modal -->
+    <div class="modal-overlay" id="contentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="contentModalTitle">Add Video</h3>
+                <button class="modal-close" onclick="closeModal('contentModal')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="contentForm">
+                    <input type="hidden" id="contentId">
+                    <div class="form-group">
+                        <label class="form-label">Title *</label>
+                        <input type="text" class="form-input" id="contentTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input" id="contentDescription"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Content Type</label>
+                            <select class="form-input form-select" id="contentType">
+                                <option value="video">Standard Video</option>
+                                <option value="vr">VR Video</option>
+                                <option value="4d">4D Volumetric</option>
+                                <option value="multi-angle">Multi-Angle</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Required Tier</label>
+                            <select class="form-input form-select" id="contentTier">
+                                <option value="free">Free</option>
+                                <option value="basic">Basic</option>
+                                <option value="premium">Premium</option>
+                                <option value="ultimate">Ultimate</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Thumbnail URL</label>
+                            <input type="url" class="form-input" id="contentThumbnail">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Preview URL</label>
+                            <input type="url" class="form-input" id="contentPreview">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Video URL</label>
+                        <input type="url" class="form-input" id="contentVideo">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Duration (seconds)</label>
+                            <input type="number" class="form-input" id="contentDuration">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Quality</label>
+                            <select class="form-input form-select" id="contentQuality">
+                                <option value="4K">4K</option>
+                                <option value="1080p">1080p</option>
+                                <option value="720p">720p</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-checkbox">
+                                <input type="checkbox" id="contentFeatured">
+                                <span>Featured</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-checkbox">
+                                <input type="checkbox" id="contentPublished" checked>
+                                <span>Published</span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('contentModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveContent()">Save Video</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div class="modal-overlay" id="categoryModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="categoryModalTitle">Add Category</h3>
+                <button class="modal-close" onclick="closeModal('categoryModal')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    <input type="hidden" id="categoryId">
+                    <div class="form-group">
+                        <label class="form-label">Name *</label>
+                        <input type="text" class="form-input" id="categoryName" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Slug</label>
+                            <input type="text" class="form-input" id="categorySlug" placeholder="auto-generated">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sort Order</label>
+                            <input type="number" class="form-input" id="categorySortOrder" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input" id="categoryDescription"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Thumbnail URL</label>
+                        <input type="url" class="form-input" id="categoryThumbnail">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="categoryFeatured">
+                            <span>Featured</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('categoryModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCategory()">Save Category</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Edit Modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit User</h3>
+                <button class="modal-close" onclick="closeModal('userModal')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="userEmail" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" class="form-input" id="userDisplayName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subscription Tier</label>
+                        <select class="form-input form-select" id="userTier">
+                            <option value="free">Free</option>
+                            <option value="basic">Basic</option>
+                            <option value="premium">Premium</option>
+                            <option value="ultimate">Ultimate</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="userAgeVerified">
+                            <span>Age Verified</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('userModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveUser()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // Supabase Setup
+        const SUPABASE_URL = 'https://tzxbhrrhgahvcfkokdti.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6eGJocnJoZ2FodmNma29rZHRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NTQyMzIsImV4cCI6MjA4MzMzMDIzMn0.8RBvwLlT-uj3NUi4zWI5cOXPUC_YnyFme_cpv7RiI5Y';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Check Auth
+        async function checkAuth() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    console.log('No session, redirecting...');
+                    // Uncomment below to enforce auth:
+                    // window.location.href = '/';
+                    return;
+                }
+                
+                // Update admin info
+                const email = session.user.email;
+                document.getElementById('adminName').textContent = email.split('@')[0];
+                document.getElementById('adminAvatar').textContent = email[0].toUpperCase();
+            } catch (err) {
+                console.error('Auth check error:', err);
+            }
+        }
+
+        // Navigation - set up immediately
+        function initNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const panel = item.dataset.panel;
+                    console.log('Clicked panel:', panel);
+                    if (panel) switchPanel(panel);
+                });
+            });
+            console.log('Navigation initialized');
+        }
+        
+        // Run immediately
+        initNavigation();
+
+        function switchPanel(panelName) {
+            console.log('Switching to panel:', panelName);
+            
+            // Update nav
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            const activeNav = document.querySelector(`[data-panel="${panelName}"]`);
+            if (activeNav) activeNav.classList.add('active');
+
+            // Update panels
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            const activePanel = document.getElementById(`panel-${panelName}`);
+            if (activePanel) {
+                activePanel.classList.add('active');
+                console.log('Panel activated:', panelName);
+            } else {
+                console.error('Panel not found:', panelName);
+            }
+
+            // Update title
+            const titles = {
+                dashboard: 'Dashboard',
+                users: 'Users',
+                waitlist: 'Waitlist',
+                performers: 'Performers',
+                content: 'Videos',
+                categories: 'Categories',
+                comments: 'Comments'
+            };
+            document.getElementById('pageTitle').textContent = titles[panelName] || 'Dashboard';
+
+            // Load data
+            if (panelName === 'users') loadUsers();
+            if (panelName === 'waitlist') loadWaitlist();
+            if (panelName === 'performers') loadPerformers();
+            if (panelName === 'content') loadContent();
+            if (panelName === 'categories') loadCategories();
+            if (panelName === 'comments') loadComments();
+        }
+
+        // Toast Notifications
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span class="toast-message">${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Modal Functions
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Dashboard Stats
+        async function loadDashboardStats() {
+            try {
+                // Users count
+                const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+                document.getElementById('statUsers').textContent = usersCount || 0;
+
+                // Waitlist count
+                const { count: waitlistCount } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
+                document.getElementById('statWaitlist').textContent = waitlistCount || 0;
+                document.getElementById('waitlistBadge').textContent = waitlistCount || 0;
+
+                // Content count
+                const { count: contentCount } = await supabase.from('content').select('*', { count: 'exact', head: true });
+                document.getElementById('statContent').textContent = contentCount || 0;
+
+                // Performers count
+                const { count: performersCount } = await supabase.from('performers').select('*', { count: 'exact', head: true });
+                document.getElementById('statPerformers').textContent = performersCount || 0;
+
+                // Total views
+                const { data: viewsData } = await supabase.from('content').select('view_count');
+                const totalViews = viewsData?.reduce((sum, c) => sum + (c.view_count || 0), 0) || 0;
+                document.getElementById('statViews').textContent = totalViews.toLocaleString();
+
+                // Recent waitlist
+                loadRecentWaitlist();
+            } catch (err) {
+                console.error('Error loading stats:', err);
+            }
+        }
+
+        async function loadRecentWaitlist() {
+            const { data, error } = await supabase
+                .from('waitlist')
+                .select('*')
+                .order('subscribed_at', { ascending: false })
+                .limit(5);
+
+            const tbody = document.getElementById('recentWaitlist');
+            if (error || !data?.length) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No signups yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(w => `
+                <tr>
+                    <td>${w.email}</td>
+                    <td>${w.source || 'website'}</td>
+                    <td>${new Date(w.subscribed_at).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Users
+        async function loadUsers() {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('usersTableBody');
+            if (error || !data?.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No users found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(user => `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">${(user.display_name || user.email)?.[0]?.toUpperCase() || '?'}</div>
+                            <div>
+                                <div class="user-name">${user.display_name || 'No name'}</div>
+                                <div class="user-email">${user.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="tier-badge ${user.subscription_tier || 'free'}">${user.subscription_tier || 'free'}</span></td>
+                    <td>${user.age_verified ? '<span class="status-badge active">✓ Yes</span>' : '<span class="status-badge inactive">No</span>'}</td>
+                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    <td class="actions-cell">
+                        <button class="action-btn" onclick="editUser('${user.id}')" title="Edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function refreshUsers() { loadUsers(); showToast('Users refreshed'); }
+
+        async function editUser(id) {
+            const { data: user } = await supabase.from('profiles').select('*').eq('id', id).single();
+            if (!user) return;
+
+            document.getElementById('userId').value = user.id;
+            document.getElementById('userEmail').value = user.email;
+            document.getElementById('userDisplayName').value = user.display_name || '';
+            document.getElementById('userTier').value = user.subscription_tier || 'free';
+            document.getElementById('userAgeVerified').checked = user.age_verified || false;
+            openModal('userModal');
+        }
+
+        async function saveUser() {
+            const id = document.getElementById('userId').value;
+            const { error } = await supabase.from('profiles').update({
+                display_name: document.getElementById('userDisplayName').value,
+                subscription_tier: document.getElementById('userTier').value,
+                age_verified: document.getElementById('userAgeVerified').checked
+            }).eq('id', id);
+
+            if (error) {
+                showToast('Error saving user', 'error');
+                return;
+            }
+
+            closeModal('userModal');
+            showToast('User updated successfully');
+            loadUsers();
+        }
+
+        // Waitlist
+        async function loadWaitlist() {
+            const { data, error } = await supabase
+                .from('waitlist')
+                .select('*')
+                .order('subscribed_at', { ascending: false });
+
+            const tbody = document.getElementById('waitlistTableBody');
+            if (error || !data?.length) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No signups yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(w => `
+                <tr>
+                    <td>${w.email}</td>
+                    <td>${w.source || 'website'}</td>
+                    <td>${new Date(w.subscribed_at).toLocaleDateString()}</td>
+                    <td class="actions-cell">
+                        <button class="action-btn danger" onclick="deleteWaitlistEntry('${w.id}')" title="Delete">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function refreshWaitlist() { loadWaitlist(); showToast('Waitlist refreshed'); }
+
+        async function deleteWaitlistEntry(id) {
+            if (!confirm('Remove this email from waitlist?')) return;
+            await supabase.from('waitlist').delete().eq('id', id);
+            showToast('Entry removed');
+            loadWaitlist();
+        }
+
+        function exportWaitlist() {
+            supabase.from('waitlist').select('email,source,subscribed_at').then(({ data }) => {
+                if (!data?.length) return showToast('No data to export', 'error');
+                const csv = 'Email,Source,Date\n' + data.map(w => `${w.email},${w.source},${w.subscribed_at}`).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'siren-waitlist.csv';
+                a.click();
+                showToast('Exported successfully');
+            });
+        }
+
+        // Performers
+        async function loadPerformers() {
+            const { data, error } = await supabase
+                .from('performers')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('performersTableBody');
+            if (error || !data?.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No performers yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(p => `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">${p.avatar_url ? `<img src="${p.avatar_url}">` : p.stage_name[0]}</div>
+                            <div>
+                                <div class="user-name">${p.stage_name}</div>
+                                <div class="user-email">${p.location || ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${p.total_scenes || 0}</td>
+                    <td>${(p.follower_count || 0).toLocaleString()}</td>
+                    <td>
+                        ${p.is_verified ? '<span class="status-badge verified">Verified</span>' : ''}
+                        ${p.is_exclusive ? '<span class="status-badge featured">Exclusive</span>' : ''}
+                        ${!p.is_verified && !p.is_exclusive ? '<span class="status-badge inactive">Standard</span>' : ''}
+                    </td>
+                    <td class="actions-cell">
+                        <button class="action-btn" onclick="editPerformer('${p.id}')" title="Edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="action-btn danger" onclick="deletePerformer('${p.id}')" title="Delete">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openPerformerModal(editId = null) {
+            document.getElementById('performerForm').reset();
+            document.getElementById('performerId').value = '';
+            document.getElementById('performerModalTitle').textContent = 'Add Performer';
+            openModal('performerModal');
+        }
+
+        async function editPerformer(id) {
+            const { data: p } = await supabase.from('performers').select('*').eq('id', id).single();
+            if (!p) return;
+
+            document.getElementById('performerId').value = p.id;
+            document.getElementById('performerName').value = p.stage_name;
+            document.getElementById('performerSlug').value = p.slug || '';
+            document.getElementById('performerLocation').value = p.location || '';
+            document.getElementById('performerBio').value = p.bio || '';
+            document.getElementById('performerAvatar').value = p.avatar_url || '';
+            document.getElementById('performerBanner').value = p.banner_url || '';
+            document.getElementById('performerVerified').checked = p.is_verified || false;
+            document.getElementById('performerExclusive').checked = p.is_exclusive || false;
+            document.getElementById('performerModalTitle').textContent = 'Edit Performer';
+            openModal('performerModal');
+        }
+
+        async function savePerformer() {
+            const id = document.getElementById('performerId').value;
+            const name = document.getElementById('performerName').value;
+            const data = {
+                stage_name: name,
+                slug: document.getElementById('performerSlug').value || name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+                location: document.getElementById('performerLocation').value,
+                bio: document.getElementById('performerBio').value,
+                avatar_url: document.getElementById('performerAvatar').value,
+                banner_url: document.getElementById('performerBanner').value,
+                is_verified: document.getElementById('performerVerified').checked,
+                is_exclusive: document.getElementById('performerExclusive').checked
+            };
+
+            const { error } = id
+                ? await supabase.from('performers').update(data).eq('id', id)
+                : await supabase.from('performers').insert(data);
+
+            if (error) {
+                showToast('Error saving performer: ' + error.message, 'error');
+                return;
+            }
+
+            closeModal('performerModal');
+            showToast(id ? 'Performer updated' : 'Performer added');
+            loadPerformers();
+        }
+
+        async function deletePerformer(id) {
+            if (!confirm('Delete this performer?')) return;
+            await supabase.from('performers').delete().eq('id', id);
+            showToast('Performer deleted');
+            loadPerformers();
+        }
+
+        // Content
+        async function loadContent() {
+            const { data, error } = await supabase
+                .from('content')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('contentTableBody');
+            if (error || !data?.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No videos yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(c => `
+                <tr>
+                    <td>
+                        <div class="user-name">${c.title}</div>
+                    </td>
+                    <td>
+                        ${c.is_4d ? '<span class="status-badge featured">4D</span>' : ''}
+                        ${c.is_vr ? '<span class="status-badge verified">VR</span>' : ''}
+                        ${c.is_multi_angle ? '<span class="status-badge premium">Multi</span>' : ''}
+                        ${!c.is_4d && !c.is_vr && !c.is_multi_angle ? '<span class="status-badge inactive">Standard</span>' : ''}
+                    </td>
+                    <td><span class="tier-badge ${c.required_tier || 'free'}">${c.required_tier || 'free'}</span></td>
+                    <td>${(c.view_count || 0).toLocaleString()}</td>
+                    <td>${c.is_published ? '<span class="status-badge active">Published</span>' : '<span class="status-badge inactive">Draft</span>'}</td>
+                    <td class="actions-cell">
+                        <button class="action-btn" onclick="editContent('${c.id}')" title="Edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="action-btn danger" onclick="deleteContent('${c.id}')" title="Delete">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openContentModal() {
+            document.getElementById('contentForm').reset();
+            document.getElementById('contentId').value = '';
+            document.getElementById('contentModalTitle').textContent = 'Add Video';
+            document.getElementById('contentPublished').checked = true;
+            openModal('contentModal');
+        }
+
+        async function editContent(id) {
+            const { data: c } = await supabase.from('content').select('*').eq('id', id).single();
+            if (!c) return;
+
+            document.getElementById('contentId').value = c.id;
+            document.getElementById('contentTitle').value = c.title;
+            document.getElementById('contentDescription').value = c.description || '';
+            document.getElementById('contentType').value = c.is_4d ? '4d' : c.is_vr ? 'vr' : c.is_multi_angle ? 'multi-angle' : 'video';
+            document.getElementById('contentTier').value = c.required_tier || 'free';
+            document.getElementById('contentThumbnail').value = c.thumbnail_url || '';
+            document.getElementById('contentPreview').value = c.preview_url || '';
+            document.getElementById('contentVideo').value = c.video_url || '';
+            document.getElementById('contentDuration').value = c.duration_seconds || '';
+            document.getElementById('contentQuality').value = c.quality || '4K';
+            document.getElementById('contentFeatured').checked = c.is_featured || false;
+            document.getElementById('contentPublished').checked = c.is_published !== false;
+            document.getElementById('contentModalTitle').textContent = 'Edit Video';
+            openModal('contentModal');
+        }
+
+        async function saveContent() {
+            const id = document.getElementById('contentId').value;
+            const title = document.getElementById('contentTitle').value;
+            const type = document.getElementById('contentType').value;
+            const data = {
+                title: title,
+                slug: title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+                description: document.getElementById('contentDescription').value,
+                content_type: type,
+                is_vr: type === 'vr' || type === '4d',
+                is_4d: type === '4d',
+                is_multi_angle: type === 'multi-angle',
+                required_tier: document.getElementById('contentTier').value,
+                thumbnail_url: document.getElementById('contentThumbnail').value,
+                preview_url: document.getElementById('contentPreview').value,
+                video_url: document.getElementById('contentVideo').value,
+                duration_seconds: parseInt(document.getElementById('contentDuration').value) || null,
+                quality: document.getElementById('contentQuality').value,
+                is_featured: document.getElementById('contentFeatured').checked,
+                is_published: document.getElementById('contentPublished').checked
+            };
+
+            const { error } = id
+                ? await supabase.from('content').update(data).eq('id', id)
+                : await supabase.from('content').insert(data);
+
+            if (error) {
+                showToast('Error saving video: ' + error.message, 'error');
+                return;
+            }
+
+            closeModal('contentModal');
+            showToast(id ? 'Video updated' : 'Video added');
+            loadContent();
+        }
+
+        async function deleteContent(id) {
+            if (!confirm('Delete this video?')) return;
+            await supabase.from('content').delete().eq('id', id);
+            showToast('Video deleted');
+            loadContent();
+        }
+
+        // Categories
+        async function loadCategories() {
+            const { data, error } = await supabase
+                .from('categories')
+                .select('*')
+                .order('sort_order', { ascending: true });
+
+            const tbody = document.getElementById('categoriesTableBody');
+            if (error || !data?.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No categories yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(c => `
+                <tr>
+                    <td><strong>${c.name}</strong></td>
+                    <td>${c.slug}</td>
+                    <td>${c.content_count || 0}</td>
+                    <td>${c.is_featured ? '<span class="status-badge featured">Featured</span>' : '<span class="status-badge inactive">No</span>'}</td>
+                    <td class="actions-cell">
+                        <button class="action-btn" onclick="editCategory('${c.id}')" title="Edit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="action-btn danger" onclick="deleteCategory('${c.id}')" title="Delete">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openCategoryModal() {
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryId').value = '';
+            document.getElementById('categoryModalTitle').textContent = 'Add Category';
+            openModal('categoryModal');
+        }
+
+        async function editCategory(id) {
+            const { data: c } = await supabase.from('categories').select('*').eq('id', id).single();
+            if (!c) return;
+
+            document.getElementById('categoryId').value = c.id;
+            document.getElementById('categoryName').value = c.name;
+            document.getElementById('categorySlug').value = c.slug || '';
+            document.getElementById('categorySortOrder').value = c.sort_order || 0;
+            document.getElementById('categoryDescription').value = c.description || '';
+            document.getElementById('categoryThumbnail').value = c.thumbnail_url || '';
+            document.getElementById('categoryFeatured').checked = c.is_featured || false;
+            document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+            openModal('categoryModal');
+        }
+
+        async function saveCategory() {
+            const id = document.getElementById('categoryId').value;
+            const name = document.getElementById('categoryName').value;
+            const data = {
+                name: name,
+                slug: document.getElementById('categorySlug').value || name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+                sort_order: parseInt(document.getElementById('categorySortOrder').value) || 0,
+                description: document.getElementById('categoryDescription').value,
+                thumbnail_url: document.getElementById('categoryThumbnail').value,
+                is_featured: document.getElementById('categoryFeatured').checked
+            };
+
+            const { error } = id
+                ? await supabase.from('categories').update(data).eq('id', id)
+                : await supabase.from('categories').insert(data);
+
+            if (error) {
+                showToast('Error saving category: ' + error.message, 'error');
+                return;
+            }
+
+            closeModal('categoryModal');
+            showToast(id ? 'Category updated' : 'Category added');
+            loadCategories();
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('Delete this category?')) return;
+            await supabase.from('categories').delete().eq('id', id);
+            showToast('Category deleted');
+            loadCategories();
+        }
+
+        // Comments
+        async function loadComments() {
+            const { data, error } = await supabase
+                .from('comments')
+                .select('*, profiles(display_name, email)')
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            const tbody = document.getElementById('commentsTableBody');
+            if (error || !data?.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No comments yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(c => `
+                <tr>
+                    <td>${c.profiles?.display_name || c.profiles?.email || 'Unknown'}</td>
+                    <td>${c.body.substring(0, 50)}${c.body.length > 50 ? '...' : ''}</td>
+                    <td>${c.content_id?.substring(0, 8)}...</td>
+                    <td>${new Date(c.created_at).toLocaleDateString()}</td>
+                    <td class="actions-cell">
+                        <button class="action-btn danger" onclick="hideComment('${c.id}')" title="${c.is_hidden ? 'Show' : 'Hide'}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                        <button class="action-btn danger" onclick="deleteComment('${c.id}')" title="Delete">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function refreshComments() { loadComments(); showToast('Comments refreshed'); }
+
+        async function hideComment(id) {
+            const { data } = await supabase.from('comments').select('is_hidden').eq('id', id).single();
+            await supabase.from('comments').update({ is_hidden: !data?.is_hidden }).eq('id', id);
+            showToast(data?.is_hidden ? 'Comment shown' : 'Comment hidden');
+            loadComments();
+        }
+
+        async function deleteComment(id) {
+            if (!confirm('Delete this comment?')) return;
+            await supabase.from('comments').delete().eq('id', id);
+            showToast('Comment deleted');
+            loadComments();
+        }
+
+        // Init
+        console.log('Admin panel initializing...');
+        checkAuth();
+        loadDashboardStats().catch(err => console.error('Dashboard load error:', err));
+        console.log('Admin panel ready');
+    </script>
+</body>
+</html>
