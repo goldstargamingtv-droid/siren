@@ -2182,6 +2182,92 @@
             border-color: rgba(239, 68, 68, 0.3);
         }
 
+        /* Account Signed Out State */
+        .account-signin-prompt {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 2rem 1.5rem;
+        }
+        
+        .account-signin-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+        }
+        
+        .account-signin-icon svg {
+            width: 32px;
+            height: 32px;
+            stroke: #ef4444;
+        }
+        
+        .account-signin-prompt h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .account-signin-prompt p {
+            font-size: 0.85rem;
+            color: #71717a;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+        
+        .account-signin-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        .account-signin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(239, 68, 68, 0.4);
+        }
+        
+        .account-signin-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .account-signup-link {
+            margin-top: 1.25rem;
+            font-size: 0.85rem;
+            color: #71717a;
+        }
+        
+        .account-signup-link a {
+            color: #ef4444;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .account-signup-link a:hover {
+            color: #f97316;
+        }
+
         /* Collection Icons */
         .nav-icon-box {
             display: flex !important;
@@ -4914,7 +5000,34 @@
                     </button>
                 </div>
             </div>
-            <div class="submenu-body account-body">
+            
+            <!-- Signed Out State -->
+            <div class="submenu-body account-body account-signed-out" id="accountSignedOut">
+                <div class="account-signin-prompt">
+                    <div class="account-signin-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+                        </svg>
+                    </div>
+                    <h3>Welcome to SIREN</h3>
+                    <p>Sign in to access your watchlist, preferences, and personalized recommendations.</p>
+                    <button class="account-signin-btn" onclick="closeAccountMenu(); if(typeof openAuthModal === 'function') openAuthModal('signin');">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                            <polyline points="10 17 15 12 10 7"/>
+                            <line x1="15" y1="12" x2="3" y2="12"/>
+                        </svg>
+                        Sign In
+                    </button>
+                    <div class="account-signup-link">
+                        New to SIREN? <a href="#" onclick="closeAccountMenu(); if(typeof openAuthModal === 'function') openAuthModal('signup'); return false;">Create account</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Signed In State -->
+            <div class="submenu-body account-body account-signed-in" id="accountSignedIn" style="display: none;">
                 <!-- Profile Section -->
                 <div class="account-profile">
                     <div class="account-avatar">
@@ -5017,7 +5130,7 @@
                     </div>
                 </div>
             </div>
-            <div class="submenu-footer account-footer">
+            <div class="submenu-footer account-footer" id="accountFooter">
                 <button class="sign-out-btn" onclick="SIREN.signOut()">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -7736,7 +7849,22 @@
     }
     
     function updateAccountMenu(user, profile) {
-        if (!user) return;
+        const signedOutEl = document.getElementById('accountSignedOut');
+        const signedInEl = document.getElementById('accountSignedIn');
+        const footerEl = document.getElementById('accountFooter');
+        
+        if (!user) {
+            // Show signed out state
+            if (signedOutEl) signedOutEl.style.display = 'block';
+            if (signedInEl) signedInEl.style.display = 'none';
+            if (footerEl) footerEl.style.display = 'none';
+            return;
+        }
+        
+        // Show signed in state
+        if (signedOutEl) signedOutEl.style.display = 'none';
+        if (signedInEl) signedInEl.style.display = 'block';
+        if (footerEl) footerEl.style.display = 'block';
         
         // Update name
         const nameEl = document.querySelector('.account-name[data-user-name]');
@@ -7768,6 +7896,9 @@
             upgradeBtn.style.display = 'none';
         }
     }
+    
+    // Initialize account menu state on page load
+    updateAccountMenu(null, null);
 </script>
 
 <!-- Subscription Modal -->
