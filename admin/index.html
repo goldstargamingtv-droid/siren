@@ -73,10 +73,13 @@
             flex: 1;
             padding: 1rem 0;
             overflow-y: auto;
+            position: relative;
+            z-index: 1;
         }
 
         .nav-section {
             margin-bottom: 1.5rem;
+            position: relative;
         }
 
         .nav-section-title {
@@ -103,6 +106,10 @@
             background: none;
             width: 100%;
             text-align: left;
+            position: relative;
+            z-index: 10;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         .nav-item:hover {
@@ -882,7 +889,7 @@
         <nav class="sidebar-nav">
             <div class="nav-section">
                 <div class="nav-section-title">Overview</div>
-                <button class="nav-item active" data-panel="dashboard">
+                <button type="button" class="nav-item active" data-panel="dashboard">
                     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                     <span>Dashboard</span>
                 </button>
@@ -890,15 +897,15 @@
 
             <div class="nav-section">
                 <div class="nav-section-title">Content</div>
-                <button class="nav-item" data-panel="content">
+                <button type="button" class="nav-item" data-panel="content">
                     <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
                     <span>Videos</span>
                 </button>
-                <button class="nav-item" data-panel="performers">
+                <button type="button" class="nav-item" data-panel="performers">
                     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     <span>Performers</span>
                 </button>
-                <button class="nav-item" data-panel="categories">
+                <button type="button" class="nav-item" data-panel="categories">
                     <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                     <span>Categories</span>
                 </button>
@@ -906,11 +913,11 @@
 
             <div class="nav-section">
                 <div class="nav-section-title">Users</div>
-                <button class="nav-item" data-panel="users">
+                <button type="button" class="nav-item" data-panel="users">
                     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     <span>Users</span>
                 </button>
-                <button class="nav-item" data-panel="waitlist">
+                <button type="button" class="nav-item" data-panel="waitlist">
                     <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                     <span>Waitlist</span>
                     <span class="badge" id="waitlistBadge">0</span>
@@ -919,7 +926,7 @@
 
             <div class="nav-section">
                 <div class="nav-section-title">Moderation</div>
-                <button class="nav-item" data-panel="comments">
+                <button type="button" class="nav-item" data-panel="comments">
                     <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     <span>Comments</span>
                 </button>
@@ -1564,8 +1571,12 @@
             console.log('Navigation initialized');
         }
         
-        // Run immediately
-        initNavigation();
+        // Run when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initNavigation);
+        } else {
+            initNavigation();
+        }
 
         function switchPanel(panelName) {
             console.log('Switching to panel:', panelName);
