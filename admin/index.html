@@ -182,6 +182,8 @@
             flex: 1;
             margin-left: 250px;
             min-height: 100vh;
+            position: relative;
+            z-index: 1;
         }
 
         .top-bar {
@@ -1490,14 +1492,14 @@
 
     <script>
         // Supabase Setup
-        const SUPABASE_URL = 'https://tzxbhrrhgahvcfkokdti.supabase.co';
+        const SUPABASE_URL = 'https://tzxbhrrhgahvcfkokdti.supabaseClient.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6eGJocnJoZ2FodmNma29rZHRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NTQyMzIsImV4cCI6MjA4MzMzMDIzMn0.8RBvwLlT-uj3NUi4zWI5cOXPUC_YnyFme_cpv7RiI5Y';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Check Auth and Admin Status
         async function checkAuth() {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session } } = await supabaseClient.auth.getSession();
                 if (!session) {
                     console.log('No session, redirecting to login...');
                     window.location.href = '/?login=admin';
@@ -1554,7 +1556,7 @@
         }
         
         async function logout() {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.href = '/';
         }
 
@@ -1672,24 +1674,24 @@
         async function loadDashboardStats() {
             try {
                 // Users count
-                const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+                const { count: usersCount } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
                 document.getElementById('statUsers').textContent = usersCount || 0;
 
                 // Waitlist count
-                const { count: waitlistCount } = await supabase.from('waitlist').select('*', { count: 'exact', head: true });
+                const { count: waitlistCount } = await supabaseClient.from('waitlist').select('*', { count: 'exact', head: true });
                 document.getElementById('statWaitlist').textContent = waitlistCount || 0;
                 document.getElementById('waitlistBadge').textContent = waitlistCount || 0;
 
                 // Content count
-                const { count: contentCount } = await supabase.from('content').select('*', { count: 'exact', head: true });
+                const { count: contentCount } = await supabaseClient.from('content').select('*', { count: 'exact', head: true });
                 document.getElementById('statContent').textContent = contentCount || 0;
 
                 // Performers count
-                const { count: performersCount } = await supabase.from('performers').select('*', { count: 'exact', head: true });
+                const { count: performersCount } = await supabaseClient.from('performers').select('*', { count: 'exact', head: true });
                 document.getElementById('statPerformers').textContent = performersCount || 0;
 
                 // Total views
-                const { data: viewsData } = await supabase.from('content').select('view_count');
+                const { data: viewsData } = await supabaseClient.from('content').select('view_count');
                 const totalViews = viewsData?.reduce((sum, c) => sum + (c.view_count || 0), 0) || 0;
                 document.getElementById('statViews').textContent = totalViews.toLocaleString();
 
@@ -1761,7 +1763,7 @@
         function refreshUsers() { loadUsers(); showToast('Users refreshed'); }
 
         async function editUser(id) {
-            const { data: user } = await supabase.from('profiles').select('*').eq('id', id).single();
+            const { data: user } = await supabaseClient.from('profiles').select('*').eq('id', id).single();
             if (!user) return;
 
             document.getElementById('userId').value = user.id;
@@ -1774,7 +1776,7 @@
 
         async function saveUser() {
             const id = document.getElementById('userId').value;
-            const { error } = await supabase.from('profiles').update({
+            const { error } = await supabaseClient.from('profiles').update({
                 display_name: document.getElementById('userDisplayName').value,
                 subscription_tier: document.getElementById('userTier').value,
                 age_verified: document.getElementById('userAgeVerified').checked
@@ -1821,13 +1823,13 @@
 
         async function deleteWaitlistEntry(id) {
             if (!confirm('Remove this email from waitlist?')) return;
-            await supabase.from('waitlist').delete().eq('id', id);
+            await supabaseClient.from('waitlist').delete().eq('id', id);
             showToast('Entry removed');
             loadWaitlist();
         }
 
         function exportWaitlist() {
-            supabase.from('waitlist').select('email,source,subscribed_at').then(({ data }) => {
+            supabaseClient.from('waitlist').select('email,source,subscribed_at').then(({ data }) => {
                 if (!data?.length) return showToast('No data to export', 'error');
                 const csv = 'Email,Source,Date\n' + data.map(w => `${w.email},${w.source},${w.subscribed_at}`).join('\n');
                 const blob = new Blob([csv], { type: 'text/csv' });
@@ -1890,7 +1892,7 @@
         }
 
         async function editPerformer(id) {
-            const { data: p } = await supabase.from('performers').select('*').eq('id', id).single();
+            const { data: p } = await supabaseClient.from('performers').select('*').eq('id', id).single();
             if (!p) return;
 
             document.getElementById('performerId').value = p.id;
@@ -1921,8 +1923,8 @@
             };
 
             const { error } = id
-                ? await supabase.from('performers').update(data).eq('id', id)
-                : await supabase.from('performers').insert(data);
+                ? await supabaseClient.from('performers').update(data).eq('id', id)
+                : await supabaseClient.from('performers').insert(data);
 
             if (error) {
                 showToast('Error saving performer: ' + error.message, 'error');
@@ -1936,7 +1938,7 @@
 
         async function deletePerformer(id) {
             if (!confirm('Delete this performer?')) return;
-            await supabase.from('performers').delete().eq('id', id);
+            await supabaseClient.from('performers').delete().eq('id', id);
             showToast('Performer deleted');
             loadPerformers();
         }
@@ -1989,7 +1991,7 @@
         }
 
         async function editContent(id) {
-            const { data: c } = await supabase.from('content').select('*').eq('id', id).single();
+            const { data: c } = await supabaseClient.from('content').select('*').eq('id', id).single();
             if (!c) return;
 
             document.getElementById('contentId').value = c.id;
@@ -2031,8 +2033,8 @@
             };
 
             const { error } = id
-                ? await supabase.from('content').update(data).eq('id', id)
-                : await supabase.from('content').insert(data);
+                ? await supabaseClient.from('content').update(data).eq('id', id)
+                : await supabaseClient.from('content').insert(data);
 
             if (error) {
                 showToast('Error saving video: ' + error.message, 'error');
@@ -2046,7 +2048,7 @@
 
         async function deleteContent(id) {
             if (!confirm('Delete this video?')) return;
-            await supabase.from('content').delete().eq('id', id);
+            await supabaseClient.from('content').delete().eq('id', id);
             showToast('Video deleted');
             loadContent();
         }
@@ -2090,7 +2092,7 @@
         }
 
         async function editCategory(id) {
-            const { data: c } = await supabase.from('categories').select('*').eq('id', id).single();
+            const { data: c } = await supabaseClient.from('categories').select('*').eq('id', id).single();
             if (!c) return;
 
             document.getElementById('categoryId').value = c.id;
@@ -2117,8 +2119,8 @@
             };
 
             const { error } = id
-                ? await supabase.from('categories').update(data).eq('id', id)
-                : await supabase.from('categories').insert(data);
+                ? await supabaseClient.from('categories').update(data).eq('id', id)
+                : await supabaseClient.from('categories').insert(data);
 
             if (error) {
                 showToast('Error saving category: ' + error.message, 'error');
@@ -2132,7 +2134,7 @@
 
         async function deleteCategory(id) {
             if (!confirm('Delete this category?')) return;
-            await supabase.from('categories').delete().eq('id', id);
+            await supabaseClient.from('categories').delete().eq('id', id);
             showToast('Category deleted');
             loadCategories();
         }
@@ -2172,15 +2174,15 @@
         function refreshComments() { loadComments(); showToast('Comments refreshed'); }
 
         async function hideComment(id) {
-            const { data } = await supabase.from('comments').select('is_hidden').eq('id', id).single();
-            await supabase.from('comments').update({ is_hidden: !data?.is_hidden }).eq('id', id);
+            const { data } = await supabaseClient.from('comments').select('is_hidden').eq('id', id).single();
+            await supabaseClient.from('comments').update({ is_hidden: !data?.is_hidden }).eq('id', id);
             showToast(data?.is_hidden ? 'Comment shown' : 'Comment hidden');
             loadComments();
         }
 
         async function deleteComment(id) {
             if (!confirm('Delete this comment?')) return;
-            await supabase.from('comments').delete().eq('id', id);
+            await supabaseClient.from('comments').delete().eq('id', id);
             showToast('Comment deleted');
             loadComments();
         }
