@@ -599,6 +599,41 @@
         @media (max-width: 768px) {
             .mobile-nav { display: flex !important; }
         }
+        
+        /* Legal Footer */
+        .legal-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(0deg, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.8) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 100;
+            font-size: 0.7rem;
+        }
+        .legal-footer a {
+            color: rgba(255,255,255,0.4);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+        .legal-footer a:hover {
+            color: rgba(255,255,255,0.8);
+        }
+        .legal-footer span {
+            color: rgba(255,255,255,0.25);
+        }
+        @media (max-width: 768px) {
+            .legal-footer {
+                bottom: 70px;
+                font-size: 0.6rem;
+                gap: 1rem;
+                padding: 0.4rem 0.5rem;
+            }
+        }
     </style>
     <link rel="stylesheet" href="../css/mobile.css">
 </head>
@@ -1361,5 +1396,14 @@ function goToProfile(e) {
     window.addEventListener('resize', showMobileNav);
 })();
 </script>
+<!-- Legal Footer -->
+<footer class="legal-footer">
+    <a href="/legal/terms/">Terms</a>
+    <a href="/legal/privacy/">Privacy</a>
+    <a href="/legal/2257/">2257</a>
+    <a href="/legal/dmca/">DMCA</a>
+    <span>© 2025 SIREN</span>
+</footer>
+
 </body>
 </html>
