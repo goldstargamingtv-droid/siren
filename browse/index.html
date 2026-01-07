@@ -2263,10 +2263,11 @@
         /* Featured Hero */
         .featured-hero {
             position: relative;
-            height: 75vh;
-            min-height: 550px;
-            max-height: 750px;
+            height: 85vh;
+            min-height: 600px;
+            max-height: 850px;
             overflow: hidden;
+            margin-bottom: -120px;
         }
 
         .featured-slide {
@@ -2375,13 +2376,13 @@
             inset: 0;
             background: 
                 linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 40%, transparent 60%),
-                linear-gradient(to top, #000000 0%, transparent 50%);
+                linear-gradient(to top, var(--bg-primary) 0%, var(--bg-primary) 5%, transparent 40%);
             z-index: 2;
         }
 
         .featured-content {
             position: absolute;
-            bottom: 18%;
+            bottom: 28%;
             left: 4rem;
             z-index: 10;
             max-width: 520px;
@@ -2532,11 +2533,10 @@
         /* Carousel Dots */
         .carousel-dots {
             position: absolute;
-            bottom: 2rem;
-            left: calc(50% + 160px);
-            transform: translateX(-50%);
+            bottom: 140px;
+            right: 3.5rem;
             display: flex;
-            justify-content: center;
+            justify-content: flex-end;
             gap: 0.6rem;
             z-index: 20;
         }
@@ -2562,9 +2562,54 @@
             box-shadow: 0 2px 12px rgba(239, 68, 68, 0.5), 0 0 20px rgba(239, 68, 68, 0.3);
         }
 
+        /* Carousel Arrow */
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .featured-hero:hover .carousel-arrow {
+            opacity: 1;
+        }
+        
+        .carousel-arrow:hover {
+            background: rgba(0, 0, 0, 0.6);
+        }
+        
+        .carousel-arrow svg {
+            width: 28px;
+            height: 28px;
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease;
+        }
+        
+        .carousel-arrow:hover svg {
+            color: #fff;
+            transform: scale(1.1);
+        }
+        
+        .carousel-arrow-right {
+            right: 20px;
+        }
+
         /* Content Area */
         .content-area {
-            padding: 1.5rem 3.5rem 3rem;
+            position: relative;
+            z-index: 10;
+            padding: 0 3.5rem 3rem;
             overflow: visible;
             max-width: 100%;
         }
@@ -3147,6 +3192,15 @@
             overflow: hidden;
         }
         
+        .expanded-preview-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+        
         .card-expanded-preview video {
             width: 100%;
             height: 100%;
@@ -3160,6 +3214,7 @@
             right: 0;
             height: 80px;
             background: linear-gradient(to top, #181818 0%, transparent 100%);
+            z-index: 1;
         }
         
         /* SIREN Mini Logo */
@@ -3440,14 +3495,25 @@
             position: relative;
             width: 100%;
             aspect-ratio: 16/9;
+            background: #000;
             background-size: cover;
             background-position: center;
+            overflow: hidden;
+        }
+
+        .info-modal-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .info-modal-preview-gradient {
             position: absolute;
             inset: 0;
             background: linear-gradient(0deg, #181818 0%, rgba(24,24,24,0.6) 30%, transparent 60%);
+            z-index: 1;
         }
 
         .info-modal-preview-content {
@@ -3455,6 +3521,7 @@
             bottom: 2rem;
             left: 3rem;
             right: 3rem;
+            z-index: 2;
         }
 
         .info-modal-logo {
@@ -5148,6 +5215,11 @@
                     <div class="carousel-dot" data-index="3"></div>
                     <div class="carousel-dot" data-index="4"></div>
                 </div>
+                <button class="carousel-arrow carousel-arrow-right" id="carouselNext">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
             </section>
 
             <!-- Mobile Category Tabs (hidden on desktop) -->
@@ -5340,6 +5412,8 @@
     <!-- Netflix-style Expanded Card Popup (fixed position, outside content flow) -->
     <div class="card-expanded" id="cardExpanded">
         <div class="card-expanded-preview">
+            <video class="expanded-preview-video" muted loop playsinline preload="none"
+                   src="https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/previews/MidnightRendevous.mp4"></video>
             <div class="card-expanded-gradient"></div>
             <span class="card-expanded-logo">SIREN</span>
             <button class="card-expanded-mute" id="expandedMute">
@@ -5401,6 +5475,8 @@
                 </svg>
             </button>
             <div class="info-modal-preview" id="infoModalPreview">
+                <video class="info-modal-video" id="infoModalVideo" muted loop playsinline
+                       src="https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/previews/MidnightRendevous.mp4"></video>
                 <div class="info-modal-preview-gradient"></div>
                 <div class="info-modal-preview-content">
                     <div class="info-modal-logo" id="infoModalTitle">Midnight Whispers</div>
@@ -5984,6 +6060,14 @@
             });
         });
 
+        // Carousel arrow
+        const carouselNext = document.getElementById('carouselNext');
+        if (carouselNext) {
+            carouselNext.addEventListener('click', () => {
+                goToSlide((currentSlide + 1) % slides.length);
+            });
+        }
+
         // Pause carousel by default, only play on hover
         const heroSection = document.querySelector('.featured-hero');
         if (heroSection) {
@@ -6108,6 +6192,13 @@
             // Show with animation
             cardExpanded.classList.add('active');
             
+            // Play preview video
+            const previewVideo = cardExpanded.querySelector('.expanded-preview-video');
+            if (previewVideo) {
+                previewVideo.currentTime = 0;
+                previewVideo.play().catch(() => {});
+            }
+            
             // Trigger logo animation after a tiny delay
             if (logo) {
                 setTimeout(() => {
@@ -6122,6 +6213,13 @@
             hideTimer = setTimeout(() => {
                 cardExpanded.classList.remove('active');
                 currentCard = null;
+                
+                // Pause preview video
+                const previewVideo = cardExpanded.querySelector('.expanded-preview-video');
+                if (previewVideo) {
+                    previewVideo.pause();
+                    previewVideo.currentTime = 0;
+                }
                 
                 // Reset logo for next show
                 const logo = cardExpanded.querySelector('.card-expanded-logo');
@@ -7833,6 +7931,7 @@ function openInfoModal(data = {}) {
     const cast = document.getElementById('infoModalCast');
     const genres = document.getElementById('infoModalGenres');
     const related = document.getElementById('infoModalRelated');
+    const video = document.getElementById('infoModalVideo');
     
     // Set data
     if (data.img) preview.style.backgroundImage = `url('${data.img}')`;
@@ -7843,6 +7942,12 @@ function openInfoModal(data = {}) {
     if (data.duration) duration.textContent = data.duration;
     if (data.cast) cast.innerHTML = data.cast.map(p => `<a href="../performer/">${p}</a>`).join(', ');
     if (data.genres) genres.textContent = data.genres;
+    
+    // Play video
+    if (video) {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+    }
     
     // Populate related content
     const relatedHtml = contentData.slice(0, 6).map((item, i) => `
@@ -7883,6 +7988,13 @@ function openInfoModal(data = {}) {
 function closeInfoModal() {
     infoModalBackdrop.classList.remove('open');
     document.body.style.overflow = '';
+    
+    // Pause video
+    const video = document.getElementById('infoModalVideo');
+    if (video) {
+        video.pause();
+        video.currentTime = 0;
+    }
 }
 
 // Close on backdrop click
@@ -8233,7 +8345,8 @@ function goToProfile(e) {
 })();
 </script>
 
-<!-- Video Hover Play -->
+<!-- Video Hover Play - DISABLED (preview popup handles this instead) -->
+<!--
 <style>
 .card-thumbnail-inner .hover-video {
     position: absolute;
@@ -8288,6 +8401,7 @@ function goToProfile(e) {
                 video.currentTime = 0;
             });
         });
+        });
     }
     
     // Run after cards are created
@@ -8300,6 +8414,7 @@ function goToProfile(e) {
     observer.observe(document.body, { childList: true, subtree: true });
 })();
 </script>
+-->
 
 <!-- Legal Footer -->
 <footer class="legal-footer">
