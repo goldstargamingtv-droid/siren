@@ -1,21 +1,37 @@
 // ============================================
 // SIREN Platform - Supabase Client
-// Version: 1.0.0
+// Version: 1.0.1
 // ============================================
 
-// REPLACE THESE WITH YOUR ACTUAL SUPABASE CREDENTIALS
+// Supabase credentials
 const SUPABASE_URL = 'https://tzxbhrrhgahvcfkokdti.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6eGJocnJoZ2FodmNma29rZHRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NTQyMzIsImV4cCI6MjA4MzMzMDIzMn0.8RBvwLlT-uj3NUi4zWI5cOXPUC_YnyFme_cpv7RiI5Y';
 
-// Initialize Supabase client
-let supabaseClient;
+// Single global client - prevent multiple instances
+let supabaseClient = null;
 
 function initSupabase() {
+    // Return existing client if already initialized
+    if (supabaseClient) {
+        return supabaseClient;
+    }
+    
+    // Check if already exists on window (from another script)
+    if (window._sirenSupabaseClient) {
+        supabaseClient = window._sirenSupabaseClient;
+        return supabaseClient;
+    }
+    
     if (!window.supabase) {
         console.error('Supabase library not loaded');
         return null;
     }
+    
+    // Create single instance and store globally
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    window._sirenSupabaseClient = supabaseClient;
+    
+    console.log('[SIREN] Supabase client initialized');
     return supabaseClient;
 }
 
@@ -75,16 +91,23 @@ function initAuthListener() {
     });
 }
 
-// Load user profile
+// Load user profile with timeout
 async function loadUserProfile() {
     if (!currentUser) return null;
     
     try {
-        const { data, error } = await supabaseClient
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Profile load timeout')), 5000)
+        );
+        
+        const queryPromise = supabaseClient
             .from('profiles')
             .select('*')
             .eq('id', currentUser.id)
             .single();
+        
+        const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
         
         if (error) {
             console.error('Error loading profile:', error);
@@ -92,6 +115,7 @@ async function loadUserProfile() {
         }
         
         currentProfile = data;
+        console.log('[SIREN] Profile loaded:', data?.email);
         return data;
     } catch (err) {
         console.error('Profile query failed:', err);
