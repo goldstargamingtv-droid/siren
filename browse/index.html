@@ -8183,6 +8183,79 @@ function goToProfile(e) {
     window.addEventListener('resize', showMobileNav);
 })();
 </script>
+
+<!-- Video Hover Play -->
+<style>
+.card-thumbnail-inner {
+    position: relative;
+    overflow: hidden;
+}
+.card-thumbnail-inner .hover-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+.content-card:hover .card-thumbnail-inner .hover-video {
+    opacity: 1;
+}
+</style>
+<script>
+(function() {
+    // Video URLs for preview
+    const previewVideos = [
+        'https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/previews/MidnightRendevous.mp4',
+        'https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/previews/GoldenHourVid1.mp4',
+        'https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/previews/VelvetDreams1.mp4',
+        'https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/previews/MorningRoutine.mp4',
+        'https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/previews/redheadstuff.mp4'
+    ];
+    
+    function addHoverVideos() {
+        document.querySelectorAll('.content-card:not(.performer-card)').forEach((card, index) => {
+            const thumbInner = card.querySelector('.card-thumbnail-inner');
+            if (!thumbInner || thumbInner.querySelector('.hover-video')) return;
+            
+            // Create video element
+            const video = document.createElement('video');
+            video.className = 'hover-video';
+            video.muted = true;
+            video.loop = true;
+            video.playsInline = true;
+            video.preload = 'none';
+            video.src = previewVideos[index % previewVideos.length];
+            
+            thumbInner.appendChild(video);
+            
+            // Play on hover
+            card.addEventListener('mouseenter', () => {
+                video.play().catch(() => {});
+            });
+            
+            // Pause on leave
+            card.addEventListener('mouseleave', () => {
+                video.pause();
+                video.currentTime = 0;
+            });
+        });
+    }
+    
+    // Run after cards are created
+    setTimeout(addHoverVideos, 1000);
+    
+    // Also run when new cards might be added
+    const observer = new MutationObserver(() => {
+        setTimeout(addHoverVideos, 100);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+
 <!-- Legal Footer -->
 <footer class="legal-footer">
     <a href="/legal/terms/">Terms</a>
