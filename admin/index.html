@@ -931,8 +931,11 @@
                 <div class="admin-avatar" id="adminAvatar">A</div>
                 <div class="admin-info">
                     <div class="admin-name" id="adminName">Admin</div>
-                    <div class="admin-role">Administrator</div>
+                    <div class="admin-role" id="adminRole">Administrator</div>
                 </div>
+                <button class="action-btn" onclick="logout()" title="Logout" style="margin-left: auto;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
             </div>
         </div>
     </aside>
@@ -1484,24 +1487,68 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6eGJocnJoZ2FodmNma29rZHRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NTQyMzIsImV4cCI6MjA4MzMzMDIzMn0.8RBvwLlT-uj3NUi4zWI5cOXPUC_YnyFme_cpv7RiI5Y';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Check Auth
+        // Check Auth and Admin Status
         async function checkAuth() {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) {
-                    console.log('No session, redirecting...');
-                    // Uncomment below to enforce auth:
-                    // window.location.href = '/';
-                    return;
+                    console.log('No session, redirecting to login...');
+                    window.location.href = '/?login=admin';
+                    return false;
+                }
+                
+                // Check if user is admin
+                const { data: profile, error } = await supabase
+                    .from('profiles')
+                    .select('is_admin, is_moderator, display_name, email')
+                    .eq('id', session.user.id)
+                    .single();
+                
+                if (error || !profile) {
+                    console.error('Could not fetch profile:', error);
+                    showAccessDenied('Could not verify admin status');
+                    return false;
+                }
+                
+                if (!profile.is_admin && !profile.is_moderator) {
+                    console.log('User is not admin/moderator');
+                    showAccessDenied('You do not have admin access');
+                    return false;
                 }
                 
                 // Update admin info
-                const email = session.user.email;
-                document.getElementById('adminName').textContent = email.split('@')[0];
-                document.getElementById('adminAvatar').textContent = email[0].toUpperCase();
+                const name = profile.display_name || profile.email?.split('@')[0] || 'Admin';
+                document.getElementById('adminName').textContent = name;
+                document.getElementById('adminAvatar').textContent = name[0].toUpperCase();
+                document.getElementById('adminRole').textContent = profile.is_admin ? 'Administrator' : 'Moderator';
+                
+                console.log('Admin access granted:', name);
+                return true;
+                
             } catch (err) {
                 console.error('Auth check error:', err);
+                showAccessDenied('Authentication error');
+                return false;
             }
+        }
+        
+        function showAccessDenied(message) {
+            document.querySelector('.main-content').innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 2rem;">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom: 1rem;">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                    </svg>
+                    <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Access Denied</h1>
+                    <p style="color: #71717a; margin-bottom: 1.5rem;">${message}</p>
+                    <a href="/" class="btn btn-primary">Back to Site</a>
+                </div>
+            `;
+        }
+        
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.href = '/';
         }
 
         // Navigation - set up immediately
@@ -2097,9 +2144,13 @@
 
         // Init
         console.log('Admin panel initializing...');
-        checkAuth();
-        loadDashboardStats().catch(err => console.error('Dashboard load error:', err));
-        console.log('Admin panel ready');
+        (async () => {
+            const isAuthed = await checkAuth();
+            if (isAuthed) {
+                loadDashboardStats().catch(err => console.error('Dashboard load error:', err));
+                console.log('Admin panel ready');
+            }
+        })();
     </script>
 </body>
 </html>
