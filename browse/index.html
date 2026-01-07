@@ -4914,6 +4914,22 @@
                         </a>
                     </div>
                 </div>
+                
+                <!-- Admin Section (only visible to admins) -->
+                <div class="account-section" data-admin-only style="display: none;">
+                    <div class="account-section-title" style="color: #ef4444;">Admin</div>
+                    <div class="account-menu-items">
+                        <a href="../admin/" class="account-menu-item" style="color: #ef4444;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <span>Admin Panel</span>
+                            <svg class="item-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 18l6-6-6-6"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="submenu-footer account-footer">
                 <button class="sign-out-btn" onclick="SIREN.signOut()">

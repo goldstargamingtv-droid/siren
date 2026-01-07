@@ -221,6 +221,14 @@ function isAuthenticated() {
     return currentUser !== null;
 }
 
+function isAdmin() {
+    return currentProfile?.is_admin === true;
+}
+
+function isModerator() {
+    return currentProfile?.is_admin === true || currentProfile?.is_moderator === true;
+}
+
 function isAgeVerified() {
     return currentProfile?.age_verified === true;
 }
@@ -719,11 +727,16 @@ function updateUIForAuth(isLoggedIn) {
     const signOutBtns = document.querySelectorAll('.btn-sign-out, [data-auth="sign-out"]');
     const authOnly = document.querySelectorAll('[data-auth-only]');
     const guestOnly = document.querySelectorAll('[data-guest-only]');
+    const adminOnly = document.querySelectorAll('[data-admin-only]');
     
     signInBtns.forEach(btn => btn.style.display = isLoggedIn ? 'none' : '');
     signOutBtns.forEach(btn => btn.style.display = isLoggedIn ? '' : 'none');
     authOnly.forEach(el => el.style.display = isLoggedIn ? 'flex' : 'none');
     guestOnly.forEach(el => el.style.display = isLoggedIn ? 'none' : '');
+    
+    // Admin-only elements
+    const showAdmin = isLoggedIn && (currentProfile?.is_admin || currentProfile?.is_moderator);
+    adminOnly.forEach(el => el.style.display = showAdmin ? '' : 'none');
     
     if (isLoggedIn) {
         const userNames = document.querySelectorAll('[data-user-name]');
@@ -777,6 +790,8 @@ window.SIREN = {
     updatePassword,
     getSession,
     isAuthenticated,
+    isAdmin,
+    isModerator,
     isAgeVerified,
     getCurrentUser,
     getCurrentProfile,
