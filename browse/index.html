@@ -5945,7 +5945,6 @@
             // Only play video if carousel is hovered
             const newVideo = slides[index].querySelector('video');
             if (newVideo && isCarouselHovered) {
-                newVideo.currentTime = 0;
                 newVideo.play();
             }
 
@@ -5969,7 +5968,6 @@
                 isCarouselHovered = true;
                 const currentVideo = slides[currentSlide].querySelector('video');
                 if (currentVideo) {
-                    currentVideo.currentTime = 0;
                     currentVideo.play();
                 }
             });
