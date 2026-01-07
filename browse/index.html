@@ -2884,7 +2884,26 @@
             inset: 0;
             border-radius: 8px;
             overflow: hidden;
-            background: #000;
+            background-color: #000;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+        }
+        
+        /* Card thumbnail image */
+        .card-thumb-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+        
+        /* Ensure inline background-image is preserved */
+        .card-thumbnail-inner[style*="background-image"] {
+            background-size: cover !important;
+            background-position: center !important;
         }
 
         .card-gradient {
@@ -5577,7 +5596,8 @@
                 // Performers keep the old layout with name
                 card.innerHTML = `
                     <div class="card-thumbnail">
-                        <div class="card-thumbnail-inner" style="background-image: url('${content.img}'); background-size: cover; background-position: center;">
+                        <div class="card-thumbnail-inner">
+                            <img src="${content.img}" alt="${performerNames[index % performerNames.length]}" class="card-thumb-img" loading="lazy">
                             <div class="card-gradient"></div>
                         </div>
                     </div>
@@ -5604,7 +5624,8 @@
                 card.innerHTML = `
                     <span class="top10-number">${rank}</span>
                     <div class="card-thumbnail">
-                        <div class="card-thumbnail-inner" style="background-image: url('${imgSrc}'); background-size: cover; background-position: center;">
+                        <div class="card-thumbnail-inner">
+                            <img src="${imgSrc}" alt="Top ${rank}" class="card-thumb-img" loading="lazy">
                             <div class="card-gradient"></div>
                             ${is3D ? `<div class="card-3d-badge">
                                 <svg viewBox="0 0 24 24">
@@ -5626,7 +5647,8 @@
                 // Content cards with real images and title logos
                 card.innerHTML = `
                     <div class="card-thumbnail">
-                        <div class="card-thumbnail-inner" style="background-image: url('${content.img}'); background-size: cover; background-position: center;">
+                        <div class="card-thumbnail-inner">
+                            <img src="${content.img}" alt="${content.title}" class="card-thumb-img" loading="lazy">
                             <div class="card-gradient"></div>
                             ${is3D ? `<div class="card-3d-badge">
                                 <svg viewBox="0 0 24 24">
@@ -7895,11 +7917,17 @@ document.addEventListener('click', (e) => {
         let cardImg = '../images/1.jpg';
         const activeCard = document.querySelector('.content-card:hover, .content-card.expanded');
         if (activeCard) {
-            const img = activeCard.querySelector('.card-thumbnail-inner');
-            if (img) {
-                const style = img.style.background;
-                const match = style.match(/url\(['"]?([^'"]+)['"]?\)/);
-                if (match) cardImg = match[1];
+            // Try img tag first, then fall back to background-image
+            const imgEl = activeCard.querySelector('.card-thumb-img');
+            if (imgEl && imgEl.src) {
+                cardImg = imgEl.src;
+            } else {
+                const thumbInner = activeCard.querySelector('.card-thumbnail-inner');
+                if (thumbInner) {
+                    const style = thumbInner.style.backgroundImage;
+                    const match = style.match(/url\(['"]?([^'"]+)['"]?\)/);
+                    if (match) cardImg = match[1];
+                }
             }
         }
         
@@ -8207,10 +8235,6 @@ function goToProfile(e) {
 
 <!-- Video Hover Play -->
 <style>
-.card-thumbnail-inner {
-    position: relative;
-    overflow: hidden;
-}
 .card-thumbnail-inner .hover-video {
     position: absolute;
     top: 0;
