@@ -1560,23 +1560,55 @@
 
         // Navigation - set up immediately
         function initNavigation() {
-            document.querySelectorAll('.nav-item').forEach(item => {
+            const navItems = document.querySelectorAll('.nav-item');
+            console.log('[DEBUG] Found nav items:', navItems.length);
+            
+            navItems.forEach((item, index) => {
+                console.log('[DEBUG] Nav item', index, ':', item.dataset.panel, item);
+                
+                // Check if already has listener
+                if (item.dataset.listenerAdded) {
+                    console.log('[DEBUG] Listener already added to', item.dataset.panel);
+                    return;
+                }
+                
+                item.dataset.listenerAdded = 'true';
+                
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     const panel = item.dataset.panel;
-                    console.log('Clicked panel:', panel);
+                    console.log('[DEBUG] Clicked panel:', panel);
                     if (panel) switchPanel(panel);
                 });
+                
+                // Also add mousedown to check if clicks are registering at all
+                item.addEventListener('mousedown', (e) => {
+                    console.log('[DEBUG] Mousedown on:', item.dataset.panel);
+                });
             });
-            console.log('Navigation initialized');
+            console.log('[DEBUG] Navigation initialized');
         }
         
         // Run when DOM is ready
         if (document.readyState === 'loading') {
+            console.log('[DEBUG] DOM still loading, waiting...');
             document.addEventListener('DOMContentLoaded', initNavigation);
         } else {
+            console.log('[DEBUG] DOM ready, initializing now');
             initNavigation();
         }
+        
+        // Also try again after a short delay just in case
+        setTimeout(() => {
+            console.log('[DEBUG] Delayed init check...');
+            const navItems = document.querySelectorAll('.nav-item');
+            const uninitializedItems = [...navItems].filter(item => !item.dataset.listenerAdded);
+            if (uninitializedItems.length > 0) {
+                console.log('[DEBUG] Found uninitialized items, re-running init');
+                initNavigation();
+            }
+        }, 500);
 
         function switchPanel(panelName) {
             console.log('Switching to panel:', panelName);
