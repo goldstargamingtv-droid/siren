@@ -67,20 +67,16 @@ function initAuthListener() {
         if (session?.user) {
             currentUser = session.user;
             
-            // Only load profile once, skip if already pending
+            // Show UI immediately for instant feel
+            updateUIForAuth(true);
+            
+            // Load profile in background for admin buttons
             if (!profileLoadPending && !currentProfile) {
                 profileLoadPending = true;
-                try {
-                    await loadUserProfile();
-                    updateUIForAuth(true);
-                } catch (e) {
-                    console.error('loadUserProfile failed:', e);
-                    updateUIForAuth(true); // Still show UI even if profile fails
-                } finally {
-                    profileLoadPending = false;
-                }
-            } else {
-                updateUIForAuth(true);
+                loadUserProfile()
+                    .then(() => updateUIForAuth(true)) // Update again to show admin buttons
+                    .catch(e => console.error('loadUserProfile failed:', e))
+                    .finally(() => profileLoadPending = false);
             }
         } else {
             currentUser = null;
@@ -93,23 +89,16 @@ function initAuthListener() {
     });
 }
 
-// Load user profile with timeout
+// Load user profile
 async function loadUserProfile() {
     if (!currentUser) return null;
     
     try {
-        // Add timeout to prevent hanging
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Profile load timeout')), 10000)
-        );
-        
-        const queryPromise = supabaseClient
+        const { data, error } = await supabaseClient
             .from('profiles')
             .select('*')
             .eq('id', currentUser.id)
             .single();
-        
-        const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
         
         if (error) {
             console.error('Error loading profile:', error);
