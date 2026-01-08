@@ -1421,15 +1421,16 @@
                 // Direct insert to waitlist table
                 const { data, error } = await supabaseClient
                     .from('waitlist')
-                    .upsert({ 
-                        email: email,
-                        source: 'coming-soon',
-                        referrer: document.referrer || null
-                    }, { 
-                        onConflict: 'email' 
-                    });
+                    .insert({ email: email });
                 
-                if (error) throw error;
+                if (error) {
+                    // If duplicate, still show success
+                    if (error.code === '23505') {
+                        // Already exists - that's fine
+                    } else {
+                        throw error;
+                    }
+                }
                 
                 // Show success state
                 emailForm.classList.add('success');
