@@ -1507,7 +1507,7 @@
                 }
                 
                 // Check if user is admin
-                const { data: profile, error } = await supabase
+                const { data: profile, error } = await supabaseClient
                     .from('profiles')
                     .select('is_admin, is_moderator, display_name, email')
                     .eq('id', session.user.id)
@@ -1703,7 +1703,7 @@
         }
 
         async function loadRecentWaitlist() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('waitlist')
                 .select('*')
                 .order('subscribed_at', { ascending: false })
@@ -1726,7 +1726,7 @@
 
         // Users
         async function loadUsers() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('profiles')
                 .select('*')
                 .order('created_at', { ascending: false });
@@ -1794,7 +1794,7 @@
 
         // Waitlist
         async function loadWaitlist() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('waitlist')
                 .select('*')
                 .order('subscribed_at', { ascending: false });
@@ -1843,7 +1843,7 @@
 
         // Performers
         async function loadPerformers() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('performers')
                 .select('*')
                 .order('created_at', { ascending: false });
@@ -1945,7 +1945,7 @@
 
         // Content
         async function loadContent() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('content')
                 .select('*')
                 .order('created_at', { ascending: false });
@@ -2055,7 +2055,7 @@
 
         // Categories
         async function loadCategories() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('categories')
                 .select('*')
                 .order('sort_order', { ascending: true });
@@ -2141,7 +2141,7 @@
 
         // Comments
         async function loadComments() {
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('comments')
                 .select('*, profiles(display_name, email)')
                 .order('created_at', { ascending: false })
