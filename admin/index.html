@@ -1797,7 +1797,7 @@
             const { data, error } = await supabaseClient
                 .from('waitlist')
                 .select('*')
-                .order('subscribed_at', { ascending: false });
+                .order('created_at', { ascending: false });
 
             const tbody = document.getElementById('waitlistTableBody');
             if (error || !data?.length) {
@@ -1809,7 +1809,7 @@
                 <tr>
                     <td>${w.email}</td>
                     <td>${w.source || 'website'}</td>
-                    <td>${new Date(w.subscribed_at).toLocaleDateString()}</td>
+                    <td>${new Date(w.created_at).toLocaleDateString()}</td>
                     <td class="actions-cell">
                         <button class="action-btn danger" onclick="deleteWaitlistEntry('${w.id}')" title="Delete">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -1829,7 +1829,7 @@
         }
 
         function exportWaitlist() {
-            supabaseClient.from('waitlist').select('email,source,subscribed_at').then(({ data }) => {
+            supabaseClient.from('waitlist').select('email,source,created_at').then(({ data }) => {
                 if (!data?.length) return showToast('No data to export', 'error');
                 const csv = 'Email,Source,Date\n' + data.map(w => `${w.email},${w.source},${w.subscribed_at}`).join('\n');
                 const blob = new Blob([csv], { type: 'text/csv' });
