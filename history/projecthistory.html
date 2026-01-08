@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIREN - Project History & Development Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #08080c;
+            --bg-secondary: #0a0a0f;
+            --bg-card: rgba(255, 255, 255, 0.02);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-glow: rgba(239, 68, 68, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --accent-green: #22c55e;
+            --accent-blue: #3b82f6;
+            --accent-purple: #a855f7;
+            --gradient-brand: linear-gradient(135deg, #ef4444, #f97316);
+            --gradient-glow: linear-gradient(180deg, rgba(239, 68, 68, 0.15), transparent);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ==========================================
+           COSMIC BACKGROUND
+           ========================================== */
+        .cosmic-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .cosmic-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(239, 68, 68, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(249, 115, 22, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.04) 0%, transparent 60%);
+            animation: cosmicDrift 30s ease-in-out infinite alternate;
+        }
+
+        @keyframes cosmicDrift {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-5%, -5%) rotate(3deg); }
+        }
+
+        .stars {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.4), transparent),
+                radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(1px 1px at 230px 80px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.15), transparent),
+                radial-gradient(1px 1px at 370px 50px, rgba(255,255,255,0.25), transparent),
+                radial-gradient(2px 2px at 450px 180px, rgba(255,255,255,0.2), transparent);
+            background-size: 500px 500px;
+            animation: twinkle 8s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* ==========================================
+           NAVIGATION
+           ========================================== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(8, 8, 12, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--accent-green);
+        }
+
+        .nav-status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* ==========================================
+           HERO SECTION
+           ========================================== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(249, 115, 22, 0.1) 30%, transparent 70%);
+            filter: blur(60px);
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero-badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .hero-title {
+            font-size: clamp(4rem, 12vw, 10rem);
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            line-height: 1;
+            margin-bottom: 1.5rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .hero-title-text {
+            background: linear-gradient(180deg, 
+                #fcd7a0 0%, 
+                #f97316 25%, 
+                #ef4444 50%, 
+                #dc2626 75%, 
+                #991b1b 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 4px 30px rgba(239, 68, 68, 0.3));
+        }
+
+        .hero-title::before {
+            content: 'SIREN';
+            position: absolute;
+            inset: 0;
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: blur(40px);
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero-tagline {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 4rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            opacity: 0;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        .scroll-indicator svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-muted);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* ==========================================
+           SECTIONS
+           ========================================== */
+        .section {
+            padding: 8rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--accent-orange);
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(249, 115, 22, 0.1);
+            border-radius: 100px;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==========================================
+           OVERVIEW CARDS
+           ========================================== */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .overview-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-brand);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .overview-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 60px rgba(239, 68, 68, 0.1);
+        }
+
+        .overview-card:hover::before {
+            opacity: 1;
+        }
+
+        .overview-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .overview-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .overview-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* ==========================================
+           TECH STACK
+           ========================================== */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .tech-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+        }
+
+        .tech-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .tech-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .tech-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ==========================================
+           TIMELINE
+           ========================================== */
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent-red), var(--accent-orange), var(--accent-purple), var(--accent-blue));
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            text-align: right;
+            padding-right: 4rem;
+            padding-left: 0;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            padding-left: 4rem;
+        }
+
+        .timeline-content {
+            flex: 1;
+            max-width: calc(50% - 2rem);
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: var(--bg-primary);
+            border: 3px solid var(--accent-red);
+            border-radius: 50%;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover .timeline-dot {
+            transform: translateX(-50%) scale(1.3);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .timeline-phase {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent-orange);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover .timeline-card {
+            border-color: var(--border-glow);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-features {
+            list-style: none;
+        }
+
+        .timeline-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .timeline-features li svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--accent-green);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* ==========================================
+           STATUS SECTION
+           ========================================== */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .status-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-card.complete {
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .status-card.pending {
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+
+        .status-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.complete {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent-green);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-badge.pending {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--accent-orange);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .status-list {
+            list-style: none;
+        }
+
+        .status-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .status-list li:last-child {
+            border-bottom: none;
+        }
+
+        .status-list li svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .status-list li svg.check {
+            stroke: var(--accent-green);
+        }
+
+        .status-list li svg.clock {
+            stroke: var(--accent-orange);
+        }
+
+        /* ==========================================
+           FILE STRUCTURE
+           ========================================== */
+        .file-tree {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 2rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        .file-tree pre {
+            margin: 0;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .file-tree .folder {
+            color: var(--accent-orange);
+        }
+
+        .file-tree .file {
+            color: var(--text-secondary);
+        }
+
+        .file-tree .comment {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ==========================================
+           URLS SECTION
+           ========================================== */
+        .urls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .url-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .url-card:hover {
+            border-color: var(--border-glow);
+            transform: translateX(8px);
+        }
+
+        .url-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-brand);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .url-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+        }
+
+        .url-info {
+            flex: 1;
+        }
+
+        .url-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .url-value {
+            font-weight: 600;
+            color: var(--text-primary);
+            word-break: break-all;
+        }
+
+        .url-arrow {
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .url-card:hover .url-arrow {
+            transform: translateX(4px);
+            color: var(--accent-orange);
+        }
+
+        /* ==========================================
+           PRICING TABLE
+           ========================================== */
+        .pricing-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .pricing-table th,
+        .pricing-table td {
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .pricing-table th {
+            background: rgba(255, 255, 255, 0.02);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .pricing-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .pricing-table .tier-name {
+            font-weight: 700;
+        }
+
+        .pricing-table .tier-name.popular {
+            color: var(--accent-orange);
+        }
+
+        .pricing-table .price {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* ==========================================
+           FOOTER
+           ========================================== */
+        .footer {
+            padding: 4rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-meta {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-meta-item {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .footer-meta-item strong {
+            color: var(--text-primary);
+        }
+
+        /* ==========================================
+           RESPONSIVE
+           ========================================== */
+        @media (max-width: 900px) {
+            .nav {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item,
+            .timeline-item:nth-child(odd) {
+                flex-direction: column;
+            }
+
+            .timeline-content,
+            .timeline-item:nth-child(odd) .timeline-content {
+                max-width: 100%;
+                padding-left: 4rem !important;
+                padding-right: 0 !important;
+                text-align: left !important;
+            }
+
+            .timeline-dot {
+                left: 20px;
+            }
+
+            .section {
+                padding: 4rem 1.5rem;
+            }
+        }
+
+        /* ==========================================
+           ANIMATIONS
+           ========================================== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+
+        .scale-in {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+    <!-- Cosmic Background -->
+    <div class="cosmic-bg">
+        <div class="stars"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-logo">SIREN</div>
+        <ul class="nav-links">
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#timeline">Timeline</a></li>
+            <li><a href="#status">Status</a></li>
+            <li><a href="#structure">Structure</a></li>
+        </ul>
+        <div class="nav-status">Demo Ready</div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-glow"></div>
+        
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            Project Development History
+        </div>
+        
+        <h1 class="hero-title">
+            <span class="hero-title-text">SIREN</span>
+        </h1>
+        
+        <p class="hero-subtitle">Adult Entertainment Streaming Platform</p>
+        <p class="hero-tagline">4D Gaussian Splatting Technology • Premium Netflix-Style Experience</p>
+        
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="hero-stat-value">6</div>
+                <div class="hero-stat-label">Days of Development</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">9</div>
+                <div class="hero-stat-label">Major Phases</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">17+</div>
+                <div class="hero-stat-label">Database Tables</div>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">
+            <span>Scroll to explore</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section class="section" id="overview">
+        <div class="section-header">
+            <span class="section-label">Project Overview</span>
+            <h2 class="section-title">What We Built</h2>
+            <p class="section-subtitle">A complete streaming platform from scratch, ready for investor demo in Vegas</p>
+        </div>
+
+        <div class="overview-grid">
+            <div class="overview-card fade-in">
+                <div class="overview-icon">🎬</div>
+                <h3 class="overview-title">Netflix-Style Interface</h3>
+                <p class="overview-desc">Premium browse experience with hero carousel, horizontal scrolling rows, expanding cards on hover, and smooth GSAP animations throughout.</p>
+            </div>
+            <div class="overview-card fade-in">
+                <div class="overview-icon">🔐</div>
+                <h3 class="overview-title">Complete Auth System</h3>
+                <p class="overview-desc">Supabase-powered authentication with signup, login, profile management, and Row Level Security policies protecting all user data.</p>
+            </div>
+            <div class="overview-card fade-in">
+                <div class="overview-icon">🎮</div>
+                <h3 class="overview-title">Immersive 3D Viewer</h3>
+                <p class="overview-desc">Gaussian Splat viewer ready for 4D volumetric content, plus multi-angle video player supporting 8 synchronized camera angles.</p>
+            </div>
+            <div class="overview-card fade-in">
+                <div class="overview-icon">⚖️</div>
+                <h3 class="overview-title">Legal & Compliant</h3>
+                <p class="overview-desc">8 legal pages including Terms, Privacy, 2257 Compliance, DMCA - all CCBill-ready. GDPR/CCPA cookie consent system.</p>
+            </div>
+            <div class="overview-card fade-in">
+                <div class="overview-icon">🚀</div>
+                <h3 class="overview-title">Auto-Deploy Pipeline</h3>
+                <p class="overview-desc">GitHub Actions workflow automatically deploys to Vicetemple hosting on every push. Professional CI/CD setup.</p>
+            </div>
+            <div class="overview-card fade-in">
+                <div class="overview-icon">💳</div>
+                <h3 class="overview-title">Pricing & Checkout</h3>
+                <p class="overview-desc">3-tier subscription model with monthly/yearly toggle, premium content indicators, and checkout flow ready for CCBill integration.</p>
+            </div>
+        </div>
+
+        <div class="tech-stack">
+            <div class="tech-item">
+                <div class="tech-icon">⚡</div>
+                <div>
+                    <div class="tech-name">Vanilla JS + GSAP</div>
+                    <div class="tech-desc">Frontend</div>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🗄️</div>
+                <div>
+                    <div class="tech-name">Supabase</div>
+                    <div class="tech-desc">Auth & Database</div>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🎥</div>
+                <div>
+                    <div class="tech-name">Bunny.net</div>
+                    <div class="tech-desc">Video CDN</div>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">💰</div>
+                <div>
+                    <div class="tech-name">CCBill</div>
+                    <div class="tech-desc">Payments</div>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🏠</div>
+                <div>
+                    <div class="tech-name">Vicetemple</div>
+                    <div class="tech-desc">Hosting</div>
+                </div>
+            </div>
+            <div class="tech-item">
+                <div class="tech-icon">🌐</div>
+                <div>
+                    <div class="tech-name">gsplat.js</div>
+                    <div class="tech-desc">3D Viewer</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section class="section" id="timeline">
+        <div class="section-header">
+            <span class="section-label">Development Timeline</span>
+            <h2 class="section-title">The Journey</h2>
+            <p class="section-subtitle">From concept to demo-ready in 6 days</p>
+        </div>
+
+        <div class="timeline">
+            <!-- Phase 1 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-phase">Phase 1 • Jan 3-4</span>
+                    <h3 class="timeline-title">Foundation & UI Design</h3>
+                    <div class="timeline-card">
+                        <ul class="timeline-features">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Floating glassmorphism menu bubble with GSAP animations
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Netflix-style browse page with hero carousel
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Color palette refinement (pink → red/orange)
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Age verification gate
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 2 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-phase">Phase 2 • Jan 4-5</span>
+                    <h3 class="timeline-title">Authentication System</h3>
+                    <div class="timeline-card">
+                        <ul class="timeline-features">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Full Supabase auth (signup, login, logout)
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                17+ database tables with RLS policies
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Account management with tabbed settings
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Auth bug fixes (race conditions, timeouts)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 3 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-phase">Phase 3 • Jan 6</span>
+                    <h3 class="timeline-title">Hosting & Deployment</h3>
+                    <div class="timeline-card">
+                        <ul class="timeline-features">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Vicetemple setup with dedicated IP
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                viewsiren.com domain configuration
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                GitHub Actions CI/CD pipeline
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                SSL certificate installation
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 4 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-phase">Phase 4 • Jan 5-6</span>
+                    <h3 class="timeline-title">Content & Features</h3>
+                    <div class="timeline-card">
+                        <ul class="timeline-features">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Custom video player with branding
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                8-angle synchronized video player
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                3D Gaussian Splat viewer (Three.js)
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                4D pipeline planning with Luma AI
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 5 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-phase">Phase 5 • Jan 6-7</span>
+                    <h3 class="timeline-title">Legal & Compliance</h3>
+                    <div class="timeline-card">
+                        <ul class="timeline-features">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                8 legal pages (Terms, Privacy, 2257, DMCA, etc.)
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                GDPR/CCPA cookie consent system
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                CCBill-ready documentation
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                VR setup guide for headsets
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 6 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-phase">Phase 6 • Jan 6-7</span>
+                    <h3 class="timeline-title">Marketing & SEO</h3>
+                    <div class="timeline-card">
+                        <ul class="timeline-features">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Stunning coming soon page
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Email waitlist with Supabase
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Google Search Console setup
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                robots.txt + sitemap.xml
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 7 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-phase">Phase 7 • Jan 7</span>
+                    <h3 class="timeline-title">Admin Panel</h3>
+                    <div class="timeline-card">
+                        <ul class="timeline-features">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Dashboard with stats overview
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                User management (view, edit, ban)
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Content & performer placeholders
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Admin-only access control
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 8 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-phase">Phase 8 • Jan 7-8</span>
+                    <h3 class="timeline-title">Polish & Bug Fixes</h3>
+                    <div class="timeline-card">
+                        <ul class="timeline-features">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Video preview on card hover
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Security audit (RLS on all 17 tables)
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Sidebar animation CSS fallbacks
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                UptimeRobot monitoring setup
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 9 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-phase">Phase 9 • Jan 8</span>
+                    <h3 class="timeline-title">Pricing & Checkout</h3>
+                    <div class="timeline-card">
+                        <ul class="timeline-features">
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                3-tier subscription model
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Monthly/yearly toggle (40% savings)
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Premium lock icons on content
+                            </li>
+                            <li>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Checkout flow (CCBill placeholder)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Status Section -->
+    <section class="section" id="status">
+        <div class="section-header">
+            <span class="section-label">Current Status</span>
+            <h2 class="section-title">Where We Stand</h2>
+            <p class="section-subtitle">Demo ready for Vegas investor meeting - January 10, 2026</p>
+        </div>
+
+        <div class="status-grid">
+            <div class="status-card complete fade-in">
+                <div class="status-card-header">
+                    <h3 class="status-card-title">✅ Complete</h3>
+                    <span class="status-badge complete">Ready</span>
+                </div>
+                <ul class="status-list">
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Landing page with age gate</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Coming soon page with waitlist</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Netflix-style browse page</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Video player + multi-angle</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> 3D splat viewer</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Full authentication system</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Account management</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Admin panel</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> All 8 legal pages</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Cookie consent (GDPR/CCPA)</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> SEO & sitemap</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Auto-deploy pipeline</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> SSL certificate</li>
+                    <li><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Pricing UI (3 tiers)</li>
+                </ul>
+            </div>
+
+            <div class="status-card pending fade-in">
+                <div class="status-card-header">
+                    <h3 class="status-card-title">⏳ Pending</h3>
+                    <span class="status-badge pending">Waiting</span>
+                </div>
+                <ul class="status-list">
+                    <li><svg class="clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> CCBill API integration</li>
+                    <li><svg class="clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Business address (waiting on investor)</li>
+                    <li><svg class="clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> LLC documentation</li>
+                    <li><svg class="clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Actual video content</li>
+                    <li><svg class="clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 4D Gaussian Splat content</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Pricing Table -->
+        <div style="margin-top: 4rem;">
+            <h3 style="text-align: center; font-size: 1.5rem; margin-bottom: 2rem;">Subscription Tiers</h3>
+	    <p style="text-align: center; font-style: italic; color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-top: -1.5rem; margin-bottom: 2rem;">Placeholder pricing for demo purposes - subject to change</p>
+            <table class="pricing-table">
+                <thead>
+                    <tr>
+                        <th>Tier</th>
+                        <th>Monthly</th>
+                        <th>Yearly (per mo)</th>
+                        <th>Features</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="tier-name">Basic</td>
+                        <td class="price">$9</td>
+                        <td class="price">$5</td>
+                        <td>HD, Standard library, 1 device</td>
+                    </tr>
+                    <tr>
+                        <td class="tier-name popular">Premium ⭐</td>
+                        <td class="price">$19</td>
+                        <td class="price">$11</td>
+                        <td>4K, Full library, 3 devices, VR & 360°</td>
+                    </tr>
+                    <tr>
+                        <td class="tier-name">VIP</td>
+                        <td class="price">$29</td>
+                        <td class="price">$17</td>
+                        <td>Everything + Priority, 5 devices, Downloads</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- URLs Section -->
+    <section class="section">
+        <div class="section-header">
+            <span class="section-label">Live URLs</span>
+            <h2 class="section-title">Access Points</h2>
+            <p class="section-subtitle">Where to find everything</p>
+        </div>
+
+        <div class="urls-grid">
+            <a href="https://viewsiren.com" target="_blank" class="url-card fade-in">
+                <div class="url-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                </div>
+                <div class="url-info">
+                    <div class="url-label">Public Site</div>
+                    <div class="url-value">viewsiren.com</div>
+                </div>
+                <span class="url-arrow">→</span>
+            </a>
+            <a href="https://viewsiren.com/beta-k9x2m7p/" target="_blank" class="url-card fade-in">
+                <div class="url-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </div>
+                <div class="url-info">
+                    <div class="url-label">Beta Site (Team Only)</div>
+                    <div class="url-value">viewsiren.com/beta-k9x2m7p/</div>
+                </div>
+                <span class="url-arrow">→</span>
+            </a>
+            <a href="https://viewsiren.com/beta-k9x2m7p/admin/" target="_blank" class="url-card fade-in">
+                <div class="url-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <div class="url-info">
+                    <div class="url-label">Admin Panel</div>
+                    <div class="url-value">viewsiren.com/beta-k9x2m7p/admin/</div>
+                </div>
+                <span class="url-arrow">→</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- File Structure Section -->
+    <section class="section" id="structure">
+        <div class="section-header">
+            <span class="section-label">Repository</span>
+            <h2 class="section-title">Project Structure</h2>
+            <p class="section-subtitle">How the codebase is organized</p>
+        </div>
+
+        <div class="file-tree fade-in">
+            <pre>
+<span class="folder">siren-main/</span>
+├── <span class="folder">coming-soon/</span>           <span class="comment">→ viewsiren.com/ (LIVE)</span>
+│   ├── index.html         <span class="comment"># Coming soon page</span>
+│   ├── <span class="folder">legal/</span>             <span class="comment"># All 8 legal pages</span>
+│   │   ├── terms/
+│   │   ├── privacy/
+│   │   ├── 2257/
+│   │   ├── dmca/
+│   │   ├── cookies/
+│   │   ├── refund/
+│   │   ├── contact/
+│   │   └── complaints/
+│   ├── <span class="folder">support/</span>
+│   │   └── vr-setup/      <span class="comment"># VR setup guide</span>
+│   ├── robots.txt
+│   └── sitemap.xml
+│
+├── index.html             <span class="comment">→ beta/index.html (age gate + landing)</span>
+├── <span class="folder">browse/</span>                <span class="comment">→ beta/browse/ (main app)</span>
+├── <span class="folder">watch/</span>                 <span class="comment">→ beta/watch/ (video player)</span>
+├── <span class="folder">multiangle/</span>            <span class="comment">→ beta/multiangle/ (8-angle player)</span>
+├── <span class="folder">performer/</span>             <span class="comment">→ beta/performer/ (profiles)</span>
+├── <span class="folder">categories/</span>            <span class="comment">→ beta/categories/ (filtering)</span>
+├── <span class="folder">account/</span>               <span class="comment">→ beta/account/ (settings)</span>
+├── <span class="folder">admin/</span>                 <span class="comment">→ beta/admin/ (admin panel)</span>
+│
+├── <span class="folder">js/</span>
+│   ├── supabase-client.js <span class="comment"># Supabase initialization</span>
+│   ├── auth-modal.js      <span class="comment"># Authentication UI</span>
+│   └── mobile.js          <span class="comment"># Mobile optimizations</span>
+│
+├── <span class="folder">sql/</span>                   <span class="comment"># Database migrations</span>
+├── <span class="folder">images/</span>                <span class="comment"># Site assets</span>
+├── <span class="folder">favicon/</span>               <span class="comment"># Favicon files</span>
+│
+├── <span class="folder">.github/</span>
+│   └── <span class="folder">workflows/</span>
+│       └── deploy.yml     <span class="comment"># Auto-deploy to Vicetemple</span>
+│
+└── ROADMAP.md
+            </pre>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-logo">SIREN</div>
+        <p class="footer-text">Adult Entertainment Streaming Platform • 4D Gaussian Splatting Technology</p>
+        <div class="footer-meta">
+            <div class="footer-meta-item"><strong>Domain:</strong> viewsiren.com</div>
+            <div class="footer-meta-item"><strong>Server:</strong> 185.235.177.36</div>
+            <div class="footer-meta-item"><strong>Support:</strong> support@viewsiren.com</div>
+        </div>
+        <p style="margin-top: 2rem; color: var(--text-muted); font-size: 0.85rem;">
+            Last Updated: January 8, 2026 • Prepared for Vegas Investor Demo
+        </p>
+    </footer>
+
+    <!-- GSAP Animations -->
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Nav animation
+        gsap.to('.nav', {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            delay: 0.5,
+            ease: 'power3.out'
+        });
+
+        // Hero animations
+        const heroTl = gsap.timeline({ delay: 0.3 });
+        
+        heroTl
+            .to('.hero-glow', { opacity: 1, duration: 1.5, ease: 'power2.out' })
+            .to('.hero-badge', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=1')
+            .to('.hero-title', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.4')
+            .to('.hero-subtitle', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.4')
+            .to('.hero-tagline', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.4')
+            .to('.hero-stats', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.3')
+            .to('.scroll-indicator', { opacity: 1, duration: 0.6, ease: 'power3.out' }, '-=0.2');
+
+        // Scroll-triggered animations
+        gsap.utils.toArray('.fade-in').forEach(el => {
+            gsap.to(el, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: el,
+                    start: 'top 85%',
+                    toggleActions: 'play none none none'
+                }
+            });
+        });
+
+        // Timeline items
+        gsap.utils.toArray('.timeline-item').forEach((item, i) => {
+            const direction = i % 2 === 0 ? 50 : -50;
+            gsap.from(item.querySelector('.timeline-content'), {
+                x: direction,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 80%',
+                    toggleActions: 'play none none none'
+                }
+            });
+        });
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Parallax effect on hero glow
+        document.addEventListener('mousemove', e => {
+            const glow = document.querySelector('.hero-glow');
+            const x = (e.clientX / window.innerWidth - 0.5) * 30;
+            const y = (e.clientY / window.innerHeight - 0.5) * 30;
+            gsap.to(glow, { x, y, duration: 1, ease: 'power2.out' });
+        });
+    </script>
+</body>
+</html>

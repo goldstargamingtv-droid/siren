@@ -2254,6 +2254,264 @@
         }
 
         /* ==========================================
+           PRICING SECTION
+           ========================================== */
+        .pricing-section {
+            padding: 8rem 3rem;
+            background: #0a0a0a;
+            position: relative;
+        }
+
+        .pricing-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.3), transparent);
+        }
+
+        .pricing-toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .pricing-toggle-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.3s ease;
+        }
+
+        .pricing-toggle-label.active {
+            color: #fff;
+        }
+
+        .pricing-save-badge {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .pricing-toggle {
+            position: relative;
+            width: 56px;
+            height: 30px;
+        }
+
+        .pricing-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .pricing-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .pricing-toggle input:checked + .pricing-toggle-slider {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+        }
+
+        .pricing-toggle input:checked + .pricing-toggle-slider::before {
+            transform: translateX(26px);
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .pricing-card.featured {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.3);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-4px);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .pricing-popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            padding: 0.4rem 1.25rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        .pricing-card-header {
+            text-align: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-tier-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .pricing-price {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .pricing-currency {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .pricing-amount {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .pricing-period {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .pricing-billed {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 0.5rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem 0;
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .pricing-features li svg {
+            width: 20px;
+            height: 20px;
+            stroke: #22c55e;
+            stroke-width: 2.5;
+            fill: none;
+            flex-shrink: 0;
+        }
+
+        .pricing-features li.disabled {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .pricing-features li.disabled svg {
+            stroke: rgba(255, 255, 255, 0.2);
+        }
+
+        .pricing-cta {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-cta:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .pricing-cta-featured {
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            border: none;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.35);
+        }
+
+        .pricing-cta-featured:hover {
+            box-shadow: 0 8px 30px rgba(239, 68, 68, 0.45);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 900px) {
+            .pricing-cards {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+            }
+
+            .pricing-card.featured {
+                transform: none;
+                order: -1;
+            }
+
+            .pricing-card.featured:hover {
+                transform: translateY(-4px);
+            }
+        }
+
+        /* ==========================================
            CTA SECTION
            ========================================== */
         .cta-section {
@@ -5013,6 +5271,95 @@
             </div>
         </section>
 
+    <!-- Pricing Section -->
+        <section class="pricing-section" id="pricing" aria-labelledby="pricing-title">
+            <div class="section-header">
+                <span class="section-label">Simple Pricing</span>
+                <h2 id="pricing-title" class="section-title">Choose Your Experience</h2>
+                <p class="section-subtitle">
+                    No hidden fees. Cancel anytime. Start with a free trial.
+                </p>
+            </div>
+
+            <div class="pricing-toggle-container">
+                <span class="pricing-toggle-label active" data-period="monthly">Monthly</span>
+                <label class="pricing-toggle">
+                    <input type="checkbox" id="pricingToggle">
+                    <span class="pricing-toggle-slider"></span>
+                </label>
+                <span class="pricing-toggle-label" data-period="yearly">
+                    Yearly
+                    <span class="pricing-save-badge">Save 40%</span>
+                </span>
+            </div>
+
+            <div class="pricing-cards">
+                <!-- Basic -->
+                <div class="pricing-card" data-tier="basic">
+                    <div class="pricing-card-header">
+                        <h3 class="pricing-tier-name">Basic</h3>
+                        <div class="pricing-price">
+                            <span class="pricing-currency">$</span>
+                            <span class="pricing-amount" data-monthly="9" data-yearly="5">9</span>
+                            <span class="pricing-period">/mo</span>
+                        </div>
+                        <div class="pricing-billed">Billed <span class="billed-text">monthly</span></div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> HD streaming</li>
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Standard library access</li>
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Watch on 1 device</li>
+                        <li class="disabled"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg> 4K Ultra HD</li>
+                        <li class="disabled"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg> VR & 360° content</li>
+                    </ul>
+                    <button class="pricing-cta" onclick="openAuthModal('signup')">Start Free Trial</button>
+                </div>
+
+                <!-- Premium -->
+                <div class="pricing-card featured" data-tier="premium">
+                    <div class="pricing-popular-badge">Most Popular</div>
+                    <div class="pricing-card-header">
+                        <h3 class="pricing-tier-name">Premium</h3>
+                        <div class="pricing-price">
+                            <span class="pricing-currency">$</span>
+                            <span class="pricing-amount" data-monthly="19" data-yearly="11">19</span>
+                            <span class="pricing-period">/mo</span>
+                        </div>
+                        <div class="pricing-billed">Billed <span class="billed-text">monthly</span></div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> 4K Ultra HD streaming</li>
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Full library + exclusives</li>
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Watch on 3 devices</li>
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> VR & 360° content</li>
+                        <li class="disabled"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg> Priority new releases</li>
+                    </ul>
+                    <button class="pricing-cta pricing-cta-featured" onclick="openAuthModal('signup')">Start Free Trial</button>
+                </div>
+
+                <!-- VIP -->
+                <div class="pricing-card" data-tier="vip">
+                    <div class="pricing-card-header">
+                        <h3 class="pricing-tier-name">VIP</h3>
+                        <div class="pricing-price">
+                            <span class="pricing-currency">$</span>
+                            <span class="pricing-amount" data-monthly="29" data-yearly="17">29</span>
+                            <span class="pricing-period">/mo</span>
+                        </div>
+                        <div class="pricing-billed">Billed <span class="billed-text">monthly</span></div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Everything in Premium</li>
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Priority new releases</li>
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Watch on 5 devices</li>
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Exclusive VIP content</li>
+                        <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Download for offline</li>
+                    </ul>
+                    <button class="pricing-cta" onclick="openAuthModal('signup')">Start Free Trial</button>
+                </div>
+            </div>
+        </section>
+
     <!-- CTA Section -->
         <section class="cta-section" aria-labelledby="cta-title">
             <div class="cta-bg" aria-hidden="true"></div>
@@ -5429,6 +5776,11 @@
                 
                 document.body.classList.remove('age-gate-active');
                 console.log('[SIREN] Removed age-gate-active from body');
+                
+                // Now show cookie consent after age verification
+                if (typeof CookieConsent !== 'undefined') {
+                    CookieConsent.init();
+                }
                 
                 // Check auth state
                 if (typeof supabaseClient !== 'undefined' && supabaseClient) {
@@ -6366,11 +6718,45 @@ const CookieConsent = {
     isEnabled(category) { return this.preferences[category] === true; }
 };
 
-// Initialize cookie consent
+// Initialize cookie consent - only after age verification
+function initCookieConsentIfVerified() {
+    const ageVerified = localStorage.getItem('siren_age_verified') === 'true';
+    if (ageVerified) {
+        CookieConsent.init();
+    }
+}
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => CookieConsent.init());
+    document.addEventListener('DOMContentLoaded', () => initCookieConsentIfVerified());
 } else {
-    CookieConsent.init();
+    initCookieConsentIfVerified();
+}
+
+// Pricing Toggle
+const pricingToggle = document.getElementById('pricingToggle');
+if (pricingToggle) {
+    pricingToggle.addEventListener('change', function() {
+        const isYearly = this.checked;
+        
+        // Update toggle labels
+        document.querySelectorAll('.pricing-toggle-label').forEach(label => {
+            label.classList.remove('active');
+            if ((isYearly && label.dataset.period === 'yearly') || 
+                (!isYearly && label.dataset.period === 'monthly')) {
+                label.classList.add('active');
+            }
+        });
+        
+        // Update prices
+        document.querySelectorAll('.pricing-amount').forEach(el => {
+            el.textContent = isYearly ? el.dataset.yearly : el.dataset.monthly;
+        });
+        
+        // Update billed text
+        document.querySelectorAll('.billed-text').forEach(el => {
+            el.textContent = isYearly ? 'yearly' : 'monthly';
+        });
+    });
 }
 </script>
 </body>
