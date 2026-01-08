@@ -2786,13 +2786,10 @@
             align-items: center;
             gap: 0.5rem;
             font-family: inherit;
-            opacity: 0;
         }
 
         .age-btn-primary {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.7), rgba(249, 115, 22, 0.7));
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            background: linear-gradient(135deg, #ef4444, #f97316);
             color: white;
             box-shadow: 0 4px 24px rgba(239, 68, 68, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
             position: relative;
@@ -4050,8 +4047,8 @@
                 <h2>Access Beyond This Page is Restricted to Adults<br><span style="font-size: 1.3em;">(18+) Only</span></h2>
                 <p>This website contains age-restricted content including nudity and explicit material. By entering, you affirm that you are at least 18 years of age, or the age of majority in the jurisdiction you are accessing the Website from, and you consent to viewing such content.</p>
                 <div class="age-buttons">
-                    <a href="https://google.com" class="age-btn" style="display:inline-flex;align-items:center;justify-content:center;padding:1rem 2.5rem;border-radius:0.75rem;font-weight:600;font-size:0.95rem;text-decoration:none;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#a1a1aa;opacity:1;pointer-events:auto;cursor:pointer;">Exit Here</a>
-                    <a href="#" onclick="enterSite(); return false;" class="age-btn" style="display:inline-flex;align-items:center;justify-content:center;padding:1rem 2.5rem;border-radius:0.75rem;font-weight:600;font-size:0.95rem;text-decoration:none;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;opacity:1;pointer-events:auto;cursor:pointer;">Enter</a>
+                    <a href="https://google.com" class="age-btn age-btn-secondary">Exit Here</a>
+                    <a href="#" onclick="enterSite(); return false;" class="age-btn age-btn-primary">Enter</a>
                 </div>
             </div>
             <div class="age-gate-terms">
