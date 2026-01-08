@@ -1418,33 +1418,27 @@
             submitBtn.textContent = 'Joining...';
             
             try {
-                // Call the join_waitlist function
-                const { data, error } = await supabaseClient.rpc('join_waitlist', {
-                    p_email: email,
-                    p_source: 'coming-soon',
-                    p_referrer: document.referrer || null
-                });
+                // Direct insert to waitlist table
+                const { data, error } = await supabaseClient
+                    .from('waitlist')
+                    .upsert({ 
+                        email: email,
+                        source: 'coming-soon',
+                        referrer: document.referrer || null
+                    }, { 
+                        onConflict: 'email' 
+                    });
                 
                 if (error) throw error;
                 
-                if (data.success) {
-                    // Show success state
-                    emailForm.classList.add('success');
-                    
-                    // Animate success
-                    gsap.fromTo('.success-message', 
-                        { opacity: 0, y: 20 },
-                        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
-                    );
-                    
-                    // Update message if already subscribed
-                    if (data.message === 'already_subscribed') {
-                        document.querySelector('.success-message span').textContent = 
-                            "You're already on the list! We'll be in touch soon.";
-                    }
-                } else {
-                    throw new Error(data.message || 'Failed to join waitlist');
-                }
+                // Show success state
+                emailForm.classList.add('success');
+                
+                // Animate success
+                gsap.fromTo('.success-message', 
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+                );
                 
             } catch (err) {
                 console.error('Waitlist error:', err);
