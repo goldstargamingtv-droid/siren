@@ -1492,9 +1492,9 @@
 
     <script>
         // Supabase Setup
-        const SUPABASE_URL = 'https://tzxbhrrhgahvcfkokdti.supabaseClient.co';
+        const SUPABASE_URL = 'https://tzxbhrrhgahvcfkokdti.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6eGJocnJoZ2FodmNma29rZHRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NTQyMzIsImV4cCI6MjA4MzMzMDIzMn0.8RBvwLlT-uj3NUi4zWI5cOXPUC_YnyFme_cpv7RiI5Y';
-        const supabaseClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Check Auth and Admin Status
         async function checkAuth() {
