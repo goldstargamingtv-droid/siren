@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4D Gaussian Splatting | SIREN Tech Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --siren-red: #e63946;
+            --siren-orange: #f77f00;
+            --siren-gradient: linear-gradient(135deg, #e63946 0%, #f77f00 100%);
+            --dark-bg: #0a0a0b;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Ambient background */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: var(--siren-red);
+            top: -200px;
+            right: -200px;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--siren-orange);
+            bottom: -100px;
+            left: -100px;
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .logo {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: var(--siren-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+            opacity: 0;
+        }
+
+        .title {
+            font-size: clamp(36px, 6vw, 56px);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            opacity: 0;
+        }
+
+        .title span {
+            background: var(--siren-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+            opacity: 0;
+        }
+
+        /* Problem/Solution Section */
+        .core-concept {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 60px;
+            backdrop-filter: blur(20px);
+            opacity: 0;
+        }
+
+        .concept-header {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--siren-orange);
+            margin-bottom: 16px;
+        }
+
+        .concept-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .concept-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .flow-box {
+            background: rgba(230, 57, 70, 0.1);
+            border: 1px solid rgba(230, 57, 70, 0.3);
+            border-radius: 12px;
+            padding: 16px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: var(--siren-orange);
+        }
+
+        /* What is a Gaussian Section */
+        .gaussian-explainer {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 60px;
+            backdrop-filter: blur(20px);
+            opacity: 0;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .comparison-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .comparison-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .comparison-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Training Loop */
+        .training-loop {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 60px;
+            backdrop-filter: blur(20px);
+            opacity: 0;
+        }
+
+        .loop-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+
+        .loop-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .loop-step:hover {
+            background: rgba(247, 127, 0, 0.1);
+            transform: translateX(8px);
+        }
+
+        .step-num {
+            background: var(--siren-gradient);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Innovation Section */
+        .innovation-section {
+            margin-bottom: 60px;
+            opacity: 0;
+        }
+
+        .section-header {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--siren-orange);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .opportunity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .opportunity-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 28px;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .opportunity-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(230, 57, 70, 0.4);
+            box-shadow: 0 20px 40px rgba(230, 57, 70, 0.1);
+        }
+
+        .opp-num {
+            font-size: 48px;
+            font-weight: 700;
+            background: var(--siren-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0.3;
+            margin-bottom: 8px;
+        }
+
+        .opp-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .opp-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Deep Dive Navigation */
+        .deep-dive-section {
+            margin-bottom: 60px;
+            opacity: 0;
+        }
+
+        .path-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .path-card {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(20px);
+            text-decoration: none;
+            color: inherit;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .path-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--siren-gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .path-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(230, 57, 70, 0.4);
+            box-shadow: 0 24px 48px rgba(230, 57, 70, 0.15);
+        }
+
+        .path-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .path-letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: var(--siren-gradient);
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .path-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .path-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .path-topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .topic-tag {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            color: var(--text-muted);
+        }
+
+        .path-arrow {
+            position: absolute;
+            bottom: 28px;
+            right: 28px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .path-card:hover .path-arrow {
+            background: var(--siren-gradient);
+            transform: translateX(4px);
+        }
+
+        .path-arrow svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--text-secondary);
+            transition: stroke 0.3s ease;
+        }
+
+        .path-card:hover .path-arrow svg {
+            stroke: white;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid var(--card-border);
+            opacity: 0;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--siren-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            .core-concept,
+            .gaussian-explainer,
+            .training-loop {
+                padding: 28px;
+            }
+
+            .path-card {
+                padding: 24px;
+            }
+
+            .concept-flow {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">SIREN Tech Guide</div>
+            <h1 class="title">Understanding <span>4D Gaussian Splatting</span></h1>
+            <p class="subtitle">From multi-camera capture to real-time 3D experiences. A technical deep-dive for the team.</p>
+        </header>
+
+        <!-- Core Problem -->
+        <section class="core-concept">
+            <div class="concept-header">The Core Problem</div>
+            <h2 class="concept-title">What We're Actually Building</h2>
+            <p style="color: var(--text-secondary); line-height: 1.6;">
+                We're taking synchronized video from 8+ cameras and converting it into a dynamic 3D representation that users can explore from <strong style="color: white;">any angle</strong> in real-time.
+            </p>
+            <div class="concept-flow">
+                <div class="flow-box">8+ Camera Angles</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box">4DGS Processing</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box">Infinite Viewpoints</div>
+            </div>
+            <p style="color: var(--text-muted); font-size: 14px; text-align: center;">
+                The magic: going from <strong>discrete viewpoints</strong> → <strong>continuous 3D space</strong>
+            </p>
+        </section>
+
+        <!-- What is a Gaussian -->
+        <section class="gaussian-explainer">
+            <div class="concept-header">Mental Model</div>
+            <h2 class="concept-title">What IS a Gaussian Splat?</h2>
+            <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                Imagine a cloud of millions of <strong style="color: white;">fuzzy colored blobs</strong> floating in 3D space. Each blob has position, size, shape, color, and transparency. When rendered from any angle, these blobs align to recreate what the cameras saw.
+            </p>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div class="comparison-label">Traditional 3D</div>
+                    <div class="comparison-value">Polygons → Hard edges</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-label">NeRF</div>
+                    <div class="comparison-value">Neural Network → Slow</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-label">Gaussian Splats</div>
+                    <div class="comparison-value">Point Cloud → Fast ✓</div>
+                </div>
+            </div>
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 20px;">
+                <strong style="color: var(--siren-orange);">The breakthrough:</strong> Gaussians are differentiable—you can use gradient descent to optimize millions of blob parameters until they match your camera images.
+            </p>
+        </section>
+
+        <!-- Training Loop -->
+        <section class="training-loop">
+            <div class="concept-header">Demystified</div>
+            <h2 class="concept-title">The Training Loop</h2>
+            <p style="color: var(--text-secondary); line-height: 1.6;">
+                That's the whole algorithm. Everything else is optimization tricks.
+            </p>
+            <div class="loop-steps">
+                <div class="loop-step">
+                    <span class="step-num">0</span>
+                    <span class="step-text"><strong>START:</strong> Random fuzzy blobs scattered in space</span>
+                </div>
+                <div class="loop-step">
+                    <span class="step-num">1</span>
+                    <span class="step-text">Pick a camera viewpoint</span>
+                </div>
+                <div class="loop-step">
+                    <span class="step-num">2</span>
+                    <span class="step-text">Render what the blobs would look like from there</span>
+                </div>
+                <div class="loop-step">
+                    <span class="step-num">3</span>
+                    <span class="step-text">Compare to the ACTUAL photo from that camera</span>
+                </div>
+                <div class="loop-step">
+                    <span class="step-num">4</span>
+                    <span class="step-text">Calculate error (difference between render and photo)</span>
+                </div>
+                <div class="loop-step">
+                    <span class="step-num">5</span>
+                    <span class="step-text">Adjust blob positions/colors/sizes to reduce error</span>
+                </div>
+                <div class="loop-step">
+                    <span class="step-num">6</span>
+                    <span class="step-text">Repeat 7,000-30,000 times</span>
+                </div>
+                <div class="loop-step">
+                    <span class="step-num">✓</span>
+                    <span class="step-text"><strong>END:</strong> Blobs now arranged to perfectly recreate the scene</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Innovation Opportunities -->
+        <section class="innovation-section">
+            <div class="section-header">Where We Can Win</div>
+            <h2 class="section-title">Unsolved Problems</h2>
+            <p class="section-desc">These are real gaps in the tech that a scrappy team could crack.</p>
+            
+            <div class="opportunity-grid">
+                <div class="opportunity-card">
+                    <div class="opp-num">01</div>
+                    <h3 class="opp-title">The Temporal Problem</h3>
+                    <p class="opp-desc">Current methods train each frame independently (slow, huge files) or use complex 4D representations (research-grade). What if we stored keyframe splats + motion deltas? Like video compression for 3D.</p>
+                </div>
+                <div class="opportunity-card">
+                    <div class="opp-num">02</div>
+                    <h3 class="opp-title">The Streaming Problem</h3>
+                    <p class="opp-desc">Nobody has cracked efficient streaming of 4D splats. Solutions load everything upfront. Opportunity: progressive LOD loading, predictive prefetching based on user behavior.</p>
+                </div>
+                <div class="opportunity-card">
+                    <div class="opp-num">03</div>
+                    <h3 class="opp-title">Camera Efficiency</h3>
+                    <p class="opp-desc">8 cameras is expensive. Research uses 50-100+. Can we train quality splats from fewer angles using learned priors, depth sensors, or temporal information?</p>
+                </div>
+                <div class="opportunity-card">
+                    <div class="opp-num">04</div>
+                    <h3 class="opp-title">Real-Time Training</h3>
+                    <p class="opp-desc">What if capture and training happened simultaneously? Camera feed → Edge GPU → Live splat stream → Viewers. Revolutionary for live content.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deep Dive Navigation -->
+        <section class="deep-dive-section">
+            <div class="section-header">Go Deeper</div>
+            <h2 class="section-title">Pick Your Path</h2>
+            <p class="section-desc">Each guide dives deep into a specific area. Study what's relevant to your role.</p>
+
+            <div class="path-grid">
+                <a href="path-a-math/" class="path-card">
+                    <div class="path-letter">A</div>
+                    <h3 class="path-title">The Math</h3>
+                    <p class="path-desc">Break down the actual gaussian splatting algorithm. Understand every piece from first principles.</p>
+                    <div class="path-topics">
+                        <span class="topic-tag">Gaussians</span>
+                        <span class="topic-tag">Rasterization</span>
+                        <span class="topic-tag">Gradients</span>
+                        <span class="topic-tag">Loss Functions</span>
+                    </div>
+                    <div class="path-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="path-b-capture/" class="path-card">
+                    <div class="path-letter">B</div>
+                    <h3 class="path-title">The Capture Pipeline</h3>
+                    <p class="path-desc">Camera rigs, synchronization, calibration, and data flow from studio to storage.</p>
+                    <div class="path-topics">
+                        <span class="topic-tag">Camera Rigs</span>
+                        <span class="topic-tag">Genlock</span>
+                        <span class="topic-tag">Calibration</span>
+                        <span class="topic-tag">COLMAP</span>
+                    </div>
+                    <div class="path-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="path-c-streaming/" class="path-card">
+                    <div class="path-letter">C</div>
+                    <h3 class="path-title">Compression & Streaming</h3>
+                    <p class="path-desc">Making 4D splats actually deliverable over the internet. CDN strategies, LOD, adaptive quality.</p>
+                    <div class="path-topics">
+                        <span class="topic-tag">Compression</span>
+                        <span class="topic-tag">CDN</span>
+                        <span class="topic-tag">Progressive</span>
+                        <span class="topic-tag">Bandwidth</span>
+                    </div>
+                    <div class="path-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="path-d-infrastructure/" class="path-card">
+                    <div class="path-letter">D</div>
+                    <h3 class="path-title">Training Infrastructure</h3>
+                    <p class="path-desc">Building a system that can process content at scale. GPU clusters, pipelines, automation.</p>
+                    <div class="path-topics">
+                        <span class="topic-tag">GPU Clusters</span>
+                        <span class="topic-tag">Pipelines</span>
+                        <span class="topic-tag">Batch Jobs</span>
+                        <span class="topic-tag">Scaling</span>
+                    </div>
+                    <div class="path-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="path-e-viewer/" class="path-card">
+                    <div class="path-letter">E</div>
+                    <h3 class="path-title">The Viewer / Player</h3>
+                    <p class="path-desc">Making gsplat.js do things it wasn't designed to do. Custom rendering, interactions, performance.</p>
+                    <div class="path-topics">
+                        <span class="topic-tag">gsplat.js</span>
+                        <span class="topic-tag">WebGL</span>
+                        <span class="topic-tag">Controls</span>
+                        <span class="topic-tag">Performance</span>
+                    </div>
+                    <div class="path-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-logo">SIREN</div>
+            <p class="footer-text">Internal Technical Documentation • 2025</p>
+        </footer>
+    </div>
+
+    <script>
+        // GSAP Animations
+        gsap.set(['.logo', '.title', '.subtitle', '.core-concept', '.gaussian-explainer', '.training-loop', '.innovation-section', '.deep-dive-section', '.footer'], {
+            opacity: 0,
+            y: 30
+        });
+
+        const tl = gsap.timeline({ defaults: { ease: 'power3.out' }});
+
+        tl.to('.logo', { opacity: 1, y: 0, duration: 0.6 })
+          .to('.title', { opacity: 1, y: 0, duration: 0.6 }, '-=0.3')
+          .to('.subtitle', { opacity: 1, y: 0, duration: 0.6 }, '-=0.3')
+          .to('.core-concept', { opacity: 1, y: 0, duration: 0.8 }, '-=0.2')
+          .to('.gaussian-explainer', { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
+          .to('.training-loop', { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
+          .to('.innovation-section', { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
+          .to('.deep-dive-section', { opacity: 1, y: 0, duration: 0.8 }, '-=0.4')
+          .to('.footer', { opacity: 1, y: 0, duration: 0.6 }, '-=0.2');
+
+        // Ambient orb animation
+        gsap.to('.orb-1', {
+            x: 50,
+            y: 30,
+            duration: 8,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+        });
+
+        gsap.to('.orb-2', {
+            x: -30,
+            y: -40,
+            duration: 10,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut'
+        });
+    </script>
+</body>
+</html>

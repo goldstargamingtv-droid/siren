@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path A: The Math | SIREN Tech Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --siren-red: #e63946;
+            --siren-orange: #f77f00;
+            --siren-gradient: linear-gradient(135deg, #e63946 0%, #f77f00 100%);
+            --dark-bg: #0a0a0b;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.2;
+        }
+
+        .orb-1 { width: 500px; height: 500px; background: var(--siren-red); top: -150px; right: -150px; }
+        .orb-2 { width: 300px; height: 300px; background: var(--siren-orange); bottom: 20%; left: -100px; }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* Navigation */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 60px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover { color: var(--text-primary); }
+
+        .back-link svg { width: 20px; height: 20px; }
+
+        .nav-logo {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: var(--siren-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Header */
+        .page-header {
+            margin-bottom: 48px;
+        }
+
+        .path-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .path-letter {
+            width: 48px; height: 48px;
+            background: var(--siren-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .path-label {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--siren-orange);
+        }
+
+        .page-title {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .page-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        /* Content Sections */
+        .section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 36px;
+            margin-bottom: 32px;
+            backdrop-filter: blur(20px);
+        }
+
+        .section-num {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--siren-orange);
+            margin-bottom: 12px;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 28px 0 16px;
+            color: var(--text-primary);
+        }
+
+        .section p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .section strong {
+            color: var(--text-primary);
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .code-block code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .code-block .comment { color: #6a9955; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .string { color: #ce9178; }
+        .code-block .number { color: #b5cea8; }
+
+        /* Math blocks */
+        .math-block {
+            background: rgba(230, 57, 70, 0.1);
+            border: 1px solid rgba(230, 57, 70, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        /* Info boxes */
+        .info-box {
+            background: rgba(247, 127, 0, 0.1);
+            border-left: 3px solid var(--siren-orange);
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Lists */
+        .section ul {
+            color: var(--text-secondary);
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        .section li {
+            margin-bottom: 8px;
+        }
+
+        /* Property grid */
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .property-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .property-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--siren-orange);
+            margin-bottom: 8px;
+        }
+
+        .property-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Visual diagrams */
+        .diagram {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 32px;
+            margin: 24px 0;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .diagram-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 12px 0;
+            flex-wrap: wrap;
+        }
+
+        .diagram-box {
+            background: rgba(230, 57, 70, 0.2);
+            border: 1px solid rgba(230, 57, 70, 0.4);
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 13px;
+        }
+
+        .diagram-arrow {
+            color: var(--siren-orange);
+            font-size: 20px;
+        }
+
+        /* Navigation footer */
+        .nav-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--card-border);
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .nav-btn:hover {
+            border-color: rgba(230, 57, 70, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.next { justify-content: flex-end; text-align: right; }
+
+        .nav-btn-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn-title {
+            font-weight: 600;
+        }
+
+        .nav-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--text-secondary);
+        }
+
+        @media (max-width: 600px) {
+            .section { padding: 24px; }
+            .nav-footer { flex-direction: column; }
+            .nav-btn.next { justify-content: flex-start; text-align: left; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+    </div>
+
+    <div class="container">
+        <nav class="top-nav">
+            <a href="../" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Overview
+            </a>
+            <span class="nav-logo">SIREN Tech Guide</span>
+        </nav>
+
+        <header class="page-header">
+            <div class="path-badge">
+                <div class="path-letter">A</div>
+                <span class="path-label">Deep Dive</span>
+            </div>
+            <h1 class="page-title">The Math</h1>
+            <p class="page-subtitle">Understanding 3D Gaussian Splatting from first principles</p>
+        </header>
+
+        <!-- Section 1: What is a 3D Gaussian -->
+        <section class="section">
+            <div class="section-num">01</div>
+            <h2>What is a 3D Gaussian?</h2>
+            
+            <p>A 3D Gaussian is essentially a "fuzzy blob" in 3D space. Mathematically, it's a probability distribution that describes how "dense" or "present" something is at any point in space.</p>
+
+            <div class="math-block">
+                G(x) = exp( -½ (x - μ)ᵀ Σ⁻¹ (x - μ) )
+            </div>
+
+            <p>Don't panic. Here's what each part means:</p>
+
+            <div class="property-grid">
+                <div class="property-card">
+                    <div class="property-name">μ (mu)</div>
+                    <div class="property-desc">Position in 3D space (x, y, z center point)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">Σ (sigma)</div>
+                    <div class="property-desc">Covariance matrix defining shape/size/rotation</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">exp()</div>
+                    <div class="property-desc">Makes it fade smoothly from center to edges</div>
+                </div>
+            </div>
+
+            <h3>The Covariance Matrix Σ</h3>
+            <p>This 3x3 matrix controls the blob's shape. But storing/optimizing a matrix directly is tricky (it needs to stay "valid"). So we decompose it:</p>
+
+            <div class="math-block">
+                Σ = R · S · Sᵀ · Rᵀ
+            </div>
+
+            <div class="property-grid">
+                <div class="property-card">
+                    <div class="property-name">R (rotation)</div>
+                    <div class="property-desc">Stored as quaternion (4 numbers)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">S (scale)</div>
+                    <div class="property-desc">3 numbers for x, y, z stretch</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p><strong>Key insight:</strong> Each Gaussian is defined by 59 parameters: position (3) + rotation quaternion (4) + scale (3) + spherical harmonics for color (48) + opacity (1)</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Spherical Harmonics -->
+        <section class="section">
+            <div class="section-num">02</div>
+            <h2>Spherical Harmonics (View-Dependent Color)</h2>
+            
+            <p>Here's something cool: the same blob can appear <strong>different colors from different angles</strong>. This captures effects like:</p>
+            
+            <ul>
+                <li>Specular highlights (shiny spots that move as you move)</li>
+                <li>Subsurface scattering (skin glowing differently at angles)</li>
+                <li>View-dependent material properties</li>
+            </ul>
+
+            <p>Spherical Harmonics (SH) are a way to encode a function over a sphere (all possible viewing directions) using a small set of coefficients.</p>
+
+            <div class="diagram">
+                <p style="color: var(--text-muted); margin-bottom: 16px;">SH Bands (degrees of detail)</p>
+                <div class="diagram-row">
+                    <div class="diagram-box">Band 0: 1 coef</div>
+                    <div class="diagram-box">Band 1: 3 coef</div>
+                    <div class="diagram-box">Band 2: 5 coef</div>
+                    <div class="diagram-box">Band 3: 7 coef</div>
+                </div>
+                <p style="color: var(--text-muted); margin-top: 16px;">= 16 coefficients per color channel × 3 channels = 48 total</p>
+            </div>
+
+            <p>Band 0 is just a constant color. Higher bands add directional variation. Most implementations use 3 bands (16 coefficients per channel).</p>
+        </section>
+
+        <!-- Section 3: Rasterization -->
+        <section class="section">
+            <div class="section-num">03</div>
+            <h2>Rasterization: Drawing the Splats</h2>
+            
+            <p>To render a view, we need to "draw" millions of gaussians efficiently. The key innovation of 3DGS is a <strong>tile-based rasterizer</strong>.</p>
+
+            <h3>The Pipeline</h3>
+            <div class="diagram">
+                <div class="diagram-row">
+                    <div class="diagram-box">3D Gaussians</div>
+                    <span class="diagram-arrow">→</span>
+                    <div class="diagram-box">Project to 2D</div>
+                    <span class="diagram-arrow">→</span>
+                    <div class="diagram-box">Sort by depth</div>
+                </div>
+                <div class="diagram-row">
+                    <span class="diagram-arrow">→</span>
+                    <div class="diagram-box">Assign to tiles</div>
+                    <span class="diagram-arrow">→</span>
+                    <div class="diagram-box">Blend front-to-back</div>
+                    <span class="diagram-arrow">→</span>
+                    <div class="diagram-box">Final image</div>
+                </div>
+            </div>
+
+            <h3>2D Projection</h3>
+            <p>A 3D gaussian becomes a 2D gaussian when projected onto the image plane:</p>
+
+            <div class="math-block">
+                Σ' = J · W · Σ · Wᵀ · Jᵀ
+            </div>
+
+            <div class="property-grid">
+                <div class="property-card">
+                    <div class="property-name">W</div>
+                    <div class="property-desc">View transform (world → camera)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">J</div>
+                    <div class="property-desc">Jacobian of projection</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">Σ'</div>
+                    <div class="property-desc">2D covariance (ellipse on screen)</div>
+                </div>
+            </div>
+
+            <h3>Alpha Blending</h3>
+            <p>Each gaussian has an opacity α. We blend front-to-back:</p>
+
+            <div class="code-block">
+<code><span class="comment">// For each pixel, blend gaussians front-to-back</span>
+C = 0        <span class="comment">// accumulated color</span>
+T = 1        <span class="comment">// accumulated transmittance</span>
+
+<span class="keyword">for</span> gaussian <span class="keyword">in</span> sorted_by_depth:
+    α = gaussian.opacity × <span class="function">gaussian_2d</span>(pixel_pos)
+    C = C + T × α × gaussian.color
+    T = T × (1 - α)
+    
+    <span class="keyword">if</span> T < 0.001:  <span class="comment">// early termination</span>
+        <span class="keyword">break</span></code>
+            </div>
+        </section>
+
+        <!-- Section 4: Training / Optimization -->
+        <section class="section">
+            <div class="section-num">04</div>
+            <h2>Training: The Optimization Loop</h2>
+            
+            <p>This is where the magic happens. We start with random gaussians and iteratively adjust them to match our training images.</p>
+
+            <h3>Loss Function</h3>
+            <div class="math-block">
+                L = (1 - λ) × L₁ + λ × L_SSIM
+            </div>
+
+            <div class="property-grid">
+                <div class="property-card">
+                    <div class="property-name">L₁</div>
+                    <div class="property-desc">Pixel-wise absolute difference</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">L_SSIM</div>
+                    <div class="property-desc">Structural similarity (perceptual quality)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">λ</div>
+                    <div class="property-desc">Usually 0.2 (weight SSIM at 20%)</div>
+                </div>
+            </div>
+
+            <h3>Adaptive Density Control</h3>
+            <p>The algorithm doesn't just optimize existing gaussians—it adds and removes them:</p>
+
+            <div class="code-block">
+<code><span class="keyword">every</span> 100 iterations:
+    <span class="comment">// Clone gaussians that are too big and have high gradient</span>
+    <span class="keyword">if</span> gaussian.scale > threshold <span class="keyword">and</span> gradient > threshold:
+        <span class="function">split</span>(gaussian)  <span class="comment">// replace with 2 smaller ones</span>
+    
+    <span class="comment">// Densify areas with high error</span>
+    <span class="keyword">if</span> positional_gradient > threshold:
+        <span class="function">clone</span>(gaussian)  <span class="comment">// add a copy nearby</span>
+    
+    <span class="comment">// Prune nearly-invisible gaussians</span>
+    <span class="keyword">if</span> gaussian.opacity < 0.005:
+        <span class="function">remove</span>(gaussian)</code>
+            </div>
+
+            <div class="info-box">
+                <p><strong>Why this matters:</strong> The scene starts sparse, densifies where needed, and prunes waste. This is why 3DGS can represent complex scenes with millions of gaussians efficiently.</p>
+            </div>
+        </section>
+
+        <!-- Section 5: The 4D Extension -->
+        <section class="section">
+            <div class="section-num">05</div>
+            <h2>Extending to 4D (Time)</h2>
+            
+            <p>For video, we need gaussians that change over time. There are several approaches:</p>
+
+            <h3>Approach A: Per-Frame (Naive)</h3>
+            <div class="code-block">
+<code><span class="comment">// Train independent splats for each frame</span>
+frame_000.splat  <span class="comment">// ~50MB</span>
+frame_001.splat  <span class="comment">// ~50MB</span>
+frame_002.splat  <span class="comment">// ~50MB</span>
+...
+<span class="comment">// 30fps × 60sec = 1800 frames × 50MB = 90GB 😱</span></code>
+            </div>
+
+            <h3>Approach B: Deformation Fields</h3>
+            <p>Store one "canonical" splat and learn how it deforms over time:</p>
+
+            <div class="math-block">
+                position(t) = canonical_pos + Δ(t)
+            </div>
+
+            <p>Where Δ(t) is a small neural network or polynomial that outputs position/rotation/scale offsets for each timestamp.</p>
+
+            <h3>Approach C: 4D Gaussians</h3>
+            <p>Add time as a 4th dimension to the gaussian itself:</p>
+
+            <div class="math-block">
+                G(x, t) = spatial_gaussian(x) × temporal_gaussian(t)
+            </div>
+
+            <p>Each gaussian now has a "temporal extent"—it fades in and out over time. This allows representing appearing/disappearing objects naturally.</p>
+
+            <div class="info-box">
+                <p><strong>Current research:</strong> The field is actively exploring which approach scales best. For SIREN, deformation fields are likely the sweet spot—good compression with acceptable quality.</p>
+            </div>
+        </section>
+
+        <!-- Section 6: Key Numbers -->
+        <section class="section">
+            <div class="section-num">06</div>
+            <h2>Key Numbers to Remember</h2>
+            
+            <div class="property-grid">
+                <div class="property-card">
+                    <div class="property-name">59 params/gaussian</div>
+                    <div class="property-desc">Position + rotation + scale + SH + opacity</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">1-5M gaussians</div>
+                    <div class="property-desc">Typical scene complexity</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">7-30K iterations</div>
+                    <div class="property-desc">Training convergence</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">~100 FPS</div>
+                    <div class="property-desc">Rendering speed (RTX 3090)</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">50-200MB</div>
+                    <div class="property-desc">Typical splat file size</div>
+                </div>
+                <div class="property-card">
+                    <div class="property-name">λ = 0.2</div>
+                    <div class="property-desc">Standard SSIM weight</div>
+                </div>
+            </div>
+        </section>
+
+        <nav class="nav-footer">
+            <a href="../" class="nav-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                <div>
+                    <div class="nav-btn-label">Previous</div>
+                    <div class="nav-btn-title">Overview</div>
+                </div>
+            </a>
+            <a href="../path-b-capture/" class="nav-btn next">
+                <div>
+                    <div class="nav-btn-label">Next</div>
+                    <div class="nav-btn-title">B: Capture Pipeline</div>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        gsap.from('.page-header', { opacity: 0, y: 30, duration: 0.8, ease: 'power3.out' });
+        gsap.from('.section', { opacity: 0, y: 40, duration: 0.8, stagger: 0.15, ease: 'power3.out', delay: 0.2 });
+    </script>
+</body>
+</html>
