@@ -797,11 +797,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const contentType = urlParams.get('type') || urlParams.get('mode');
         const isImmersiveMode = contentType === 'splat' || contentType === 'immersive' || contentType === '3d';
-        
-        console.log('[SIREN WATCH] URL:', window.location.href);
-        console.log('[SIREN WATCH] contentType:', contentType);
-        console.log('[SIREN WATCH] isImmersiveMode:', isImmersiveMode);
-        
+
         if (isImmersiveMode) {
             document.body.classList.add('immersive-mode');
         }
@@ -846,7 +842,6 @@
         // Failsafe - force hide loader after 6 seconds no matter what
         setTimeout(() => {
             if (siteLoader.style.display !== 'none') {
-                console.log('Loader failsafe triggered');
                 hideLoader();
             }
         }, 6000);

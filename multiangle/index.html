@@ -140,20 +140,15 @@
     </div>
 
     <script type="module">
-        console.log('%c[SIREN 4D v2.4.0 - Three.js + GaussianSplats3D]', 'background:#ef4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
-        
         // Import Three.js first
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        
+
         // Make THREE global for GaussianSplats3D
         window.THREE = THREE;
-        
-        console.log('[SIREN] THREE loaded:', !!THREE);
-        
+
         // Now dynamically import GaussianSplats3D
         const GS = await import('https://unpkg.com/@mkkellogg/gaussian-splats-3d@0.4.6/build/gaussian-splats-3d.module.js');
-        console.log('[SIREN] GaussianSplats3D loaded:', !!GS);
         
         const SCENES = {
             stump: { name: 'Tree Stump', url: 'https://huggingface.co/datasets/dylanebert/3dgs/resolve/main/stump/stump-7k.splat' },
@@ -235,7 +230,6 @@
             if (!camera || !controls) return;
             currentAngle = index;
             const angle = CAMERA_ANGLES[index];
-            console.log('[SIREN] Switching to angle', index, angle.name);
             gsap.to(camera.position, { x: angle.pos[0], y: angle.pos[1], z: angle.pos[2], duration: 0.8, ease: 'power2.inOut' });
             gsap.to(controls.target, { x: angle.target[0], y: angle.target[1], z: angle.target[2], duration: 0.8, ease: 'power2.inOut' });
             document.querySelectorAll('.hotspot').forEach((el, i) => el.classList.toggle('active', i === index));
@@ -277,9 +271,7 @@
                     viewer = null;
                     viewerDiv.innerHTML = '';
                 }
-                
-                console.log('[SIREN] Creating viewer...');
-                
+
                 viewer = new GS.Viewer({
                     cameraUp: [0, -1, 0],
                     initialCameraPosition: CAMERA_ANGLES[0].pos,
@@ -287,36 +279,29 @@
                     rootElement: viewerDiv,
                     sharedMemoryForWorkers: false
                 });
-                
-                console.log('[SIREN] Loading splat:', sceneData.url);
-                
+
                 await viewer.addSplatScene(sceneData.url, {
                     splatAlphaRemovalThreshold: 5,
                     showLoadingUI: false,
                     progressiveLoad: true
                 });
-                
-                console.log('[SIREN] Splat loaded, starting viewer...');
+
                 viewer.start();
-                
+
                 camera = viewer.camera;
                 controls = viewer.controls;
-                
-                console.log('[SIREN] Camera:', camera);
-                console.log('[SIREN] Controls:', controls);
-                
+
                 loaderProgress.style.width = '100%';
                 loaderStatus.textContent = 'Enjoy!';
                 setTimeout(() => siteLoader.classList.add('hidden'), 400);
-                
+
                 function updateLoop() {
                     updateHotspots();
                     requestAnimationFrame(updateLoop);
                 }
                 updateLoop();
-                
+
             } catch (err) {
-                console.error('[SIREN] Load error:', err);
                 loaderStatus.textContent = 'Error: ' + err.message;
             }
         }

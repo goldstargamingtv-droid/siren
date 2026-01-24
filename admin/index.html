@@ -1501,41 +1501,36 @@
             try {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (!session) {
-                    console.log('No session, redirecting to login...');
                     window.location.href = '/?login=admin';
                     return false;
                 }
-                
+
                 // Check if user is admin
                 const { data: profile, error } = await supabaseClient
                     .from('profiles')
                     .select('is_admin, is_moderator, display_name, email')
                     .eq('id', session.user.id)
                     .single();
-                
+
                 if (error || !profile) {
-                    console.error('Could not fetch profile:', error);
                     showAccessDenied('Could not verify admin status');
                     return false;
                 }
-                
+
                 if (!profile.is_admin && !profile.is_moderator) {
-                    console.log('User is not admin/moderator');
                     showAccessDenied('You do not have admin access');
                     return false;
                 }
-                
+
                 // Update admin info
                 const name = profile.display_name || profile.email?.split('@')[0] || 'Admin';
                 document.getElementById('adminName').textContent = name;
                 document.getElementById('adminAvatar').textContent = name[0].toUpperCase();
                 document.getElementById('adminRole').textContent = profile.is_admin ? 'Administrator' : 'Moderator';
-                
-                console.log('Admin access granted:', name);
+
                 return true;
-                
+
             } catch (err) {
-                console.error('Auth check error:', err);
                 showAccessDenied('Authentication error');
                 return false;
             }
@@ -1563,57 +1558,41 @@
         // Navigation - set up immediately
         function initNavigation() {
             const navItems = document.querySelectorAll('.nav-item');
-            console.log('[DEBUG] Found nav items:', navItems.length);
-            
+
             navItems.forEach((item, index) => {
-                console.log('[DEBUG] Nav item', index, ':', item.dataset.panel, item);
-                
                 // Check if already has listener
                 if (item.dataset.listenerAdded) {
-                    console.log('[DEBUG] Listener already added to', item.dataset.panel);
                     return;
                 }
-                
+
                 item.dataset.listenerAdded = 'true';
-                
+
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     const panel = item.dataset.panel;
-                    console.log('[DEBUG] Clicked panel:', panel);
                     if (panel) switchPanel(panel);
                 });
-                
-                // Also add mousedown to check if clicks are registering at all
-                item.addEventListener('mousedown', (e) => {
-                    console.log('[DEBUG] Mousedown on:', item.dataset.panel);
-                });
             });
-            console.log('[DEBUG] Navigation initialized');
         }
-        
+
         // Run when DOM is ready
         if (document.readyState === 'loading') {
-            console.log('[DEBUG] DOM still loading, waiting...');
             document.addEventListener('DOMContentLoaded', initNavigation);
         } else {
-            console.log('[DEBUG] DOM ready, initializing now');
             initNavigation();
         }
-        
+
         // Also try again after a short delay just in case
         setTimeout(() => {
-            console.log('[DEBUG] Delayed init check...');
             const navItems = document.querySelectorAll('.nav-item');
             const uninitializedItems = [...navItems].filter(item => !item.dataset.listenerAdded);
             if (uninitializedItems.length > 0) {
-                console.log('[DEBUG] Found uninitialized items, re-running init');
                 initNavigation();
             }
         }, 500);
 
         function switchPanel(panelName) {
-            console.log('Switching to panel:', panelName);
             
             // Update nav
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
@@ -1625,9 +1604,6 @@
             const activePanel = document.getElementById(`panel-${panelName}`);
             if (activePanel) {
                 activePanel.classList.add('active');
-                console.log('Panel activated:', panelName);
-            } else {
-                console.error('Panel not found:', panelName);
             }
 
             // Update title
@@ -1698,7 +1674,7 @@
                 // Recent waitlist
                 loadRecentWaitlist();
             } catch (err) {
-                console.error('Error loading stats:', err);
+                // Stats loading failed silently
             }
         }
 
@@ -2188,7 +2164,6 @@
         }
 
         // Init
-        console.log('Admin panel initializing...');
         (async () => {
             const isAuthed = await checkAuth();
             if (isAuthed) {
@@ -2199,9 +2174,8 @@
                         switchPanel(panel);
                     });
                 });
-                
-                loadDashboardStats().catch(err => console.error('Dashboard load error:', err));
-                console.log('Admin panel ready');
+
+                loadDashboardStats().catch(() => {});
             }
         })();
     </script>

@@ -23,15 +23,13 @@ function initSupabase() {
     }
     
     if (!window.supabase) {
-        console.error('Supabase library not loaded');
         return null;
     }
     
     // Create single instance and store globally
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     window._sirenSupabaseClient = supabaseClient;
-    
-    console.log('[SIREN] Supabase client initialized');
+
     return supabaseClient;
 }
 
@@ -75,7 +73,7 @@ function initAuthListener() {
                 profileLoadPending = true;
                 loadUserProfile()
                     .then(() => updateUIForAuth(true)) // Update again to show admin buttons
-                    .catch(e => console.error('loadUserProfile failed:', e))
+                    .catch(() => {})
                     .finally(() => profileLoadPending = false);
             }
         } else {
@@ -101,15 +99,12 @@ async function loadUserProfile() {
             .single();
         
         if (error) {
-            console.error('Error loading profile:', error);
             return null;
         }
-        
+
         currentProfile = data;
-        console.log('[SIREN] Profile loaded:', data?.email);
         return data;
     } catch (err) {
-        console.error('Profile query failed:', err);
         return null;
     }
 }
@@ -159,7 +154,6 @@ async function signUp(email, password, dateOfBirth) {
         
         return { data };
     } catch (err) {
-        console.error('Signup error:', err);
         return { error: { message: 'An unexpected error occurred. Please try again.' } };
     }
 }
@@ -194,7 +188,6 @@ async function signIn(email, password) {
         
         return { data };
     } catch (err) {
-        console.error('Sign in error:', err);
         return { error: { message: 'An unexpected error occurred. Please try again.' } };
     }
 }
@@ -202,7 +195,6 @@ async function signIn(email, password) {
 async function signOut() {
     const { error } = await supabaseClient.auth.signOut();
     if (error) {
-        console.error('Sign out error:', error);
         return { error };
     }
     window.location.reload();
@@ -315,7 +307,7 @@ async function uploadAvatar(file) {
 // ============================================
 
 async function getContent(options = {}) {
-    let query = supabase
+    let query = supabaseClient
         .from('content')
         .select(`
             *,
@@ -388,7 +380,7 @@ async function getContentBySlug(slug) {
 // ============================================
 
 async function getPerformers(options = {}) {
-    let query = supabase
+    let query = supabaseClient
         .from('performers')
         .select('*')
         .eq('is_active', true);
@@ -778,10 +770,9 @@ function updateUIForAuth(isLoggedIn) {
 async function initSiren() {
     initSupabase();
     if (!supabaseClient) {
-        console.error('Failed to initialize Supabase');
         return;
     }
-    
+
     initAuthListener();
 }
 
