@@ -1442,8 +1442,6 @@
                 );
                 
             } catch (err) {
-                console.error('Waitlist error:', err);
-                
                 // Show error state
                 submitBtn.textContent = 'Try Again';
                 submitBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
@@ -1732,10 +1730,6 @@
         },
         
         applyPreferences() {
-            if (this.preferences.analytics) {
-                // Enable Google Analytics here if needed
-                console.log('Analytics enabled');
-            }
             if (this.preferences.functional) {
                 document.body.classList.add('functional-cookies-enabled');
             } else {

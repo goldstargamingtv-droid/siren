@@ -267,7 +267,6 @@ async function handleSignIn(e) {
             }
         }
     } catch (err) {
-        console.error('Sign in exception:', err);
         setAuthLoading('signin', false);
         showAuthError('signin', 'An unexpected error occurred. Please try again.');
     }
@@ -331,7 +330,6 @@ async function handleSignUp(e) {
             }
         }
     } catch (err) {
-        console.error('Sign up exception:', err);
         setAuthLoading('signup', false);
         showAuthError('signup', 'An unexpected error occurred');
     }

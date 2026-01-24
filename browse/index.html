@@ -6566,7 +6566,6 @@
     </div>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        console.log('%c[SIREN BROWSE v1.1.1]', 'background:#ff4444;color:#fff;padding:4px 8px;border-radius:4px;font-weight:bold;');
         // Global mobile check - disable heavy animations
         const IS_MOBILE = window.innerWidth <= 768;
         
@@ -6667,14 +6666,9 @@
             // Mark special cards
             if (is3D) {
                 card.dataset.is3d = 'true';
-                console.log('[SIREN] Created 3D card:', name, 'rowIndex:', rowIndex);
             }
             if (isMultiAngle) {
                 card.dataset.multiangle = 'true';
-                console.log('[SIREN] Created multiangle card:', name, 'rowIndex:', rowIndex);
-            }
-            if (type === 'continue') {
-                console.log('[SIREN] Continue card created:', { name, rowIndex, is3D, isMultiAngle, dataset: { is3d: card.dataset.is3d, multiangle: card.dataset.multiangle } });
             }
             
             // Store data for expanded card to use
@@ -6837,29 +6831,16 @@
                 const distY = Math.abs(e.clientY - cardMouseDownY);
                 
                 if (timeDiff > 200 || distX > 5 || distY > 5) return;
-                
-                // DEBUG
-                console.log('[SIREN] Card clicked:', {
-                    is3d: card.dataset.is3d,
-                    multiangle: card.dataset.multiangle,
-                    performer: card.dataset.performer,
-                    performerSlug: card.dataset.performerSlug,
-                    title: card.dataset.title
-                });
-                
+
                 // Check content type
                 if (card.dataset.performer === 'true') {
                     const performerSlug = card.dataset.performerSlug || 'scarlett-luxe';
-                    console.log('[SIREN] Navigating to performer profile');
                     window.location.href = `../performer/?id=${performerSlug}`;
                 } else if (card.dataset.is3d === 'true') {
-                    console.log('[SIREN] Navigating to 3D splat viewer');
                     window.location.href = '../watch/?type=3d';
                 } else if (card.dataset.multiangle === 'true') {
-                    console.log('[SIREN] Navigating to multiangle viewer');
                     window.location.href = '../multiangle/';
                 } else {
-                    console.log('[SIREN] Navigating to normal video');
                     window.location.href = '../watch/';
                 }
             });
@@ -8662,7 +8643,6 @@
                 // Check if parent card is 3D or multi-angle
                 // For expanded card buttons, use currentCard; for inline buttons, use closest
                 const card = btn.closest('.content-card') || currentCard;
-                console.log('[SIREN] Play button clicked, card:', card, 'is3d:', card?.dataset?.is3d, 'multiangle:', card?.dataset?.multiangle);
                 if (card && card.dataset.is3d === 'true') {
                     window.location.href = '../watch/?type=3d';
                 } else if (card && card.dataset.multiangle === 'true') {
@@ -9839,22 +9819,19 @@ const CookieConsent = {
     },
     
     applyPreferences() {
-        if (this.preferences.analytics) {
-            console.log('Analytics enabled');
-        }
         if (this.preferences.functional) {
             document.body.classList.add('functional-cookies-enabled');
         } else {
             document.body.classList.remove('functional-cookies-enabled');
         }
     },
-    
+
     setCookie(name, value, days) {
         const expires = new Date();
         expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
         document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax;Secure`;
     },
-    
+
     getCookie(name) {
         const nameEQ = name + '=';
         const ca = document.cookie.split(';');
@@ -9864,7 +9841,7 @@ const CookieConsent = {
         }
         return null;
     },
-    
+
     isEnabled(category) { return this.preferences[category] === true; }
 };
 
