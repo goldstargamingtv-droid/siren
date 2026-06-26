@@ -1,0 +1,3493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4DGS Viewer</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; color: #fff; }
+canvas { display: block; width: 100vw; height: 100vh; }
+
+/* Drop overlay */
+#dropzone {
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.85); z-index: 100; cursor: pointer;
+}
+#dropzone.hidden { display: none; }
+#dropzone .inner {
+    border: 3px dashed #666; border-radius: 24px; padding: 60px 80px; text-align: center;
+    transition: border-color 0.2s;
+}
+#dropzone.dragover .inner { border-color: #4af; }
+#dropzone h1 { font-size: 28px; font-weight: 300; margin-bottom: 12px; }
+#dropzone p { color: #888; font-size: 14px; }
+
+/* Loading overlay */
+#loading {
+    position: fixed; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; background: rgba(0,0,0,0.9); z-index: 90;
+}
+#loading.hidden { display: none; }
+#loading h2 { font-size: 20px; font-weight: 300; margin-bottom: 16px; }
+#loading .bar { width: 300px; height: 4px; background: #333; border-radius: 2px; overflow: hidden; }
+#loading .bar .fill { height: 100%; background: #4af; width: 0%; transition: width 0.15s; }
+#loading .status { color: #888; font-size: 12px; margin-top: 10px; }
+
+/* Top bar */
+#topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 36px;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; font-size: 13px; z-index: 10;
+}
+#topbar .left { display: flex; gap: 16px; color: #aaa; }
+#topbar .right { display: flex; gap: 16px; color: #aaa; align-items: center; }
+#topbar span.val { color: #fff; }
+
+/* Bottom bar (time controls) */
+#bottombar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 48px;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+    display: flex; align-items: center; padding: 0 16px; gap: 12px; z-index: 10;
+}
+#bottombar.hidden { display: none; }
+#btnPlay {
+    width: 32px; height: 32px; background: none; border: 1px solid #666;
+    border-radius: 6px; color: #fff; font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+#btnPlay:hover { border-color: #aaa; }
+#timeSlider {
+    flex: 1; height: 4px; -webkit-appearance: none; appearance: none;
+    background: #333; border-radius: 2px; outline: none; cursor: pointer;
+}
+#timeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px;
+    background: linear-gradient(to right, #ef4444, #f97316); border-radius: 50%; cursor: pointer;
+}
+#frameLabel { font-size: 13px; color: #ccc; min-width: 80px; text-align: center; }
+#speedSelect {
+    background: #222; color: #ccc; border: 1px solid #444; border-radius: 4px;
+    padding: 2px 6px; font-size: 12px; cursor: pointer;
+}
+
+/* Eraser mode */
+#eraserBar {
+    position: fixed; top: 40px; left: 0; right: 0; height: 32px;
+    background: rgba(180,40,40,0.85); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center;
+    padding: 0 16px; gap: 16px; font-size: 13px; z-index: 11;
+}
+#eraserBar.active { display: flex; }
+#eraserBar button {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    color: #fff; border-radius: 4px; padding: 2px 10px; font-size: 12px; cursor: pointer;
+}
+#eraserBar button:hover { background: rgba(255,255,255,0.25); }
+#eraserCursor {
+    position: fixed; pointer-events: none; z-index: 50;
+    border: 2px solid #ff4444; border-radius: 50%;
+    display: none;
+}
+canvas.eraser-mode { cursor: none !important; }
+
+/* SIREN logo */
+#sirenLogo {
+    position: fixed; top: 40px; left: 16px;
+    z-index: 10; pointer-events: none; opacity: 0.6;
+}
+#sirenLogo2 {
+    position: fixed; bottom: 56px; right: 16px;
+    z-index: 10; pointer-events: none; opacity: 0.6;
+}
+
+/* Siren-branded toggles & sliders */
+#topbar input[type="checkbox"] {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; border-radius: 3px;
+    border: 1px solid #666; background: #222; cursor: pointer;
+    position: relative; flex-shrink: 0; margin: 0;
+}
+#topbar input[type="checkbox"]:checked {
+    background: linear-gradient(to right, #ef4444, #f97316);
+    border-color: #f97316;
+}
+#topbar input[type="checkbox"]:checked::after {
+    content: '✓'; color: #fff; font-size: 10px; font-weight: bold;
+    position: absolute; top: -1px; left: 2px;
+}
+#topbar input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    height: 4px; border-radius: 2px;
+    background: #333; outline: none; cursor: pointer;
+    margin: 0; flex-shrink: 0;
+}
+#topbar input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 12px; height: 12px;
+    border-radius: 50%; background: linear-gradient(to right, #ef4444, #f97316);
+    cursor: pointer; border: none;
+}
+#topbar input[type="range"]::-moz-range-thumb {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: linear-gradient(to right, #ef4444, #f97316);
+    cursor: pointer; border: none;
+}
+#topbar label {
+    display: inline-flex; align-items: center; gap: 3px;
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<!-- Drop zone -->
+<div id="dropzone">
+    <div class="inner">
+        <h1>Drop .4dgs file here</h1>
+        <p>or click to browse</p>
+        <input type="file" id="fileInput" accept=".4dgs" style="display:none">
+    </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="loading" class="hidden">
+    <h2>Loading...</h2>
+    <div class="bar"><div class="fill" id="loadFill"></div></div>
+    <div class="status" id="loadStatus">Reading file...</div>
+</div>
+
+<!-- Top bar -->
+<div id="topbar" style="display:none">
+    <div class="left">
+        <span>FPS: <span class="val" id="fpsVal">--</span></span>
+        <span>Visible: <span class="val" id="visibleVal">--</span></span>
+        <span>Sort: <span class="val" id="sortTime">--</span>ms</span>
+    </div>
+    <div class="right">
+        <select id="visualMode" style="background:#222;color:#ccc;border:1px solid #444;border-radius:4px;padding:2px 6px;font-size:12px;cursor:pointer">
+            <option value="0">color</option>
+            <option value="1">depth</option>
+            <option value="2">opacity</option>
+            <option value="3">velocity</option>
+            <option value="4">scale</option>
+            <option value="5">t_range</option>
+        </select>
+        <select id="camSelect" style="background:#222;color:#ccc;border:1px solid #444;border-radius:4px;padding:2px 6px;font-size:12px;cursor:pointer;display:none">
+            <option value="-1">Orbit Camera</option>
+        </select>
+        <label style="cursor:pointer;display:inline-flex;align-items:center;gap:3px"><input type="checkbox" id="pointMode"> Points</label>
+        <input type="range" id="pointSize" min="1" max="10" value="3" step="0.5" style="width:60px;vertical-align:middle" title="Point size">
+        <label style="cursor:pointer;display:inline-flex;align-items:center;gap:3px"><input type="checkbox" id="ringMode"> Rings</label>
+        <span><span class="val" id="gaussianCount">--</span> Gaussians</span>
+        <span>SH<span class="val" id="shDeg">--</span></span>
+        <label title="SH degree to render (0=DC only, 3=full)">SH render:<input type="range" id="shDegSlider" min="0" max="3" value="3" step="1" style="width:50px;vertical-align:middle"><span class="val" id="shDegVal">3</span></label>
+        <label title="Clamp Gaussian scale to this max (matches training's scale_max). 0=no clamp.">Scale clamp:<input type="number" id="maxScaleSlider" min="0" max="100" value="0" step="0.01" style="width:45px;vertical-align:middle;font-size:11px"></label>
+        <label title="Hide Gaussians with base opacity below this (0=show all)">Min opa:<input type="number" id="minOpaInput" min="0" max="1" value="0" step="0.05" style="width:45px;vertical-align:middle;font-size:11px"></label>
+        <label title="Color saturation boost (1.0=default, 1.1-1.2=match SuperSplat)">Sat:<input type="number" id="saturationSlider" min="0.5" max="2.0" value="1.0" step="0.05" style="width:45px;vertical-align:middle;font-size:11px"></label>
+        <label title="Contrast/gamma curve (1.0=default, 1.1-1.3=deepen darks)">Con:<input type="number" id="contrastSlider" min="0.5" max="2.0" value="1.0" step="0.05" style="width:45px;vertical-align:middle;font-size:11px"></label>
+        <span style="margin-left:8px;border-left:1px solid #555;padding-left:8px">
+            <label title="Pitch (tilt forward/back in degrees)">Pitch:<input type="number" id="scenePitch" min="-45" max="45" value="-4" step="0.5" style="width:40px;vertical-align:middle;font-size:11px">&deg;</label>
+            <label title="Roll (tilt left/right in degrees)">Roll:<input type="number" id="sceneRoll" min="-45" max="45" value="0" step="0.5" style="width:40px;vertical-align:middle;font-size:11px">&deg;</label>
+            <label title="Yaw (rotate left/right in degrees)">Yaw:<input type="number" id="sceneYaw" min="-45" max="45" value="-2" step="0.5" style="width:40px;vertical-align:middle;font-size:11px">&deg;</label>
+        </span>
+    </div>
+</div>
+
+<!-- SIREN logo -->
+<img id="sirenLogo" src="siren-wordmark.png" alt="SIREN" height="28">
+<img id="sirenLogo2" src="siren-wordmark2.png" alt="SIREN" height="40">
+
+<!-- Eraser bar -->
+<div id="eraserBar">
+    <span>ERASER MODE (E to toggle)</span>
+    <label>Radius: <input type="range" id="eraserRadius" min="5" max="100" value="20" step="1" style="width:80px;vertical-align:middle"><span id="eraserRadiusVal">20</span>px</label>
+    <button id="eraserUndo" title="Undo last erase (Ctrl+Z)">Undo</button>
+    <span id="eraserCount">0 deleted</span>
+    <button id="eraserExport" title="Export cleaned .4dgs file">Export .4dgs</button>
+    <button id="eraserClear" title="Clear all deletions">Clear All</button>
+</div>
+<div id="eraserCursor"></div>
+
+<!-- Bottom bar -->
+<div id="bottombar" class="hidden">
+    <button id="btnPlay" title="Play/Pause (Space)">&#9654;</button>
+    <input type="range" id="timeSlider" min="0" max="299" value="0" step="1">
+    <span id="frameLabel">0 / 299</span>
+    <select id="speedSelect">
+        <option value="0.25">0.25x</option>
+        <option value="0.5">0.5x</option>
+        <option value="1" selected>1x</option>
+        <option value="2">2x</option>
+        <option value="4">4x</option>
+    </select>
+</div>
+
+<script>
+// ============================================================================
+// Worker source — SORT ONLY (no SH eval, no texture packing)
+// ============================================================================
+const WORKER_SRC = `
+"use strict";
+
+let header = null;
+// Compact sort data: [px, py, pz, opaLogit, mu_t, dur_log, vx, vy, vz] per Gaussian
+let sortData = null;
+const SORT_FPG = 9;
+
+// Pre-allocated sort buffers — avoids GC pauses from allocating ~200 MB every frame
+let _visIdx = null;     // Uint32Array[N] — visible Gaussian IDs during culling + radix vals
+let _depthU32 = null;   // Uint32Array[N] — depth keys (also used as Float32 view for writing)
+let _keysSwap = null;   // Uint32Array[N] — radix sort swap buffer for keys
+let _valsSwap = null;   // Uint32Array[N] — radix sort swap buffer for vals
+let _counts = null;     // Uint32Array[256] — radix sort histogram
+
+self.onmessage = function(e) {
+    const msg = e.data;
+    if (msg.type === 'init') {
+        header = msg.header;
+        sortData = new Float32Array(msg.sortData);
+        const N = header.n_gaussians;
+        _visIdx = new Uint32Array(N);
+        _depthU32 = new Uint32Array(N);
+        _keysSwap = new Uint32Array(N);
+        _valsSwap = new Uint32Array(N);
+        _counts = new Uint32Array(256);
+        self.postMessage({ type: 'ready' });
+    }
+    else if (msg.type === 'sort') {
+        doSort(msg.viewMat, msg.time, msg.sharpnessK,
+               msg.lifespanVelocity, msg.lifespanRef,
+               msg.durClampMin, msg.durClampMax, msg.temporalProfile);
+    }
+};
+
+function doSort(viewMat, time, sharpnessK,
+                lifespanVelocity, lifespanRef, durClampMin, durClampMax, temporalProfile) {
+    const N = header.n_gaussians;
+    const t0 = performance.now();
+    const t = (time !== undefined && time !== null) ? time : 0.5;
+    const k = (sharpnessK > 0) ? sharpnessK : 50.0;
+    const temporalMargin = 6.0 / k;
+    const isBell = (temporalProfile === 1);
+    const useLifespanVel = lifespanVelocity > 0.5;
+    const dMin = durClampMin || 0.0;
+    const dMax = durClampMax || 1.0;
+
+    // Write depths directly into _depthU32 via Float32 view (same buffer, reinterpreted)
+    const depthF32 = new Float32Array(_depthU32.buffer);
+    let visCount = 0;
+
+    for (let i = 0; i < N; i++) {
+        const sOff = i * SORT_FPG;
+        const opaLogit = sortData[sOff + 3];
+
+        // Temporal culling — use clamped duration to match vertex shader
+        const mu_t = sortData[sOff + 4];
+        const dur_log = sortData[sOff + 5];
+        const s = Math.min(dMax, Math.max(dMin, Math.exp(dur_log)));
+        const margin = isBell ? 4.0 * s : temporalMargin;
+        if (t < mu_t - s - margin || t > mu_t + s + margin) continue;
+
+        // Velocity-adjusted position
+        const vx = sortData[sOff + 6];
+        const vy = sortData[sOff + 7];
+        const vz = sortData[sOff + 8];
+        const dt = t - mu_t;
+        let vScale = 1.0;
+        if (useLifespanVel) {
+            const lifespan = 2.0 * s;
+            vScale = 1.0 / (1.0 + Math.exp(100.0 * (lifespan - lifespanRef)));
+        }
+        const px = sortData[sOff + 0] + vx * vScale * dt;
+        const py = sortData[sOff + 1] + vy * vScale * dt;
+        const pz = sortData[sOff + 2] + vz * vScale * dt;
+        const depth = viewMat[2]*px + viewMat[6]*py + viewMat[10]*pz + viewMat[14];
+        depthF32[visCount] = depth;
+        _visIdx[visCount] = i;
+        visCount++;
+    }
+
+    // Convert float bits to sortable uint32 (front-to-back: ascending depth order)
+    // Back-to-front: descending depth order for standard alpha blending
+    for (let i = 0; i < visCount; i++) {
+        let bits = _depthU32[i];
+        bits = (bits >> 31) ? ~bits : (bits ^ 0x80000000);
+        _depthU32[i] = ~bits;  // descending (back first)
+    }
+
+    // LSD Radix sort: 4 passes, 8 bits each (256 buckets)
+    // After 4 passes (even), result ends up back in the original buffers
+    let keys = _depthU32;
+    let vals = _visIdx;
+    let keysOut = _keysSwap;
+    let valsOut = _valsSwap;
+
+    for (let pass = 0; pass < 4; pass++) {
+        const shift = pass * 8;
+
+        _counts.fill(0);
+        for (let i = 0; i < visCount; i++) {
+            _counts[(keys[i] >>> shift) & 0xFF]++;
+        }
+
+        let total = 0;
+        for (let i = 0; i < 256; i++) {
+            const c = _counts[i];
+            _counts[i] = total;
+            total += c;
+        }
+
+        for (let i = 0; i < visCount; i++) {
+            const bucket = (keys[i] >>> shift) & 0xFF;
+            const dest = _counts[bucket]++;
+            keysOut[dest] = keys[i];
+            valsOut[dest] = vals[i];
+        }
+
+        const tmpK = keys; keys = keysOut; keysOut = tmpK;
+        const tmpV = vals; vals = valsOut; valsOut = tmpV;
+    }
+
+    // After 4 passes, vals = _visIdx (original buffer). Copy for transfer.
+    const sortedIdx = new Uint32Array(visCount);
+    for (let i = 0; i < visCount; i++) sortedIdx[i] = vals[i];
+
+    const sortMs = performance.now() - t0;
+
+    self.postMessage({
+        type: 'sorted',
+        sortedIdx: sortedIdx.buffer,
+        visCount: visCount,
+        totalCount: N,
+        sortMs: sortMs,
+        sortedTime: t,
+    }, [sortedIdx.buffer]);
+}
+`;
+
+// ============================================================================
+// VERTEX SHADER — reads static data texture, evaluates SH on GPU
+// ============================================================================
+const VERT_SRC = `#version 300 es
+precision highp float;
+precision highp int;
+precision highp usampler2D;
+
+// Static data texture (uploaded ONCE at load time)
+// Layout: u_texelsPerGauss RGBA32UI texels per Gaussian
+// Texel 0:  pos.x(f32), pos.y(f32), pos.z(f32), opacity_logit(f32)
+// Texel 1:  cov[0](f32), cov[1](f32), cov[2](f32), cov[3](f32)  [static fallback]
+// Texel 2:  cov[4](f32), cov[5](f32), mu_t(f32), dur_log(f32)    [static fallback]
+// Texel 3:  vel.x(f32), vel.y(f32), vel.z(f32), sh0_r(f32)
+// Texel 4:  sh0_g(f32), sh0_b(f32), shN[0](f32), shN[1](f32)
+// Texel 5-15: remaining SH coefficients
+// Texel 16+: position keyframes (K × 3 floats, ceil(K*3/4) texels)
+// After pos KF: rotation keyframes (K × 4 floats = K texels, v3 only)
+// After rot KF: scale keyframes (K × 3 floats, ceil(K*3/4) texels, v3 only)
+//   v3: K keyframes → ceil(K*3/4) pos + K rot + ceil(K*3/4) scale texels
+uniform usampler2D u_dataTexture;
+uniform int u_dataTexW;
+uniform int u_texelsPerGauss;
+uniform int u_nKeyframes;      // 0, 8, 21, 300, etc. (no upper limit)
+uniform int u_hasRotScaleKF;   // 1 if rotation/scale keyframes present (v3), 0 otherwise
+// Keyframe times are uniformly spaced: t_k = k / (nKeyframes - 1)
+// No need for a uniform array — computed directly in shader.
+
+uniform mat4 u_view;
+uniform vec2 u_viewport;
+uniform vec2 u_focal;
+uniform float u_time;
+uniform float u_sharpnessK;
+uniform int u_temporalProfile;  // 0=flat_top, 1=bell
+uniform float u_lifespanVelocity;
+uniform float u_lifespanRef;
+uniform float u_durClampMin;
+uniform float u_durClampMax;
+uniform vec3 u_camPos;       // camera world position for SH evaluation
+uniform int u_renderSHDeg;  // SH degree to evaluate (0=DC only, 1, 2, 3=full)
+uniform int u_visualMode;   // 0=color 1=depth 2=opacity 3=velocity 4=scale 5=t_range
+uniform int u_gammaCorrect;  // 1 = decode sRGB→linear for gamma-correct FBO blending
+uniform float u_pointSize;  // 0=splat mode, >0=point mode (radius in pixels)
+uniform float u_sceneExtent; // scene bounding box diagonal for velocity normalization
+uniform float u_maxScale;    // max scale filter — hide Gaussians with any axis > this (0=disabled)
+uniform float u_minOpacity;  // min base opacity filter — hide semi-transparent ghosts (0=disabled)
+
+in vec2 a_quad;
+in uint a_splatIdx;  // Gaussian ID from sorted index buffer
+
+out vec4 v_color;
+out vec2 v_offset;
+out vec3 v_conic;
+out vec2 v_uv;  // normalized quad coords (-1..+1) for ring mode
+flat out float v_pointRadius;  // 0=splat, >0=point mode circle radius
+flat out float v_gaussEdge;    // exp(-0.5 * extend^2) — Gaussian value at quad boundary
+
+float sigmoid(float x) {
+    return 1.0 / (1.0 + exp(-x));
+}
+
+// Turbo colormap approximation (Google Research)
+vec3 turbo(float t) {
+    t = clamp(t, 0.0, 1.0);
+    vec4 r = vec4(0.13572138, 4.61539260, -42.66032258, 132.13108234);
+    vec4 g = vec4(0.09140261, 2.19418839, 4.84296658, -14.18503333);
+    vec4 b = vec4(0.10667330, 12.64194608, -60.58204836, 110.36276771);
+    vec4 r2 = vec4(-152.94239396, 59.28637943, 0.0, 0.0);
+    vec4 g2 = vec4(4.27729857, 2.82956604, 0.0, 0.0);
+    vec4 b2 = vec4(-89.90310912, 27.34824973, 0.0, 0.0);
+    vec4 v = vec4(1.0, t, t*t, t*t*t);
+    vec2 v2 = vec2(v.z*v.z, v.z*v.w);
+    return vec3(
+        dot(v, r) + dot(v2, r2.xy),
+        dot(v, g) + dot(v2, g2.xy),
+        dot(v, b) + dot(v2, b2.xy)
+    );
+}
+
+// Read a float32 from the data texture
+float readFloat(uint gaussIdx, uint floatIdx) {
+    uint tpg = uint(u_texelsPerGauss);
+    uint texelIdx = gaussIdx * tpg + (floatIdx / 4u);
+    uint component = floatIdx & 3u;
+    ivec2 tc = ivec2(int(texelIdx) % u_dataTexW, int(texelIdx) / u_dataTexW);
+    uvec4 d = texelFetch(u_dataTexture, tc, 0);
+    uint raw = component == 0u ? d.x : (component == 1u ? d.y : (component == 2u ? d.z : d.w));
+    return uintBitsToFloat(raw);
+}
+
+// Read 4 floats (one texel) from the data texture
+vec4 readTexel(uint gaussIdx, uint texelOffset) {
+    uint tpg = uint(u_texelsPerGauss);
+    uint texelIdx = gaussIdx * tpg + texelOffset;
+    ivec2 tc = ivec2(int(texelIdx) % u_dataTexW, int(texelIdx) / u_dataTexW);
+    uvec4 d = texelFetch(u_dataTexture, tc, 0);
+    return vec4(uintBitsToFloat(d.x), uintBitsToFloat(d.y), uintBitsToFloat(d.z), uintBitsToFloat(d.w));
+}
+
+// Read a keyframe position: kf index k (0-7), returns vec3
+// Keyframes start at texel 16, packed as 24 contiguous floats
+vec3 readKeyframePos(uint gaussIdx, int k) {
+    uint tpg = uint(u_texelsPerGauss);
+    // 24 floats for 8 keyframes starting at texel 16
+    // kf k starts at float index k*3 within the keyframe block
+    uint kfFloatBase = uint(k) * 3u;  // 0,3,6,9,12,15,18,21
+    uint kfTexelBase = 16u + kfFloatBase / 4u;  // which texel within the block
+    uint kfComponent = kfFloatBase & 3u;  // which component within that texel
+
+    // Read x, y, z - they may span two texels
+    float px, py, pz;
+    uint texelIdx = gaussIdx * tpg + kfTexelBase;
+    ivec2 tc = ivec2(int(texelIdx) % u_dataTexW, int(texelIdx) / u_dataTexW);
+    uvec4 d = texelFetch(u_dataTexture, tc, 0);
+
+    if (kfComponent == 0u) {
+        // x,y,z all in same texel (.xyz)
+        px = uintBitsToFloat(d.x);
+        py = uintBitsToFloat(d.y);
+        pz = uintBitsToFloat(d.z);
+    } else if (kfComponent == 1u) {
+        // x,y,z in same texel (.yzw)
+        px = uintBitsToFloat(d.y);
+        py = uintBitsToFloat(d.z);
+        pz = uintBitsToFloat(d.w);
+    } else if (kfComponent == 2u) {
+        // x,y in this texel (.zw), z in next texel (.x)
+        px = uintBitsToFloat(d.z);
+        py = uintBitsToFloat(d.w);
+        uint texelIdx2 = texelIdx + 1u;
+        ivec2 tc2 = ivec2(int(texelIdx2) % u_dataTexW, int(texelIdx2) / u_dataTexW);
+        uvec4 d2 = texelFetch(u_dataTexture, tc2, 0);
+        pz = uintBitsToFloat(d2.x);
+    } else {
+        // x in this texel (.w), y,z in next texel (.xy)
+        px = uintBitsToFloat(d.w);
+        uint texelIdx2 = texelIdx + 1u;
+        ivec2 tc2 = ivec2(int(texelIdx2) % u_dataTexW, int(texelIdx2) / u_dataTexW);
+        uvec4 d2 = texelFetch(u_dataTexture, tc2, 0);
+        py = uintBitsToFloat(d2.x);
+        pz = uintBitsToFloat(d2.y);
+    }
+    return vec3(px, py, pz);
+}
+
+// Read a rotation keyframe quaternion: returns vec4 (qw, qx, qy, qz)
+// Rotation KFs are 4 floats each = exactly 1 texel per keyframe
+vec4 readKeyframeRot(uint gaussIdx, int k) {
+    uint tpg = uint(u_texelsPerGauss);
+    uint posKFTexels = (uint(u_nKeyframes) * 3u + 3u) / 4u;  // ceil(K*3/4)
+    uint rotBase = 16u + posKFTexels + uint(k);  // 1 texel per rotation KF
+    uint texelIdx = gaussIdx * tpg + rotBase;
+    ivec2 tc = ivec2(int(texelIdx) % u_dataTexW, int(texelIdx) / u_dataTexW);
+    uvec4 d = texelFetch(u_dataTexture, tc, 0);
+    return vec4(uintBitsToFloat(d.x), uintBitsToFloat(d.y), uintBitsToFloat(d.z), uintBitsToFloat(d.w));
+}
+
+// Read a scale keyframe: returns vec3 (log-scale x, y, z)
+// Scale KFs are 3 floats each, packed same way as position KFs
+vec3 readKeyframeScale(uint gaussIdx, int k) {
+    uint tpg = uint(u_texelsPerGauss);
+    uint posKFTexels = (uint(u_nKeyframes) * 3u + 3u) / 4u;  // ceil(K*3/4)
+    uint rotKFTexels = uint(u_nKeyframes);  // 1 texel per rotation KF
+    uint scaleBlockBase = 16u + posKFTexels + rotKFTexels;
+
+    uint kfFloatBase = uint(k) * 3u;
+    uint kfTexelBase = scaleBlockBase + kfFloatBase / 4u;
+    uint kfComponent = kfFloatBase & 3u;
+
+    float sx, sy, sz;
+    uint texelIdx = gaussIdx * tpg + kfTexelBase;
+    ivec2 tc = ivec2(int(texelIdx) % u_dataTexW, int(texelIdx) / u_dataTexW);
+    uvec4 d = texelFetch(u_dataTexture, tc, 0);
+
+    if (kfComponent == 0u) {
+        sx = uintBitsToFloat(d.x); sy = uintBitsToFloat(d.y); sz = uintBitsToFloat(d.z);
+    } else if (kfComponent == 1u) {
+        sx = uintBitsToFloat(d.y); sy = uintBitsToFloat(d.z); sz = uintBitsToFloat(d.w);
+    } else if (kfComponent == 2u) {
+        sx = uintBitsToFloat(d.z); sy = uintBitsToFloat(d.w);
+        uint texelIdx2 = texelIdx + 1u;
+        ivec2 tc2 = ivec2(int(texelIdx2) % u_dataTexW, int(texelIdx2) / u_dataTexW);
+        uvec4 d2 = texelFetch(u_dataTexture, tc2, 0);
+        sz = uintBitsToFloat(d2.x);
+    } else {
+        sx = uintBitsToFloat(d.w);
+        uint texelIdx2 = texelIdx + 1u;
+        ivec2 tc2 = ivec2(int(texelIdx2) % u_dataTexW, int(texelIdx2) / u_dataTexW);
+        uvec4 d2 = texelFetch(u_dataTexture, tc2, 0);
+        sy = uintBitsToFloat(d2.x); sz = uintBitsToFloat(d2.y);
+    }
+    return vec3(sx, sy, sz);
+}
+
+// ---- SH evaluation constants (Sloan JCGT 2013 / gsplat convention) ----
+// Must match reexport_ply.py exactly
+const float SH_C0 = 0.2820947917738781;
+const float SH_C1 = 0.48860251190292;
+
+const float SH_C2_0 = 1.0925484305920792;
+const float SH_C2_1 = 1.0925484305920792;
+const float SH_C2_2 = 0.31539156525252005;
+const float SH_C2_3 = 1.0925484305920792;
+const float SH_C2_4 = 0.5462742152960396;
+
+const float SH_C3_0 = 0.5900435899266435;
+const float SH_C3_1 = 2.890611442640554;
+const float SH_C3_2 = 0.4570457994644658;
+const float SH_C3_3 = 0.3731763325901154;
+const float SH_C3_4 = 0.4570457994644658;
+const float SH_C3_5 = 1.445305721320277;
+const float SH_C3_6 = 0.5900435899266435;
+
+void main() {
+    uint gi = a_splatIdx;  // Gaussian ID
+
+    // ---- Read static data from texture ----
+    // Texel 0: pos + opacity
+    vec4 t0 = readTexel(gi, 0u);
+    vec3 canonPos = t0.xyz;
+    float opacityLogit = t0.w;
+
+    // Min opacity filter: hide semi-transparent ghost Gaussians
+    if (u_minOpacity > 0.0) {
+        float baseOpa = 1.0 / (1.0 + exp(-opacityLogit));
+        if (baseOpa < u_minOpacity) {
+            gl_Position = vec4(0.0, 0.0, 2.0, 1.0);
+            return;
+        }
+    }
+
+    // Texel 1: cov[0..3]
+    vec4 t1 = readTexel(gi, 1u);
+    float c00 = t1.x, c01 = t1.y, c02 = t1.z, c11_ = t1.w;
+
+    // Texel 2: cov[4..5], mu_t, dur_log
+    vec4 t2 = readTexel(gi, 2u);
+    float c12_ = t2.x, c22_ = t2.y;
+    float mu_t = t2.z, duration_log = t2.w;
+
+    // Max scale filter: cov diagonal = squared scale per axis (in rotated frame)
+    if (u_maxScale > 0.0) {
+        float maxS2 = u_maxScale * u_maxScale;
+        if (c00 > maxS2) c00 = maxS2;
+        if (c11_ > maxS2) c11_ = maxS2;
+        if (c22_ > maxS2) c22_ = maxS2;
+    }
+
+    // Texel 3: vel + sh0_r
+    vec4 t3 = readTexel(gi, 3u);
+    vec3 velocity = t3.xyz;
+    float sh0_r = t3.w;
+
+    // Texel 4: sh0_gb + first 2 shN coeffs
+    vec4 t4 = readTexel(gi, 4u);
+    float sh0_g = t4.x, sh0_b = t4.y;
+    // shN starts at t4.z
+
+    // ---- Temporal computation ----
+    float s = clamp(exp(duration_log), u_durClampMin, u_durClampMax);
+    float temporalOpa;
+    if (u_temporalProfile == 1) {
+        float dt = (u_time - mu_t) / s;
+        temporalOpa = exp(-0.5 * dt * dt);
+    } else {
+        float t_start = mu_t - s;
+        float t_end = mu_t + s;
+        float k = u_sharpnessK > 0.0 ? u_sharpnessK : 50.0;
+        float sig1 = sigmoid(k * (u_time - t_start));
+        float sig2 = sigmoid(k * (t_end - u_time));
+        temporalOpa = sig1 * sig2;
+    }
+
+    float baseOpa = sigmoid(opacityLogit);
+    float alpha = baseOpa * temporalOpa;
+
+    // Point mode: keep all Gaussians alive (skip temporal culling)
+    if (alpha < 1.0 / 255.0 && u_pointSize <= 0.0) {
+        gl_Position = vec4(0.0, 0.0, 2.0, 1.0);
+        return;
+    }
+
+    // Position: keyframe interpolation or linear velocity fallback
+    vec3 worldPos;
+    if (u_nKeyframes > 1) {
+        float idx = clamp(u_time, 0.0, 1.0) * float(u_nKeyframes - 1);
+        int k = min(int(floor(idx)), u_nKeyframes - 2);
+        float frac = idx - float(k);
+        vec3 p0 = readKeyframePos(gi, k);
+        vec3 p1 = readKeyframePos(gi, k + 1);
+        worldPos = mix(p0, p1, frac);
+    } else {
+        vec3 vEff = velocity;
+        if (u_lifespanVelocity > 0.5) {
+            float lifespan = 2.0 * s;
+            float vScale = 1.0 / (1.0 + exp(100.0 * (lifespan - u_lifespanRef)));
+            vEff = velocity * vScale;
+        }
+        worldPos = canonPos + vEff * (u_time - mu_t);
+    }
+
+    // ---- Rotation/Scale keyframe interpolation (v3) ----
+    // Override static cov3D when per-frame rotation/scale keyframes are available
+    if (u_hasRotScaleKF > 0 && u_nKeyframes > 1) {
+        vec4 interpQuat;
+        vec3 interpScale;
+
+        // Same uniform-spacing index as position keyframes
+        float idx_rs = clamp(u_time, 0.0, 1.0) * float(u_nKeyframes - 1);
+        int k_rs = min(int(floor(idx_rs)), u_nKeyframes - 2);
+        float frac_rs = idx_rs - float(k_rs);
+
+        // Nlerp for quaternion (lerp + normalize): correct for small rotations,
+        // and with per-frame keyframes the rotation delta between neighbors is tiny.
+        vec4 q0 = readKeyframeRot(gi, k_rs);
+        vec4 q1 = readKeyframeRot(gi, k_rs + 1);
+        // Hemisphere check: flip q1 if dot < 0 to take shortest path
+        if (dot(q0, q1) < 0.0) q1 = -q1;
+        interpQuat = normalize(mix(q0, q1, frac_rs));
+        if (interpQuat.x < 0.0) interpQuat = -interpQuat;
+
+        // Linear lerp for log-scale
+        vec3 s0 = readKeyframeScale(gi, k_rs);
+        vec3 s1 = readKeyframeScale(gi, k_rs + 1);
+        interpScale = mix(s0, s1, frac_rs);
+
+        // Quaternion to rotation matrix (matches worker quatToRotmat exactly)
+        float qw = interpQuat.x, qx = interpQuat.y, qy = interpQuat.z, qz = interpQuat.w;
+        float xx=qx*qx, yy=qy*qy, zz=qz*qz;
+        float xy=qx*qy, xz=qx*qz, yz=qy*qz, wx=qw*qx, wy=qw*qy, wz=qw*qz;
+        float r00=1.0-2.0*(yy+zz), r01=2.0*(xy-wz),     r02=2.0*(xz+wy);
+        float r10=2.0*(xy+wz),     r11=1.0-2.0*(xx+zz), r12=2.0*(yz-wx);
+        float r20=2.0*(xz-wy),     r21=2.0*(yz+wx),     r22=1.0-2.0*(xx+yy);
+
+        // Scale: exp(log-scale)
+        float esx = exp(interpScale.x), esy = exp(interpScale.y), esz = exp(interpScale.z);
+
+        // M = R * diag(S), then cov3D = M * M^T
+        float m00=r00*esx, m01=r01*esy, m02=r02*esz;
+        float m10=r10*esx, m11=r11*esy, m12=r12*esz;
+        float m20=r20*esx, m21=r21*esy, m22=r22*esz;
+
+        c00  = m00*m00 + m01*m01 + m02*m02;
+        c01  = m00*m10 + m01*m11 + m02*m12;
+        c02  = m00*m20 + m01*m21 + m02*m22;
+        c11_ = m10*m10 + m11*m11 + m12*m12;
+        c12_ = m10*m20 + m11*m21 + m12*m22;
+        c22_ = m20*m20 + m21*m21 + m22*m22;
+    }
+
+    // ---- SH evaluation (on GPU!) ----
+    // Direction from camera to Gaussian (matches worker convention: gauss_pos - cam_pos)
+    vec3 dir = normalize(worldPos - u_camPos);
+    float dx = dir.x, dy = dir.y, dz = dir.z;
+
+    // Evaluate SH basis functions
+    float basis0 = SH_C0;
+
+    // SH color: start with degree 0
+    float r = sh0_r * basis0;
+    float g = sh0_g * basis0;
+    float b = sh0_b * basis0;
+
+    // Read shN coefficients from texture
+    // shN is stored coefficient-major: [c0_r, c0_g, c0_b, c1_r, c1_g, c1_b, ...]
+    // 15 coefficients * 3 channels = 45 floats
+    // These start at texel 4, component 2 (after sh0_g, sh0_b)
+    // That's float index: 4*4 + 2 = 18 within the 16-texel block
+
+    // For SH degree >= 1: 3 basis functions, 9 shN floats
+    // Degree 1 basis
+    float b1 = -SH_C1 * dy;
+    float b2 = SH_C1 * dz;
+    float b3 = -SH_C1 * dx;
+
+    // Read shN[0..8] = coeffs for degree 1 (3 basis * 3 channels)
+    // shN[0] = texel4.z, shN[1] = texel4.w
+    // shN[2..5] = texel5
+    // shN[6..8] = texel6.xyz
+    // (We always have SH degree 3, so read all 45 at once)
+
+    // shN floats 0-1 from texel 4 components zw
+    float shN0 = t4.z;
+    float shN1 = t4.w;
+
+    vec4 t5 = readTexel(gi, 5u);
+    float shN2 = t5.x, shN3 = t5.y, shN4 = t5.z, shN5 = t5.w;
+
+    vec4 t6 = readTexel(gi, 6u);
+    float shN6 = t6.x, shN7 = t6.y, shN8 = t6.z, shN9 = t6.w;
+
+    vec4 t7 = readTexel(gi, 7u);
+    float shN10 = t7.x, shN11 = t7.y, shN12 = t7.z, shN13 = t7.w;
+
+    vec4 t8 = readTexel(gi, 8u);
+    float shN14 = t8.x, shN15 = t8.y, shN16 = t8.z, shN17 = t8.w;
+
+    vec4 t9 = readTexel(gi, 9u);
+    float shN18 = t9.x, shN19 = t9.y, shN20 = t9.z, shN21 = t9.w;
+
+    vec4 t10 = readTexel(gi, 10u);
+    float shN22 = t10.x, shN23 = t10.y, shN24 = t10.z, shN25 = t10.w;
+
+    vec4 t11 = readTexel(gi, 11u);
+    float shN26 = t11.x, shN27 = t11.y, shN28 = t11.z, shN29 = t11.w;
+
+    vec4 t12 = readTexel(gi, 12u);
+    float shN30 = t12.x, shN31 = t12.y, shN32 = t12.z, shN33 = t12.w;
+
+    vec4 t13 = readTexel(gi, 13u);
+    float shN34 = t13.x, shN35 = t13.y, shN36 = t13.z, shN37 = t13.w;
+
+    vec4 t14 = readTexel(gi, 14u);
+    float shN38 = t14.x, shN39 = t14.y, shN40 = t14.z, shN41 = t14.w;
+
+    vec4 t15 = readTexel(gi, 15u);
+    float shN42 = t15.x, shN43 = t15.y, shN44 = t15.z;
+
+    // Degree 1: coefficients are coefficient-major [c0_rgb, c1_rgb, c2_rgb]
+    if (u_renderSHDeg >= 1) {
+    // coeff 0 (basis b1): shN[0]=r, shN[1]=g, shN[2]=b
+    r += shN0 * b1; g += shN1 * b1; b += shN2 * b1;
+    // coeff 1 (basis b2): shN[3]=r, shN[4]=g, shN[5]=b
+    r += shN3 * b2; g += shN4 * b2; b += shN5 * b2;
+    // coeff 2 (basis b3): shN[6]=r, shN[7]=g, shN[8]=b
+    r += shN6 * b3; g += shN7 * b3; b += shN8 * b3;
+    }
+
+    // Degree 2: 5 basis functions
+    float xx = dx*dx, yy = dy*dy, zz = dz*dz, xy = dx*dy, xz = dx*dz, yz = dy*dz;
+    float b4 = SH_C2_0 * xy;
+    float b5 = -SH_C2_1 * yz;
+    float b6 = SH_C2_2 * (3.0*zz - 1.0);
+    float b7 = -SH_C2_3 * xz;
+    float b8 = SH_C2_4 * (xx - yy);
+
+    // coeff 3-7 (basis b4-b8): shN[9..23]
+    if (u_renderSHDeg >= 2) {
+    r += shN9  * b4; g += shN10 * b4; b += shN11 * b4;
+    r += shN12 * b5; g += shN13 * b5; b += shN14 * b5;
+    r += shN15 * b6; g += shN16 * b6; b += shN17 * b6;
+    r += shN18 * b7; g += shN19 * b7; b += shN20 * b7;
+    r += shN21 * b8; g += shN22 * b8; b += shN23 * b8;
+    }
+
+    // Degree 3: 7 basis functions
+    float b9  = -SH_C3_0 * dy * (3.0*xx - yy);
+    float b10 =  SH_C3_1 * xy * dz;
+    float b11 = -SH_C3_2 * dy * (5.0*zz - 1.0);
+    float b12 =  SH_C3_3 * dz * (5.0*zz - 3.0);
+    float b13 = -SH_C3_4 * dx * (5.0*zz - 1.0);
+    float b14 =  SH_C3_5 * (xx - yy) * dz;
+    float b15 = -SH_C3_6 * dx * (xx - 3.0*yy);
+
+    // coeff 8-14 (basis b9-b15): shN[24..44]
+    if (u_renderSHDeg >= 3) {
+    r += shN24 * b9;  g += shN25 * b9;  b += shN26 * b9;
+    r += shN27 * b10; g += shN28 * b10; b += shN29 * b10;
+    r += shN30 * b11; g += shN31 * b11; b += shN32 * b11;
+    r += shN33 * b12; g += shN34 * b12; b += shN35 * b12;
+    r += shN36 * b13; g += shN37 * b13; b += shN38 * b13;
+    r += shN39 * b14; g += shN40 * b14; b += shN41 * b14;
+    r += shN42 * b15; g += shN43 * b15; b += shN44 * b15;
+    }
+
+    // Convert from SH space to color: add 0.5, clamp lower bound only.
+    // Both gsplat and SuperSplat/PlayCanvas clamp per-Gaussian colors to >= 0.
+    // HDR values (>1.0) are allowed through and only clamped at final pixel output.
+    vec3 color = max(vec3(r, g, b) + 0.5, vec3(0.0));
+
+    // ---- 3D to 2D projection (matches gsplat exactly) ----
+    vec4 camPos4 = u_view * vec4(worldPos, 1.0);
+    float tz = camPos4.z;
+
+    // Hard near-plane cull (behind camera)
+    if (tz <= 0.01) {
+        gl_Position = vec4(0.0, 0.0, 2.0, 1.0);
+        return;
+    }
+
+    // (near fade applied after 2D projection, based on screen-space size)
+
+    float cam_x = camPos4.x;
+    float cam_y = camPos4.y;
+    float rz = 1.0 / tz;
+    float rz2 = rz * rz;
+    float fx = u_focal.x;
+    float fy = u_focal.y;
+    float img_w = u_viewport.x;
+    float img_h = u_viewport.y;
+
+    // gsplat Jacobian clamping (Utils.cuh lines 516-524):
+    // Clamp projected coordinates to prevent extreme derivatives for
+    // Gaussians near/beyond image edges. 0.3 * tan_fov margin.
+    float tan_fovx = 0.5 * img_w / fx;
+    float tan_fovy = 0.5 * img_h / fy;
+    float lim_x_pos = (img_w - img_w * 0.5) / fx + 0.3 * tan_fovx;
+    float lim_x_neg = (img_w * 0.5) / fx + 0.3 * tan_fovx;
+    float lim_y_pos = (img_h - img_h * 0.5) / fy + 0.3 * tan_fovy;
+    float lim_y_neg = (img_h * 0.5) / fy + 0.3 * tan_fovy;
+
+    float tx = tz * min(lim_x_pos, max(-lim_x_neg, cam_x * rz));
+    float ty = tz * min(lim_y_pos, max(-lim_y_neg, cam_y * rz));
+
+    // Rotate covariance to camera space
+    mat3 viewRot = mat3(u_view);
+    mat3 cov3D = mat3(
+        c00, c01, c02,
+        c01, c11_, c12_,
+        c02, c12_, c22_
+    );
+    mat3 covCam = viewRot * cov3D * transpose(viewRot);
+
+    // Jacobian of perspective projection — using CLAMPED tx, ty (matches gsplat)
+    // gsplat uses mat3x2 (3 cols, 2 rows) but we use mat3 with zero 3rd row
+    mat3 J = mat3(
+        fx * rz, 0.0,           0.0,
+        0.0,     fy * rz,       0.0,
+        -fx * tx * rz2, -fy * ty * rz2, 0.0
+    );
+
+    // 2D covariance
+    mat3 cov2DFull = J * covCam * transpose(J);
+
+    // eps2d: add small epsilon to covariance eigenvalues to prevent degenerate Gaussians
+    // (gsplat Utils.cuh add_blur lines 380-388)
+    // AA compensation: reduce opacity proportionally to how much eps2d inflates the
+    // covariance. This prevents small splats from appearing overly opaque/fuzzy.
+    // (SuperSplat/PlayCanvas applies the same correction.)
+    float detOrig = cov2DFull[0][0] * cov2DFull[1][1] - cov2DFull[0][1] * cov2DFull[0][1];
+    float a = cov2DFull[0][0] + 0.3;  // eps2d = 0.3
+    float b_ = cov2DFull[0][1];
+    float c_ = cov2DFull[1][1] + 0.3;  // eps2d = 0.3
+    float det = a * c_ - b_ * b_;
+
+    if (det <= 1e-12) {
+        gl_Position = vec4(0.0, 0.0, 2.0, 1.0);
+        return;
+    }
+
+    // AA compensation (disabled — see comment)
+    // float aaComp = (detOrig > 1e-12) ? sqrt(detOrig / det) : 1.0;
+    // alpha *= aaComp;
+
+    if (alpha < 1.0 / 255.0) {
+        gl_Position = vec4(0.0, 0.0, 2.0, 1.0);
+        return;
+    }
+
+    float detInv = 1.0 / det;
+    vec3 conic = vec3(c_ * detInv, -b_ * detInv, a * detInv);
+
+    // 2D center in pixel coords (use original unclamped cam_x/cam_y for center)
+    vec2 center2D = vec2(
+        fx * cam_x * rz + img_w * 0.5,
+        fy * cam_y * rz + img_h * 0.5
+    );
+
+    // Opacity-adaptive radius (gsplat ProjectionEWA3DGSFused.cu lines 164-184):
+    float extend = 3.33;
+    float ALPHA_THRESHOLD = 1.0 / 255.0;
+    if (alpha > ALPHA_THRESHOLD) {
+        extend = min(extend, sqrt(2.0 * log(alpha / ALPHA_THRESHOLD)));
+    }
+    float radius_x = ceil(extend * sqrt(a));
+    float radius_y = ceil(extend * sqrt(c_));
+    float radius = max(radius_x, radius_y);
+
+    // Cap large splat radius to prevent GPU fill-rate issues.
+    float screenMax = max(img_w, img_h);
+    float maxRadius = 2.0 * screenMax;
+    radius = min(radius, maxRadius);
+
+    // ---- Point mode: override radius to fixed pixel size ----
+    v_pointRadius = 0.0;
+    if (u_pointSize > 0.0) {
+        radius = u_pointSize;
+        alpha = baseOpa;  // ignore temporal gating for point cloud view
+        v_pointRadius = u_pointSize;
+    }
+
+    // Quad vertex position
+    vec2 quadPos = center2D + a_quad * radius;
+
+    // Convert to clip space
+    gl_Position = vec4(
+        2.0 * quadPos.x / img_w - 1.0,
+        1.0 - 2.0 * quadPos.y / img_h,
+        0.0, 1.0
+    );
+
+    // ---- Visual mode overrides ----
+    if (u_visualMode == 1) {
+        // Depth: normalized by camera-space Z (tz). Near=blue, far=red.
+        float depthNorm = clamp(tz / 20.0, 0.0, 1.0);
+        color = turbo(depthNorm);
+        alpha = max(alpha, 0.5 * baseOpa);  // keep depth visible even for temporal ghosts
+    } else if (u_visualMode == 2) {
+        // Opacity: base opacity (sigmoid) as grayscale
+        color = vec3(baseOpa);
+    } else if (u_visualMode == 3) {
+        // Velocity: show ONLY dynamic points, static = invisible
+        // Reference: 4DV Temporal Forest style — bright magenta/white for motion, black BG
+        float mag = 0.0;
+        if (u_nKeyframes > 1) {
+            // Sample 8 evenly-spaced keyframes to find max displacement (avoids 600-iteration loop)
+            float maxDisp = 0.0;
+            int nSamples = min(u_nKeyframes, 8);
+            float step = float(u_nKeyframes - 1) / float(nSamples);
+            vec3 pPrev = readKeyframePos(gi, 0);
+            for (int i = 1; i <= 8; i++) {
+                if (i > nSamples) break;
+                int k = min(int(float(i) * step + 0.5), u_nKeyframes - 1);
+                vec3 pCur = readKeyframePos(gi, k);
+                maxDisp = max(maxDisp, length(pCur - pPrev));
+                pPrev = pCur;
+            }
+            mag = maxDisp;
+        } else {
+            mag = length(velocity);
+        }
+        // Normalize by scene extent: 2% of scene = noticeable, 20% = high motion
+        float velScale = max(u_sceneExtent * 0.2, 0.01);
+        float velNorm = clamp(mag / velScale, 0.0, 1.0);
+        // Static points (< 0.5% normalized) → fully invisible
+        float velThreshold = 0.005;
+        if (velNorm < velThreshold) {
+            alpha = 0.0;  // hide static Gaussians entirely
+        } else {
+            // Magenta→white ramp (matches 4DV reference): low motion=magenta, high=white
+            vec3 magenta = vec3(0.75, 0.0, 1.0);
+            color = mix(magenta, vec3(1.0), smoothstep(0.0, 1.0, velNorm));
+            alpha = smoothstep(velThreshold, 0.15, velNorm) * baseOpa;
+        }
+    } else if (u_visualMode == 4) {
+        // Scale: max of 3 scale components, turbo colormap
+        float maxScale;
+        if (u_hasRotScaleKF > 0 && u_nKeyframes > 1) {
+            float idx_s = clamp(u_time, 0.0, 1.0) * float(u_nKeyframes - 1);
+            int k_s = min(int(floor(idx_s)), u_nKeyframes - 2);
+            vec3 sc = readKeyframeScale(gi, k_s);
+            maxScale = exp(max(sc.x, max(sc.y, sc.z)));
+        } else {
+            // Use static covariance diagonal as proxy
+            maxScale = sqrt(max(c00, max(c11_, c22_)));
+        }
+        float scaleNorm = clamp(maxScale / 0.1, 0.0, 1.0);
+        color = turbo(scaleNorm);
+    } else if (u_visualMode == 5) {
+        // Temporal range: duration as turbo (short=blue, long=red)
+        float dur = 2.0 * clamp(exp(duration_log), u_durClampMin, u_durClampMax);
+        float durNorm = clamp(dur / 1.0, 0.0, 1.0);  // 0=instant, 1=full timeline
+        color = turbo(durNorm);
+        alpha = max(alpha, 0.4 * baseOpa);
+    }
+
+    v_color = vec4(color, alpha);
+    v_offset = a_quad * radius;
+    v_conic = conic;
+    v_uv = a_quad;
+    v_gaussEdge = (u_pointSize > 0.0) ? 0.0 : exp(-0.5 * extend * extend);
+}
+`;
+
+// ============================================================================
+// FRAGMENT SHADER
+// ============================================================================
+const FRAG_SRC = `#version 300 es
+precision highp float;
+
+in vec4 v_color;
+in vec2 v_offset;
+in vec3 v_conic;
+in vec2 v_uv;
+flat in float v_pointRadius;
+flat in float v_gaussEdge;  // Gaussian value at quad boundary
+
+uniform float u_ringSize;  // 0.0 = normal splats, >0 = ring mode (0.04 = 4% ring width)
+
+out vec4 fragColor;
+
+void main() {
+    // Point mode: hard circle cutoff
+    if (v_pointRadius > 0.0) {
+        float dist2 = dot(v_offset, v_offset);
+        float r2 = v_pointRadius * v_pointRadius;
+        if (dist2 > r2) discard;
+        float alpha = min(0.999, v_color.a);
+        if (alpha < 1.0 / 255.0) discard;
+        fragColor = vec4(v_color.rgb * alpha, alpha);
+        return;
+    }
+
+    // Evaluate Gaussian
+    float power = -0.5 * (
+        v_conic.x * v_offset.x * v_offset.x +
+        2.0 * v_conic.y * v_offset.x * v_offset.y +
+        v_conic.z * v_offset.y * v_offset.y
+    );
+    if (power > 0.0) discard;
+
+    float g = exp(power);
+    if (g < 1.0 / 255.0) discard;
+
+    // Ring mode: SuperSplat-style with visible rings
+    if (u_ringSize > 0.0) {
+        float A = -power / 4.0;
+        if (A > 1.0) discard;
+
+        float gaussAlpha = min(0.999, v_color.a * g);
+        if (gaussAlpha < 1.0 / 255.0) discard;
+
+        float alpha;
+        if (A < 1.0 - u_ringSize) {
+            alpha = gaussAlpha;
+        } else {
+            alpha = 0.6;
+        }
+
+        fragColor = vec4(v_color.rgb * alpha, alpha);
+        return;
+    }
+
+    // Normal splat mode (gsplat uses 0.999f cap, not 0.99)
+    float alpha = min(0.999, v_color.a * g);
+    if (alpha < 1.0 / 255.0) discard;
+
+    // Premultiplied alpha output: (color * alpha, alpha)
+    fragColor = vec4(v_color.rgb * alpha, alpha);
+}
+`;
+
+// ============================================================================
+// BLIT SHADER — copies float FBO to canvas with tone mapping
+// ============================================================================
+const BLIT_VERT = `#version 300 es
+in vec2 a_pos;
+out vec2 v_uv;
+void main() {
+    v_uv = a_pos * 0.5 + 0.5;
+    gl_Position = vec4(a_pos, 0.0, 1.0);
+}
+`;
+const BLIT_FRAG = `#version 300 es
+precision highp float;
+uniform sampler2D u_tex;
+uniform float u_saturation;  // 1.0 = no change, >1.0 = boost
+uniform float u_contrast;    // 1.0 = no change, >1.0 = deepen darks
+in vec2 v_uv;
+out vec4 fragColor;
+void main() {
+    vec4 c = texture(u_tex, v_uv);
+    // Front-to-back FBO stores premultiplied RGB + accumulated alpha.
+    // Composite onto black background: final = rgb + background * (1 - alpha).
+    // With black background (0,0,0), final = rgb.
+    vec3 color = clamp(c.rgb, 0.0, 1.0);
+    // Contrast: pow curve deepens darks while preserving highlights
+    // u_contrast > 1.0 = darker darks (e.g. 1.1-1.3 to match training output)
+    color = pow(color, vec3(u_contrast));
+    // Saturation adjustment: mix between luminance (grey) and color
+    float luma = dot(color, vec3(0.2126, 0.7152, 0.0722));
+    color = clamp(mix(vec3(luma), color, u_saturation), 0.0, 1.0);
+    fragColor = vec4(color, 1.0);
+}
+`;
+
+// ============================================================================
+// MAIN APPLICATION
+// ============================================================================
+(function() {
+    "use strict";
+
+    const canvas = document.getElementById('canvas');
+    const dropzone = document.getElementById('dropzone');
+    const loading = document.getElementById('loading');
+    const loadFill = document.getElementById('loadFill');
+    const loadStatus = document.getElementById('loadStatus');
+    const topbar = document.getElementById('topbar');
+    const bottombar = document.getElementById('bottombar');
+    const btnPlay = document.getElementById('btnPlay');
+    const timeSlider = document.getElementById('timeSlider');
+    const frameLabel = document.getElementById('frameLabel');
+    const speedSelect = document.getElementById('speedSelect');
+    const fileInput = document.getElementById('fileInput');
+
+    const gl = canvas.getContext('webgl2', {
+        antialias: false,
+        alpha: false,
+        premultipliedAlpha: false,
+        powerPreference: 'high-performance'
+    });
+    if (!gl) { alert('WebGL2 not supported'); return; }
+
+    // State
+    let header = null;
+    let worker = null;
+    let program = null;
+    let dataTexture = null;   // Static GPU texture (uploaded ONCE)
+    let nKeyframes = 0;       // Number of keyframes loaded (for future use)
+    let vao = null;
+    let indexBuffer = null;   // GPU buffer for sorted Gaussian IDs
+    let vertexCount = 0;
+    let playing = false;
+    let playSpeed = 1.0;
+    let currentFrame = 0;
+    let lastFrameTime = 0;
+    let frameAccum = 0;
+    let fpsFrames = 0;
+    let fpsTick = 0;
+    let currentFps = 0;
+    let sortPending = false;
+    let lastSortedTime = -1;  // normalized time [0,1] the current sort was computed for
+    let visibleCount = 0;
+    let dataTexW = 2048;
+    let dataTexH = 1;
+
+    // Float FBO for precision blending (avoids uint8 quantization per blend step)
+    let fbo = null;
+    let fboTexture = null;
+    let fboW = 0, fboH = 0;
+    let blitProgram = null;
+    let blitVAO = null;
+    let u_blit_tex = null;
+    let u_blit_saturation = null;
+    let u_blit_contrast = null;
+
+    // Debug toggles
+    let debugForcePrebakedCov = false; // 'K' key: force pre-baked covariance (disable keyframe rot/scale)
+    let debugDisableFBO = false;       // 'F' key: disable float FBO (revert to uint8 canvas)
+
+    // Camera
+    const camera = {
+        position: [0, 0, 5],
+        target: [0, 0, 0],
+        up: [0, 0, 1],
+        fov: 45 * Math.PI / 180,
+        near: 0.01,
+        far: 1000,
+    };
+    let trainingFocal = null; // {fx, fy} when locked to a training camera, null for orbit camera
+    let activeTrainingCam = -1; // index of active training camera, -1 = orbit
+    let sceneUp = [0, -1, 0]; // scene up vector (computed from training cameras if available)
+    let sceneCenter = [0, 0, 0]; // AABB center, used as orbit target
+
+    function snapToTrainingCamera(idx) {
+        if (!header || !header.trainingCameras || idx >= header.trainingCameras.length) return;
+        const cam = header.trainingCameras[idx];
+        // c2w is row-major: [r00,r01,r02,tx, r10,r11,r12,ty, r20,r21,r22,tz, 0,0,0,1]
+        const c = cam.c2w;
+        // Camera position = translation column of c2w
+        camera.position = [c[3], c[7], c[11]];
+        // In CV/COLMAP convention, camera looks along +Z axis of its frame.
+        // c2w col2 = forward (into scene). Target = position + forward.
+        camera.target = [
+            camera.position[0] + c[2],
+            camera.position[1] + c[6],
+            camera.position[2] + c[10],
+        ];
+        // Up = -col1 of c2w. In CV convention, c2w Y-axis points DOWN in the image.
+        // Negate to get actual world-up direction for lookAt.
+        camera.up = [-c[1], -c[5], -c[9]];
+        // Use training camera focal length
+        trainingFocal = { fx: cam.fx, fy: cam.fy };
+        activeTrainingCam = idx;
+        console.log(`[Camera] Snapped to training camera ${idx}: pos=[${camera.position}] res=${cam.width}x${cam.height} fx=${cam.fx.toFixed(1)} fy=${cam.fy.toFixed(1)}`);
+        // Reset FBO log so resolution change is logged
+        if (render) render._fboLastRes = null;
+        // Update dropdown if it exists
+        const sel = document.getElementById('camSelect');
+        if (sel) sel.value = idx;
+        // Trigger re-sort with new view direction (if worker is ready)
+        if (worker && vertexCount > 0) requestSort();
+    }
+
+    function exitTrainingCameraMode() {
+        if (activeTrainingCam >= 0) {
+            // Switching from training camera to orbit mode:
+            // Reset target to scene center so orbit rotates around the scene
+            camera.target = [...sceneCenter];
+        }
+        trainingFocal = null;
+        activeTrainingCam = -1;
+        camera.up = [...sceneUp];
+        // Sync tweens so orbit picks up from current camera state
+        syncTweensFromCamera();
+        const sel = document.getElementById('camSelect');
+        if (sel) sel.value = '-1';
+    }
+
+    let isDragging = false;
+    let dragButton = 0;
+    let lastMouse = [0, 0];
+
+    // Uniform locations
+    let u_dataTexture, u_dataTexW, u_texelsPerGauss, u_nKeyframes, u_hasRotScaleKF;
+    let u_view, u_viewport, u_focal;
+    let u_time, u_sharpnessK, u_temporalProfile, u_lifespanVelocity, u_lifespanRef;
+    let u_durClampMin, u_durClampMax, u_camPos, u_renderSHDeg, u_maxScale, u_minOpacity, u_visualMode, u_pointSize, u_sceneExtent, u_ringSize, u_gammaCorrect;
+
+    // ---- File handling ----
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) loadFile(e.target.files[0]);
+    });
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) loadFile(e.dataTransfer.files[0]);
+    });
+
+    // Stored for building GPU texture
+    let _gaussianData = null;       // Float32Array when small enough; null when streamed
+    let _floatsPerGaussian = 0;
+    let _nShRest = 0;
+    let _cov3DAll = null;           // Float32Array [N*6] computed on main thread
+    let _sortData = null;           // Float32Array [N*9] compact sort data for worker
+
+    // Eraser mode state
+    let eraserMode = false;
+    let deletedSet = new Set();
+    let deletedHistory = [];        // array of arrays of deleted indices (for undo)
+    let mainPositions = null;       // Float32Array[N*3] kept on main thread for hit testing
+    let lastSortedIndices = null;   // Uint32Array — last sorted visible indices
+    let loadedFileRef = null;       // File reference kept for export
+
+    // Streaming gaussian base data (for files with gaussian data > 1.5 GB)
+    let _gaussStreamFile = null;        // File object for streaming reads
+    let _gaussStreamDataOffset = 0;     // byte offset of gaussian data in file
+    let _gaussBatchData = null;         // current batch Float32Array
+    let _gaussBatchStart = 0;           // start gaussian index of current batch
+
+    // Streaming keyframe state (for files with KF data > 1 GB)
+    let _kfStreamFile = null;       // File object for streaming reads
+    let _kfStreamOffsets = null;    // { posStart, rotStart, scaleStart, fileK, hasV3 }
+    let _kfBatchOffset = 0;        // Gaussian index offset for current batch
+
+    async function loadFile(file) {
+        dropzone.classList.add('hidden');
+        loading.classList.remove('hidden');
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(0);
+        loadStatus.textContent = `Reading file (${sizeMB} MB)...`;
+        loadFill.style.width = '5%';
+
+        try {
+            await loadFileChunked(file);
+        } catch (err) {
+            console.error('[4DGS] Load error:', err);
+            loadStatus.textContent = 'Error: ' + err.message;
+            alert('Failed to load file: ' + err.message + '\nFile size: ' + sizeMB + ' MB');
+            dropzone.classList.remove('hidden');
+            loading.classList.add('hidden');
+        }
+    }
+
+    // Read a large byte range from a File in 256 MB chunks.
+    // Blob.arrayBuffer() fails in Chrome for slices > ~2 GB (NotReadableError).
+    async function readLargeSlice(file, start, length, onProgress) {
+        const CHUNK = 256 * 1024 * 1024; // 256 MB
+        if (length <= CHUNK) {
+            return await file.slice(start, start + length).arrayBuffer();
+        }
+        const buffer = new ArrayBuffer(length);
+        const dst = new Uint8Array(buffer);
+        let offset = 0;
+        while (offset < length) {
+            const chunkSize = Math.min(CHUNK, length - offset);
+            const chunkBuf = await file.slice(start + offset, start + offset + chunkSize).arrayBuffer();
+            dst.set(new Uint8Array(chunkBuf), offset);
+            offset += chunkSize;
+            if (onProgress) onProgress(offset, length);
+        }
+        return buffer;
+    }
+
+    async function loadFileChunked(file) {
+        // Read file in chunks to avoid the ~2 GB ArrayBuffer limit.
+        // Each section (header, cameras, gaussian data, keyframes) is read
+        // as its own small ArrayBuffer via file.slice().arrayBuffer().
+        const HEADER_SIZE = 256;
+
+        // 1. Parse header
+        loadFill.style.width = '8%';
+        loadStatus.textContent = 'Parsing header...';
+        const headerBuf = await file.slice(0, HEADER_SIZE).arrayBuffer();
+        const hv = new DataView(headerBuf);
+        const magic = String.fromCharCode(hv.getUint8(0), hv.getUint8(1), hv.getUint8(2), hv.getUint8(3));
+        if (magic !== '4DGS') {
+            throw new Error('Invalid file: expected .4dgs format (magic "4DGS")');
+        }
+
+        header = {
+            version: hv.getUint32(4, true),
+            n_gaussians: hv.getUint32(8, true),
+            sh_degree: hv.getUint32(12, true),
+            n_sh_coeffs: hv.getUint32(16, true),
+            temporal_profile: hv.getUint8(20),
+            n_levels: hv.getUint8(21),
+            n_segments: hv.getUint16(22, true),
+            sharpness_k: hv.getFloat32(24, true),
+            total_frames: hv.getUint32(28, true),
+            fps: hv.getFloat32(32, true),
+            time_range_min: hv.getFloat32(36, true),
+            time_range_max: hv.getFloat32(40, true),
+            root_segment_len: hv.getFloat32(44, true),
+            scene_extent: hv.getFloat32(48, true),
+            scene_aabb: [
+                hv.getFloat32(52, true), hv.getFloat32(56, true), hv.getFloat32(60, true),
+                hv.getFloat32(64, true), hv.getFloat32(68, true), hv.getFloat32(72, true),
+            ],
+            duration_clamp_min: hv.getFloat32(76, true),
+            duration_clamp_max: hv.getFloat32(80, true),
+            segment_table_offset: hv.getUint32(84, true),
+            data_offset: hv.getUint32(88, true),
+            lifespan_velocity: hv.getUint8(92) !== 0,
+            lifespan_ref: hv.getFloat32(96, true),
+            // v2: embedded cameras
+            n_cameras: hv.getUint16(100, true),
+            camera_table_offset: hv.getUint32(104, true),
+            // v2.1: position keyframes for deformation
+            n_keyframes: hv.getUint16(108, true),
+            keyframe_offset: hv.getUint32(112, true),
+            // v3.1: training scale_max clamp (0 = no clamp)
+            scale_max: hv.byteLength >= 120 ? hv.getFloat32(116, true) : 0,
+        };
+
+        console.log('[4DGS] Header:', header);
+
+        // 2. Parse embedded training cameras (v2)
+        const trainingCameras = [];
+        if (header.version >= 2 && header.n_cameras > 0) {
+            loadFill.style.width = '10%';
+            loadStatus.textContent = 'Reading cameras...';
+            const camStart = header.camera_table_offset;
+            const camSize = header.n_cameras * 80;
+            const camBuf = await file.slice(camStart, camStart + camSize).arrayBuffer();
+            const cv = new DataView(camBuf);
+            for (let i = 0; i < header.n_cameras; i++) {
+                const base = i * 80; // CAMERA_RECORD_SIZE = 80
+                const c2w = [];
+                for (let j = 0; j < 16; j++) {
+                    c2w.push(cv.getFloat32(base + j * 4, true));
+                }
+                const fx = cv.getFloat32(base + 64, true);
+                const fy = cv.getFloat32(base + 68, true);
+                const w = cv.getUint32(base + 72, true);
+                const h = cv.getUint32(base + 76, true);
+                trainingCameras.push({ c2w, fx, fy, width: w, height: h });
+            }
+            console.log(`[4DGS] Loaded ${trainingCameras.length} training cameras`);
+        }
+        header.trainingCameras = trainingCameras;
+
+        // 3. Read Gaussian base data — batch-processed to avoid >2 GB allocations
+        const nShRest = header.n_sh_coeffs - 1;
+        const fpg = 3 + 3 + 4 + 1 + 3 + (nShRest * 3) + 1 + 1 + 3;
+        const gaussianByteLen = header.n_gaussians * fpg * 4;
+        const N = header.n_gaussians;
+        const temporalOff = 14 + nShRest * 3; // offset to mu_t within fpg
+
+        // Compact sort data: [px, py, pz, opaLogit, mu_t, dur_log, vx, vy, vz]
+        const SORT_FPG = 9;
+        const sortData = new Float32Array(N * SORT_FPG);  // ~425 MB for 11.8M
+        const cov3DAll = new Float32Array(N * 6);          // ~284 MB for 11.8M
+
+        // Quaternion to rotation matrix (same as worker used to have)
+        function quatToRotmat(qw, qx, qy, qz) {
+            const len = Math.sqrt(qw*qw + qx*qx + qy*qy + qz*qz) + 1e-10;
+            let w = qw/len, x = qx/len, y = qy/len, z = qz/len;
+            if (w < 0) { w = -w; x = -x; y = -y; z = -z; }
+            const x2=x*x, y2=y*y, z2=z*z, xy=x*y, xz=x*z, yz=y*z, wx=w*x, wy=w*y, wz=w*z;
+            return [
+                1-2*(y2+z2), 2*(xy-wz),   2*(xz+wy),
+                2*(xy+wz),   1-2*(x2+z2), 2*(yz-wx),
+                2*(xz-wy),   2*(yz+wx),   1-2*(x2+y2)
+            ];
+        }
+
+        // Process in batches of 500K Gaussians (~128 MB per batch for fpg=64)
+        const GAUSS_BATCH = 500000;
+        const nBatches = Math.ceil(N / GAUSS_BATCH);
+        // Store file ref for texture packing (gaussian data streaming)
+        _gaussStreamFile = file;
+        _gaussStreamDataOffset = header.data_offset;
+
+        loadFill.style.width = '12%';
+        loadStatus.textContent = `Processing ${N.toLocaleString()} Gaussians in ${nBatches} batches...`;
+
+        for (let b = 0; b < nBatches; b++) {
+            const bStart = b * GAUSS_BATCH;
+            const bEnd = Math.min(bStart + GAUSS_BATCH, N);
+            const bCount = bEnd - bStart;
+
+            // Read batch from file
+            const byteOff = header.data_offset + bStart * fpg * 4;
+            const byteLen = bCount * fpg * 4;
+            const batchBuf = await file.slice(byteOff, byteOff + byteLen).arrayBuffer();
+            const bd = new Float32Array(batchBuf);
+
+            for (let i = 0; i < bCount; i++) {
+                const off = i * fpg;
+                const gi = bStart + i;
+
+                // Extract compact sort data
+                const sOff = gi * SORT_FPG;
+                sortData[sOff + 0] = bd[off + 0];  // px
+                sortData[sOff + 1] = bd[off + 1];  // py
+                sortData[sOff + 2] = bd[off + 2];  // pz
+                sortData[sOff + 3] = bd[off + 10]; // opaLogit
+                sortData[sOff + 4] = bd[off + temporalOff];     // mu_t
+                sortData[sOff + 5] = bd[off + temporalOff + 1]; // dur_log
+                sortData[sOff + 6] = bd[off + temporalOff + 2]; // vx
+                sortData[sOff + 7] = bd[off + temporalOff + 3]; // vy
+                sortData[sOff + 8] = bd[off + temporalOff + 4]; // vz
+
+                // Compute 3D covariance from quats + scales
+                const sx = Math.exp(bd[off + 3]);
+                const sy = Math.exp(bd[off + 4]);
+                const sz = Math.exp(bd[off + 5]);
+                const R = quatToRotmat(bd[off+6], bd[off+7], bd[off+8], bd[off+9]);
+                const m00 = R[0]*sx, m01 = R[1]*sy, m02 = R[2]*sz;
+                const m10 = R[3]*sx, m11 = R[4]*sy, m12 = R[5]*sz;
+                const m20 = R[6]*sx, m21 = R[7]*sy, m22 = R[8]*sz;
+                const ci = gi * 6;
+                cov3DAll[ci]   = m00*m00 + m01*m01 + m02*m02;
+                cov3DAll[ci+1] = m00*m10 + m01*m11 + m02*m12;
+                cov3DAll[ci+2] = m00*m20 + m01*m21 + m02*m22;
+                cov3DAll[ci+3] = m10*m10 + m11*m11 + m12*m12;
+                cov3DAll[ci+4] = m10*m20 + m11*m21 + m12*m22;
+                cov3DAll[ci+5] = m20*m20 + m21*m21 + m22*m22;
+            }
+
+            const pct = 12 + 13 * bEnd / N;
+            loadFill.style.width = pct.toFixed(0) + '%';
+            loadStatus.textContent = `Processing Gaussians... ${bEnd.toLocaleString()} / ${N.toLocaleString()}`;
+            await new Promise(r => setTimeout(r, 0)); // yield to UI
+        }
+        console.log(`[4DGS] Processed ${N.toLocaleString()} Gaussians (sort: ${(sortData.byteLength/1024/1024).toFixed(0)} MB, cov: ${(cov3DAll.byteLength/1024/1024).toFixed(0)} MB)`);
+        loadFill.style.width = '25%';
+
+        // 4. Parse keyframes (each section read as its own chunk)
+        let keyframeTimes = null;
+        let keyframePositions = null;
+        let keyframeRotations = null;
+        let keyframeScales = null;
+
+        if (header.n_keyframes > 0 && header.keyframe_offset > 0) {
+            const K = header.n_keyframes;
+            const N = header.n_gaussians;
+            const kfOff = header.keyframe_offset;
+
+            // Keyframe header: n_keyframes (uint16) + 2 padding + K float32 times
+            const kfHeaderSize = 4 + K * 4;
+            const kfHeaderBuf = await file.slice(kfOff, kfOff + kfHeaderSize).arrayBuffer();
+            const kfHv = new DataView(kfHeaderBuf);
+            const kfN = kfHv.getUint16(0, true);
+            console.log(`[4DGS] Keyframe block: n_keyframes=${kfN} at offset ${kfOff}`);
+            keyframeTimes = new Float32Array(kfN);
+            for (let i = 0; i < kfN; i++) {
+                keyframeTimes[i] = kfHv.getFloat32(4 + i * 4, true);
+            }
+            console.log('[4DGS] Keyframe times:', Array.from(keyframeTimes));
+
+            // Compute KF data sizes
+            const posStart = kfOff + kfHeaderSize;
+            const posByteLen = N * K * 3 * 4;
+            const rotByteLen = N * K * 4 * 4;
+            const scaleByteLen = N * K * 3 * 4;
+            const hasV3 = header.version >= 3;
+            const rotStart = posStart + posByteLen;
+            const scaleStart = rotStart + rotByteLen;
+            const totalKFBytes = posByteLen + (hasV3 ? rotByteLen + scaleByteLen : 0);
+            const KF_STREAM_THRESHOLD = 1.0 * 1024 * 1024 * 1024; // 1 GB
+
+            if (totalKFBytes > KF_STREAM_THRESHOLD) {
+                // Streaming mode: KF data too large to fit in memory at once.
+                // Store file reference and byte offsets; read in batches during texture packing.
+                console.log(`[4DGS] KF data ${(totalKFBytes / 1024 / 1024 / 1024).toFixed(1)} GB — streaming mode`);
+                _kfStreamFile = file;
+                _kfStreamOffsets = { posStart, rotStart, scaleStart, fileK: K, hasV3 };
+                // Set sentinel so onCovReady knows to stream
+                keyframePositions = 'stream';
+                keyframeRotations = hasV3 ? 'stream' : null;
+                keyframeScales = hasV3 ? 'stream' : null;
+                loadFill.style.width = '44%';
+            } else {
+                // Normal mode: read all KF data into memory
+                loadFill.style.width = '30%';
+                loadStatus.textContent = `Reading position keyframes (${(posByteLen / 1024 / 1024).toFixed(0)} MB)...`;
+                const posBuf = await file.slice(posStart, posStart + posByteLen).arrayBuffer();
+                keyframePositions = new Float32Array(posBuf);
+
+                // Debug: print first Gaussian's keyframe positions
+                console.log('[4DGS] Gaussian 0 keyframe positions:');
+                for (let k = 0; k < Math.min(5, K); k++) {
+                    const idx = k * 3;
+                    console.log(`  kf[${k}] t=${keyframeTimes[k].toFixed(2)}: (${keyframePositions[idx].toFixed(4)}, ${keyframePositions[idx+1].toFixed(4)}, ${keyframePositions[idx+2].toFixed(4)})`);
+                }
+
+                if (hasV3) {
+                    loadFill.style.width = '38%';
+                    loadStatus.textContent = `Reading rotation keyframes (${(rotByteLen / 1024 / 1024).toFixed(0)} MB)...`;
+                    const rotBuf = await file.slice(rotStart, rotStart + rotByteLen).arrayBuffer();
+                    keyframeRotations = new Float32Array(rotBuf);
+
+                    loadFill.style.width = '44%';
+                    loadStatus.textContent = `Reading scale keyframes (${(scaleByteLen / 1024 / 1024).toFixed(0)} MB)...`;
+                    const scaleBuf = await file.slice(scaleStart, scaleStart + scaleByteLen).arrayBuffer();
+                    keyframeScales = new Float32Array(scaleBuf);
+
+                    console.log(`[4DGS] v3 keyframes: ${K} rotation [${N}x${K}x4] + scale [${N}x${K}x3]`);
+                    const midK = Math.floor(K / 2);
+                    console.log(`  G0 rot kf[0]: (${keyframeRotations[0].toFixed(4)}, ${keyframeRotations[1].toFixed(4)}, ${keyframeRotations[2].toFixed(4)}, ${keyframeRotations[3].toFixed(4)})`);
+                    console.log(`  G0 rot kf[${midK}]: (${keyframeRotations[midK*4].toFixed(4)}, ${keyframeRotations[midK*4+1].toFixed(4)}, ${keyframeRotations[midK*4+2].toFixed(4)}, ${keyframeRotations[midK*4+3].toFixed(4)})`);
+                    console.log(`  G0 scale kf[0]: (${keyframeScales[0].toFixed(4)}, ${keyframeScales[1].toFixed(4)}, ${keyframeScales[2].toFixed(4)})`);
+                }
+            }
+        }
+
+        header.keyframeTimes = keyframeTimes;
+        header.keyframePositions = keyframePositions;
+        header.keyframeRotations = keyframeRotations;
+        header.keyframeScales = keyframeScales;
+
+        _gaussianData = null; // streamed from file during texture packing
+        _floatsPerGaussian = fpg;
+        _nShRest = nShRest;
+        _cov3DAll = cov3DAll;
+        _sortData = sortData;
+
+        loadFill.style.width = '50%';
+        loadStatus.textContent = 'Building GPU texture...';
+
+        // Center camera on scene
+        const aabb = header.scene_aabb;
+        sceneCenter = [
+            (aabb[0] + aabb[3]) / 2,
+            (aabb[1] + aabb[4]) / 2,
+            (aabb[2] + aabb[5]) / 2,
+        ];
+        camera.target = [...sceneCenter];
+        const extentX = aabb[3] - aabb[0];
+        const extentY = aabb[4] - aabb[1];
+        const extentZ = aabb[5] - aabb[2];
+        const sceneSize = Math.sqrt(extentX*extentX + extentY*extentY + extentZ*extentZ);
+
+        // Compute scene up vector from training cameras.
+        // Camera X-axes (col 0 of c2w) are horizontal for no-roll cameras,
+        // regardless of pitch. The direction perpendicular to all X-axes
+        // is the true vertical — found as the smallest eigenvector of
+        // the X-axis scatter matrix (via power iteration + deflation).
+        if (trainingCameras.length >= 2) {
+            // Build scatter matrix S = Σ x_i * x_i^T of camera X-axes
+            const S = [0,0,0, 0,0,0, 0,0,0];
+            for (const tc of trainingCameras) {
+                const c = tc.c2w;
+                const x = [c[0], c[4], c[8]]; // column 0 = X-axis
+                S[0]+=x[0]*x[0]; S[1]+=x[0]*x[1]; S[2]+=x[0]*x[2];
+                S[3]+=x[1]*x[0]; S[4]+=x[1]*x[1]; S[5]+=x[1]*x[2];
+                S[6]+=x[2]*x[0]; S[7]+=x[2]*x[1]; S[8]+=x[2]*x[2];
+            }
+            const mv = (m,v) => [m[0]*v[0]+m[1]*v[1]+m[2]*v[2],
+                                  m[3]*v[0]+m[4]*v[1]+m[5]*v[2],
+                                  m[6]*v[0]+m[7]*v[1]+m[8]*v[2]];
+            const nrm = v => { const l=Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2])+1e-20; return [v[0]/l,v[1]/l,v[2]/l]; };
+            const dt = (a,b) => a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+            const cr = (a,b) => [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+
+            // Power iteration for largest eigenvector
+            let v1 = nrm([1, 0.5, 0.3]);
+            for (let i = 0; i < 30; i++) v1 = nrm(mv(S, v1));
+            const lam1 = dt(v1, mv(S, v1));
+
+            // Deflate: S2 = S - lam1 * v1*v1^T
+            const S2 = [...S];
+            for (let i = 0; i < 3; i++)
+                for (let j = 0; j < 3; j++)
+                    S2[i*3+j] -= lam1 * v1[i] * v1[j];
+
+            // Power iteration for second eigenvector
+            let v2 = nrm([0.3, 1, 0.5]);
+            for (let i = 0; i < 30; i++) v2 = nrm(mv(S2, v2));
+
+            // Smallest eigenvector = perpendicular to the two largest = vertical
+            let up = nrm(cr(v1, v2));
+
+            // Orient using camera Y-axes (they get the sign right even if biased)
+            let avgUp = [0, 0, 0];
+            for (const tc of trainingCameras) {
+                const c = tc.c2w;
+                avgUp[0] -= c[1]; avgUp[1] -= c[5]; avgUp[2] -= c[9];
+            }
+            if (dt(up, avgUp) < 0) up = [-up[0], -up[1], -up[2]];
+
+            // Snap to nearest cardinal axis if within 10° — fixes PCA tilt
+            // Use signed dot product so we preserve the orientation from step above
+            const axes = [[1,0,0],[0,1,0],[0,0,1]];
+            let bestAbsDot = -1, bestAxis = up;
+            for (const ax of axes) {
+                const d = dt(up, ax);  // signed dot
+                if (Math.abs(d) > bestAbsDot) {
+                    bestAbsDot = Math.abs(d);
+                    // Pick axis with correct sign to match 'up'
+                    bestAxis = d >= 0 ? [...ax] : [-ax[0], -ax[1], -ax[2]];
+                }
+            }
+            const snapAngle = Math.acos(Math.min(1, bestAbsDot)) * 180 / Math.PI;
+            if (snapAngle < 10) {
+                console.log(`[Scene] Snapping up vector to [${bestAxis}] (was ${snapAngle.toFixed(1)}° off)`);
+                up = [...bestAxis];
+            }
+
+            sceneUp = up;
+            camera.up = [...sceneUp];
+            console.log('[Scene] Up vector from X-axis scatter:', sceneUp);
+        }
+
+        // If training cameras are available, use camera 4 (cam04) as default
+        // since that's the typical training render camera
+        if (trainingCameras.length > 4) {
+            snapToTrainingCamera(4);
+        } else if (trainingCameras.length > 0) {
+            snapToTrainingCamera(0);
+        } else {
+            camera.position = [
+                camera.target[0],
+                camera.target[1] - sceneSize * 0.8,
+                camera.target[2],
+            ];
+        }
+
+        // Update UI
+        document.getElementById('gaussianCount').textContent = header.n_gaussians.toLocaleString();
+        document.getElementById('shDeg').textContent = header.sh_degree;
+        timeSlider.max = header.total_frames - 1;
+        frameLabel.textContent = `0 / ${header.total_frames - 1}`;
+
+        // Auto-set scale clamp from training config (if embedded in header)
+        if (header.scale_max > 0) {
+            document.getElementById('maxScaleSlider').value = header.scale_max.toFixed(2);
+            console.log(`[4DGS] Scale clamp set from header: ${header.scale_max}`);
+        }
+
+        // Populate camera dropdown
+        const camSelect = document.getElementById('camSelect');
+        if (trainingCameras.length > 0) {
+            camSelect.style.display = '';
+            // Clear existing options except "Orbit Camera"
+            camSelect.innerHTML = '<option value="-1">Orbit Camera</option>';
+            for (let i = 0; i < trainingCameras.length; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `Cam ${String(i).padStart(2, '0')}`;
+                camSelect.appendChild(opt);
+            }
+            camSelect.value = activeTrainingCam;
+            camSelect.addEventListener('change', () => {
+                const idx = parseInt(camSelect.value);
+                if (idx >= 0) {
+                    snapToTrainingCamera(idx);
+                } else {
+                    exitTrainingCameraMode();
+                }
+                requestSort();
+            });
+        }
+
+        // Init WebGL
+        initWebGL();
+
+        // Init worker
+        const blob = new Blob([WORKER_SRC], { type: 'application/javascript' });
+        worker = new Worker(URL.createObjectURL(blob));
+
+        worker.onmessage = (e) => {
+            const msg = e.data;
+            if (msg.type === 'sorted') {
+                onSortResult(msg);
+            }
+        };
+
+        // Keep positions on main thread for eraser hit testing (before transfer)
+        const N_pos = header.n_gaussians;
+        mainPositions = new Float32Array(N_pos * 3);
+        for (let i = 0; i < N_pos; i++) {
+            mainPositions[i * 3 + 0] = _sortData[i * 9 + 0];
+            mainPositions[i * 3 + 1] = _sortData[i * 9 + 1];
+            mainPositions[i * 3 + 2] = _sortData[i * 9 + 2];
+        }
+        loadedFileRef = file;
+
+        // Send compact sort data to worker (transfer, not clone)
+        const sortBuf = _sortData.buffer;
+        worker.postMessage({
+            type: 'init',
+            header: { n_gaussians: header.n_gaussians },
+            sortData: sortBuf,
+        }, [sortBuf]);
+        _sortData = null; // transferred to worker
+
+        // Covariance already computed on main thread — go directly to texture building
+        onCovReady(_cov3DAll);
+    }
+
+    async function onCovReady(cov3DCache) {
+        loadFill.style.width = '70%';
+        loadStatus.textContent = 'Building GPU texture...';
+
+        // Build static data texture (uploaded ONCE to GPU)
+        const N = header.n_gaussians;
+        const isGaussStreaming = (_gaussStreamFile !== null);
+        const isStreaming = (_kfStreamFile !== null);
+        const fileKeyframes = (header.keyframePositions && header.n_keyframes > 0) ? header.n_keyframes : 0;
+        const hasRotScaleKF = isStreaming ? !!(_kfStreamOffsets && _kfStreamOffsets.hasV3)
+                            : !!(header.keyframeRotations && header.keyframeScales);
+        const maxTexSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        const maxTexelsByDim = maxTexSize * maxTexSize;
+        // ANGLE/D3D11 can't allocate single textures much beyond 2 GB even with
+        // plenty of VRAM. Each texel is 16 bytes (RGBA32UI).
+        const MAX_TEX_BYTES = 2 * 1024 * 1024 * 1024; // 2 GB safe limit
+        const maxTexelsByBytes = Math.floor(MAX_TEX_BYTES / 16);
+        const maxTotalTexels = Math.min(maxTexelsByDim, maxTexelsByBytes);
+
+        // Auto-subsample keyframes if texture would exceed GPU limits.
+        // Computes the largest keyframe count K such that N * texelsPerGauss(K) fits.
+        function texelsForK(k) {
+            const p = Math.ceil(k * 3 / 4);
+            return 16 + p + (hasRotScaleKF ? k : 0) + (hasRotScaleKF ? p : 0);
+        }
+        let kfIndices = null;  // null = use all keyframes as-is
+        nKeyframes = fileKeyframes;
+        if (fileKeyframes > 1 && N * texelsForK(fileKeyframes) > maxTotalTexels) {
+            // Binary search for max K that fits
+            let lo = 2, hi = fileKeyframes;
+            while (lo < hi) {
+                const mid = Math.ceil((lo + hi) / 2);
+                if (N * texelsForK(mid) <= maxTotalTexels) lo = mid; else hi = mid - 1;
+            }
+            nKeyframes = lo;
+            // Build index map: uniformly spaced subset of file keyframes
+            kfIndices = new Uint16Array(nKeyframes);
+            for (let i = 0; i < nKeyframes; i++) {
+                kfIndices[i] = Math.round(i * (fileKeyframes - 1) / (nKeyframes - 1));
+            }
+            const texBytes = N * texelsForK(nKeyframes) * 16;
+            console.warn(`[GPU] ${fileKeyframes} keyframes → ${nKeyframes} (texture ${(texBytes/1024/1024).toFixed(0)} MB, limit ${(MAX_TEX_BYTES/1024/1024).toFixed(0)} MB)`);
+        }
+
+        // Position: ceil(K*3/4) texels, Rotation: K texels (4 floats each), Scale: ceil(K*3/4) texels
+        const POS_KF_TEXELS = (nKeyframes > 0) ? Math.ceil(nKeyframes * 3 / 4) : 0;
+        const ROT_KF_TEXELS = hasRotScaleKF ? nKeyframes : 0;      // 4 floats = 1 texel per KF
+        const SCALE_KF_TEXELS = hasRotScaleKF ? Math.ceil(nKeyframes * 3 / 4) : 0;
+        const KF_TEXELS = POS_KF_TEXELS + ROT_KF_TEXELS + SCALE_KF_TEXELS;
+        const TEXELS_PER_GAUSS = 16 + KF_TEXELS;
+        const totalTexels = N * TEXELS_PER_GAUSS;
+        // Persist for render loop (survives streaming cleanup of KF arrays)
+        header._hasRotScaleKFBuilt = hasRotScaleKF;
+        console.log(`[GPU] Texels per Gaussian: ${TEXELS_PER_GAUSS} (pos:${POS_KF_TEXELS} rot:${ROT_KF_TEXELS} scale:${SCALE_KF_TEXELS}, ${nKeyframes}${kfIndices ? '/'+fileKeyframes : ''} keyframes${hasRotScaleKF ? ' v3' : ''})`);
+        dataTexW = Math.min(maxTexSize, 8192);
+        dataTexH = Math.ceil(totalTexels / dataTexW);
+        if (dataTexH > maxTexSize) {
+            dataTexW = maxTexSize;
+            dataTexH = Math.ceil(totalTexels / dataTexW);
+        }
+        console.log('[GPU] MAX_TEXTURE_SIZE:', maxTexSize, 'using', dataTexW, 'x', dataTexH);
+
+        const fpg = _floatsPerGaussian;
+        const nShRest = _nShRest;
+        const shNOffset = 14;
+        const temporalOffset = shNOffset + nShRest * 3;
+
+        // Helper: pack one Gaussian's texels into a Float32Array at offset tBase
+        function packGaussian(tf, tBase, i) {
+            // Use batch data when streaming, or _gaussianData for small files
+            const gSrc = _gaussBatchData || _gaussianData;
+            const gIdx = _gaussBatchData ? (i - _gaussBatchStart) : i;
+            const gOff = gIdx * fpg;
+            tf[tBase + 0] = gSrc[gOff + 0];
+            tf[tBase + 1] = gSrc[gOff + 1];
+            tf[tBase + 2] = gSrc[gOff + 2];
+            tf[tBase + 3] = gSrc[gOff + 10];
+            const cOff = i * 6;
+            tf[tBase + 4] = cov3DCache[cOff + 0];
+            tf[tBase + 5] = cov3DCache[cOff + 1];
+            tf[tBase + 6] = cov3DCache[cOff + 2];
+            tf[tBase + 7] = cov3DCache[cOff + 3];
+            tf[tBase + 8]  = cov3DCache[cOff + 4];
+            tf[tBase + 9]  = cov3DCache[cOff + 5];
+            tf[tBase + 10] = gSrc[gOff + temporalOffset];
+            tf[tBase + 11] = gSrc[gOff + temporalOffset + 1];
+            tf[tBase + 12] = gSrc[gOff + temporalOffset + 2];
+            tf[tBase + 13] = gSrc[gOff + temporalOffset + 3];
+            tf[tBase + 14] = gSrc[gOff + temporalOffset + 4];
+            tf[tBase + 15] = gSrc[gOff + 11];
+            tf[tBase + 16] = gSrc[gOff + 12];
+            tf[tBase + 17] = gSrc[gOff + 13];
+            let ti = tBase + 18;
+            for (let k = 0; k < nShRest * 3; k++) {
+                tf[ti++] = gSrc[gOff + shNOffset + k];
+            }
+            // KF indexing uses _kfBatchOffset (0 for normal mode, batchStart for streaming)
+            if (nKeyframes > 0 && header.keyframePositions && header.keyframePositions !== 'stream') {
+                const kfBase = tBase + 16 * 4;
+                const kfSrc = header.keyframePositions;
+                const li = i - _kfBatchOffset;
+                if (kfIndices) {
+                    for (let ki = 0; ki < nKeyframes; ki++) {
+                        const srcOff = li * fileKeyframes * 3 + kfIndices[ki] * 3;
+                        const dstOff = kfBase + ki * 3;
+                        tf[dstOff] = kfSrc[srcOff]; tf[dstOff+1] = kfSrc[srcOff+1]; tf[dstOff+2] = kfSrc[srcOff+2];
+                    }
+                } else {
+                    const kfSrcBase = li * nKeyframes * 3;
+                    for (let f = 0; f < nKeyframes * 3; f++) tf[kfBase + f] = kfSrc[kfSrcBase + f];
+                }
+            }
+            if (hasRotScaleKF && header.keyframeRotations && header.keyframeRotations !== 'stream') {
+                const rotBase = tBase + (16 + POS_KF_TEXELS) * 4;
+                const rotSrc = header.keyframeRotations;
+                const li = i - _kfBatchOffset;
+                if (kfIndices) {
+                    for (let ki = 0; ki < nKeyframes; ki++) {
+                        const srcOff = li * fileKeyframes * 4 + kfIndices[ki] * 4;
+                        const dstOff = rotBase + ki * 4;
+                        tf[dstOff] = rotSrc[srcOff]; tf[dstOff+1] = rotSrc[srcOff+1];
+                        tf[dstOff+2] = rotSrc[srcOff+2]; tf[dstOff+3] = rotSrc[srcOff+3];
+                    }
+                } else {
+                    const rotSrcBase = li * nKeyframes * 4;
+                    for (let f = 0; f < nKeyframes * 4; f++) tf[rotBase + f] = rotSrc[rotSrcBase + f];
+                }
+            }
+            if (hasRotScaleKF && header.keyframeScales && header.keyframeScales !== 'stream') {
+                const scaleBase = tBase + (16 + POS_KF_TEXELS + ROT_KF_TEXELS) * 4;
+                const scaleSrc = header.keyframeScales;
+                const li = i - _kfBatchOffset;
+                if (kfIndices) {
+                    for (let ki = 0; ki < nKeyframes; ki++) {
+                        const srcOff = li * fileKeyframes * 3 + kfIndices[ki] * 3;
+                        const dstOff = scaleBase + ki * 3;
+                        tf[dstOff] = scaleSrc[srcOff]; tf[dstOff+1] = scaleSrc[srcOff+1]; tf[dstOff+2] = scaleSrc[srcOff+2];
+                    }
+                } else {
+                    const scaleSrcBase = li * nKeyframes * 3;
+                    for (let f = 0; f < nKeyframes * 3; f++) tf[scaleBase + f] = scaleSrc[scaleSrcBase + f];
+                }
+            }
+        }
+
+        const texSize = dataTexW * dataTexH * 4;
+        const texBytes = texSize * 4;
+        let useBatched = isStreaming || isGaussStreaming; // Force batched in streaming mode
+        let texData, texFloat;
+        if (!useBatched) try {
+            texData = new Uint32Array(texSize);
+            texFloat = new Float32Array(texData.buffer);
+        } catch (e) {
+            console.warn(`[GPU] Single buffer (${(texBytes/1024/1024).toFixed(0)} MB) failed, using batched upload`);
+            useBatched = true;
+        }
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+
+        if (!useBatched) {
+            // ---- Single-buffer path (proven, used for <2 GB textures) ----
+            for (let i = 0; i < N; i++) {
+                packGaussian(texFloat, i * TEXELS_PER_GAUSS * 4, i);
+            }
+            console.log('[GPU] Static texture: ' + N + ' Gaussians, ' +
+                dataTexW + 'x' + dataTexH + ' (' + (texBytes / 1024 / 1024).toFixed(1) + ' MB)');
+
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32UI, dataTexW, dataTexH, 0,
+                          gl.RGBA_INTEGER, gl.UNSIGNED_INT, texData);
+
+        } else {
+            // ---- Batched upload path (for >2 GB textures) ----
+            // Allocate empty texture, fill via texSubImage2D in row batches.
+            // Key: when flushing, copyWithin preserves partial-row data from
+            // Gaussians straddling the flush boundary.
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32UI, dataTexW, dataTexH, 0,
+                          gl.RGBA_INTEGER, gl.UNSIGNED_INT, null);
+
+            const ROW_BATCH = 1000;
+            let batchRowStart = 0;
+            let batchRowCount = Math.min(ROW_BATCH, dataTexH);
+            let batchData = new Uint32Array(dataTexW * batchRowCount * 4);
+            let batchFloat = new Float32Array(batchData.buffer);
+
+            function flushRows(upToRow) {
+                const rowsFlushed = upToRow - batchRowStart;
+                if (rowsFlushed > 0) {
+                    // Re-bind texture — async yields in the upload loop allow the
+                    // render loop to run and bind different textures, unbinding ours.
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+                    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, batchRowStart, dataTexW, rowsFlushed,
+                        gl.RGBA_INTEGER, gl.UNSIGNED_INT,
+                        batchData.subarray(0, dataTexW * rowsFlushed * 4));
+                }
+                // Shift unflushed row data to the beginning of the buffer,
+                // preserving texels from Gaussians that straddle the boundary.
+                const flushedEls = rowsFlushed * dataTexW * 4;
+                const totalEls = batchRowCount * dataTexW * 4;
+                const remainEls = totalEls - flushedEls;
+
+                batchRowStart = upToRow;
+                batchRowCount = Math.min(ROW_BATCH, dataTexH - batchRowStart);
+                if (batchRowCount <= 0) return;
+
+                const needed = dataTexW * batchRowCount * 4;
+                if (needed > batchData.length) {
+                    const oldData = batchData;
+                    batchData = new Uint32Array(needed);
+                    batchFloat = new Float32Array(batchData.buffer);
+                    if (remainEls > 0) batchData.set(oldData.subarray(flushedEls, flushedEls + Math.min(remainEls, needed)));
+                    if (remainEls < needed) batchData.fill(0, remainEls);
+                } else {
+                    if (remainEls > 0 && flushedEls > 0) {
+                        batchData.copyWithin(0, flushedEls, flushedEls + remainEls);
+                    }
+                    batchData.fill(0, Math.min(remainEls, needed));
+                }
+            }
+
+            const YIELD_EVERY = 100000;
+            // Streaming: batch-load gaussian/KF data from file in chunks
+            const GAUSS_STREAM_BATCH = 100000;
+            const KF_GAUSS_BATCH = 100000;
+            let gaussBatchEnd = isGaussStreaming ? 0 : N;
+            let kfBatchEnd = isStreaming ? 0 : N;
+
+            for (let i = 0; i < N; i++) {
+                // Stream-load next gaussian base data batch from file if needed
+                if (isGaussStreaming && i >= gaussBatchEnd) {
+                    const bStart = i;
+                    const bEnd = Math.min(bStart + GAUSS_STREAM_BATCH, N);
+                    const bCount = bEnd - bStart;
+                    const byteOff = _gaussStreamDataOffset + bStart * fpg * 4;
+                    const byteLen = bCount * fpg * 4;
+                    const buf = await _gaussStreamFile.slice(byteOff, byteOff + byteLen).arrayBuffer();
+                    _gaussBatchData = new Float32Array(buf);
+                    _gaussBatchStart = bStart;
+                    gaussBatchEnd = bEnd;
+                }
+
+                // Stream-load next KF batch from file if needed
+                if (isStreaming && i >= kfBatchEnd) {
+                    const bStart = i;
+                    const bEnd = Math.min(bStart + KF_GAUSS_BATCH, N);
+                    const bCount = bEnd - bStart;
+                    const fK = _kfStreamOffsets.fileK;
+                    const batchNum = Math.floor(bStart / KF_GAUSS_BATCH) + 1;
+                    const totalBatches = Math.ceil(N / KF_GAUSS_BATCH);
+                    loadStatus.textContent = `Streaming keyframes batch ${batchNum}/${totalBatches}...`;
+
+                    const posOff = _kfStreamOffsets.posStart + bStart * fK * 3 * 4;
+                    const posBuf = await _kfStreamFile.slice(posOff, posOff + bCount * fK * 3 * 4).arrayBuffer();
+                    header.keyframePositions = new Float32Array(posBuf);
+
+                    if (_kfStreamOffsets.hasV3) {
+                        const rotOff = _kfStreamOffsets.rotStart + bStart * fK * 4 * 4;
+                        header.keyframeRotations = new Float32Array(
+                            await _kfStreamFile.slice(rotOff, rotOff + bCount * fK * 4 * 4).arrayBuffer());
+
+                        const scaleOff = _kfStreamOffsets.scaleStart + bStart * fK * 3 * 4;
+                        header.keyframeScales = new Float32Array(
+                            await _kfStreamFile.slice(scaleOff, scaleOff + bCount * fK * 3 * 4).arrayBuffer());
+                    }
+
+                    _kfBatchOffset = bStart;
+                    kfBatchEnd = bEnd;
+                    await new Promise(r => setTimeout(r, 0)); // yield after file reads
+                }
+
+                const texelStart = i * TEXELS_PER_GAUSS;
+                const gaussLastRow = Math.floor((texelStart + TEXELS_PER_GAUSS - 1) / dataTexW);
+
+                if (gaussLastRow >= batchRowStart + batchRowCount) {
+                    flushRows(Math.floor(texelStart / dataTexW));
+                }
+
+                const localTexel = texelStart - batchRowStart * dataTexW;
+                packGaussian(batchFloat, localTexel * 4, i);
+
+                // Yield to browser periodically to avoid "slow script" dialog
+                if (i % YIELD_EVERY === 0 && i > 0) {
+                    loadFill.style.width = (70 + 8 * i / N).toFixed(1) + '%';
+                    loadStatus.textContent = `Building GPU texture... ${((i/N)*100).toFixed(0)}%`;
+                    await new Promise(r => setTimeout(r, 0));
+                }
+            }
+            flushRows(dataTexH); // flush remaining
+
+            // Clean up streaming state
+            // Clean up gaussian streaming state
+            if (isGaussStreaming) {
+                _gaussStreamFile = null;
+                _gaussStreamDataOffset = 0;
+                _gaussBatchData = null;
+                _gaussBatchStart = 0;
+            }
+            if (isStreaming) {
+                _kfStreamFile = null;
+                _kfStreamOffsets = null;
+                _kfBatchOffset = 0;
+                header.keyframePositions = null;
+                header.keyframeRotations = null;
+                header.keyframeScales = null;
+            }
+
+            console.log('[GPU] Static texture: ' + N + ' Gaussians, ' +
+                dataTexW + 'x' + dataTexH + ' (' + (texBytes / 1024 / 1024).toFixed(1) + ' MB) — batched upload' +
+                (isGaussStreaming ? ' (gauss streamed)' : '') +
+                (isStreaming ? ' (kf streamed)' : ''));
+        }
+
+        // Debug: verify first Gaussian from source arrays (skip if streamed — data freed)
+        if (_gaussianData) {
+            console.log('[GPU] Gauss 0 packed: pos=',
+                _gaussianData[0], _gaussianData[1], _gaussianData[2], 'opa_logit=', _gaussianData[10]);
+            console.log('[GPU] Gauss 0 cov=',
+                cov3DCache[0], cov3DCache[1], cov3DCache[2], cov3DCache[3], cov3DCache[4], cov3DCache[5]);
+            console.log('[GPU] Gauss 0 temporal: mu_t=', _gaussianData[temporalOffset],
+                'dur=', _gaussianData[temporalOffset+1],
+                'vel=', _gaussianData[temporalOffset+2], _gaussianData[temporalOffset+3], _gaussianData[temporalOffset+4]);
+            console.log('[GPU] Gauss 0 sh0=', _gaussianData[11], _gaussianData[12], _gaussianData[13]);
+        } else {
+            console.log('[GPU] Gauss 0 cov=',
+                cov3DCache[0], cov3DCache[1], cov3DCache[2], cov3DCache[3], cov3DCache[4], cov3DCache[5]);
+        }
+
+        // Debug keyframe data (uses fileKeyframes for indexing raw arrays)
+        // Skip in streaming mode — KF/gaussian arrays were freed after texture packing
+        if (nKeyframes > 0 && !isStreaming && !isGaussStreaming && _gaussianData) {
+            console.log(`[KF-Debug] ${nKeyframes}${kfIndices ? '/'+fileKeyframes : ''} keyframes, ${N} Gaussians`);
+            let dynIdx = -1;
+            for (let i = 0; i < N && dynIdx < 0; i++) {
+                const gOff = i * fpg;
+                const vx = _gaussianData[gOff + temporalOffset + 2];
+                const vy = _gaussianData[gOff + temporalOffset + 3];
+                const vz = _gaussianData[gOff + temporalOffset + 4];
+                if (Math.abs(vx) + Math.abs(vy) + Math.abs(vz) > 0.001) dynIdx = i;
+            }
+            if (dynIdx >= 0) {
+                console.log(`[KF-Debug] First dynamic Gaussian ${dynIdx}:`);
+                const gOff = dynIdx * fpg;
+                console.log(`  canonPos = (${_gaussianData[gOff].toFixed(4)}, ${_gaussianData[gOff+1].toFixed(4)}, ${_gaussianData[gOff+2].toFixed(4)})`);
+                for (let k = 0; k < Math.min(3, fileKeyframes); k++) {
+                    const srcBase = dynIdx * fileKeyframes * 3;
+                    const sx = header.keyframePositions[srcBase + k*3];
+                    const sy = header.keyframePositions[srcBase + k*3+1];
+                    const sz = header.keyframePositions[srcBase + k*3+2];
+                    console.log(`  kf[${k}] t=${header.keyframeTimes ? header.keyframeTimes[k].toFixed(2) : '?'}: pos=(${sx.toFixed(4)}, ${sy.toFixed(4)}, ${sz.toFixed(4)})`);
+                }
+            }
+        } else if (isStreaming || isGaussStreaming) {
+            console.log(`[KF-Debug] ${nKeyframes}${kfIndices ? '/'+fileKeyframes : ''} keyframes, ${N} Gaussians (streamed — arrays freed)`);
+        }
+
+        // Diagnostic: compare pre-baked cov vs v3 keyframe midpoint
+        // Skip in streaming mode — KF arrays were freed
+        const fK = fileKeyframes;
+        if (hasRotScaleKF && !isStreaming && header.keyframeRotations && header.keyframeScales) {
+            const midK = Math.floor(fK / 2);
+            console.log(`[Cov-Check] pre-baked vs keyframe[${midK}] for first 3 Gaussians:`);
+            for (let gi = 0; gi < Math.min(3, N); gi++) {
+                const cBase = gi * 6;
+                const pbCov = [cov3DCache[cBase], cov3DCache[cBase+1], cov3DCache[cBase+2],
+                               cov3DCache[cBase+3], cov3DCache[cBase+4], cov3DCache[cBase+5]];
+                const rotBase = gi * fK * 4 + midK * 4;
+                const scaleBase = gi * fK * 3 + midK * 3;
+                const qw=header.keyframeRotations[rotBase], qx=header.keyframeRotations[rotBase+1],
+                      qy=header.keyframeRotations[rotBase+2], qz=header.keyframeRotations[rotBase+3];
+                let len = Math.sqrt(qw*qw+qx*qx+qy*qy+qz*qz)+1e-10;
+                let nw=qw/len, nx=qx/len, ny=qy/len, nz=qz/len;
+                if(nw<0){nw=-nw;nx=-nx;ny=-ny;nz=-nz;}
+                const xx=nx*nx,yy=ny*ny,zz=nz*nz,xy=nx*ny,xz=nx*nz,yz=ny*nz;
+                const wx=nw*nx,wy=nw*ny,wz=nw*nz;
+                const r00=1-2*(yy+zz),r01=2*(xy-wz),r02=2*(xz+wy);
+                const r10=2*(xy+wz),r11=1-2*(xx+zz),r12=2*(yz-wx);
+                const r20=2*(xz-wy),r21=2*(yz+wx),r22=1-2*(xx+yy);
+                const esx=Math.exp(header.keyframeScales[scaleBase]),
+                      esy=Math.exp(header.keyframeScales[scaleBase+1]),
+                      esz=Math.exp(header.keyframeScales[scaleBase+2]);
+                const m00=r00*esx,m01=r01*esy,m02=r02*esz,
+                      m10=r10*esx,m11=r11*esy,m12=r12*esz,
+                      m20=r20*esx,m21=r21*esy,m22=r22*esz;
+                const kfCov=[m00*m00+m01*m01+m02*m02,m00*m10+m01*m11+m02*m12,m00*m20+m01*m21+m02*m22,
+                             m10*m10+m11*m11+m12*m12,m10*m20+m11*m21+m12*m22,m20*m20+m21*m21+m22*m22];
+                let maxDiff=0;
+                for(let j=0;j<6;j++)maxDiff=Math.max(maxDiff,Math.abs(pbCov[j]-kfCov[j]));
+                const match=maxDiff<1e-4?'MATCH':`MISMATCH(${maxDiff.toExponential(3)})`;
+                console.log(`  G${gi}: ${match}`);
+            }
+        }
+
+        // Check GL errors
+        {
+            const err = gl.getError();
+            if (err !== 0) console.error('[GPU] texture upload error:', err);
+            else console.log('[GPU] Texture uploaded successfully');
+        }
+
+        // Free CPU-side data (worker has its own compact sort buffer)
+        _cov3DAll = null;
+        loadFill.style.width = '80%';
+        loadStatus.textContent = 'Initial sort...';
+
+        // Request first sort
+        requestSort();
+    }
+
+    function initWebGL() {
+        const vs = compileShader(gl.VERTEX_SHADER, VERT_SRC);
+        const fs = compileShader(gl.FRAGMENT_SHADER, FRAG_SRC);
+        program = gl.createProgram();
+        gl.attachShader(program, vs);
+        gl.attachShader(program, fs);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error('Link error:', gl.getProgramInfoLog(program));
+            return;
+        }
+
+        // Uniform locations
+        u_dataTexture = gl.getUniformLocation(program, 'u_dataTexture');
+        u_dataTexW = gl.getUniformLocation(program, 'u_dataTexW');
+        u_texelsPerGauss = gl.getUniformLocation(program, 'u_texelsPerGauss');
+        u_nKeyframes = gl.getUniformLocation(program, 'u_nKeyframes');
+        u_hasRotScaleKF = gl.getUniformLocation(program, 'u_hasRotScaleKF');
+        u_view = gl.getUniformLocation(program, 'u_view');
+        u_viewport = gl.getUniformLocation(program, 'u_viewport');
+        u_focal = gl.getUniformLocation(program, 'u_focal');
+        u_time = gl.getUniformLocation(program, 'u_time');
+        u_sharpnessK = gl.getUniformLocation(program, 'u_sharpnessK');
+        u_temporalProfile = gl.getUniformLocation(program, 'u_temporalProfile');
+        u_lifespanVelocity = gl.getUniformLocation(program, 'u_lifespanVelocity');
+        u_lifespanRef = gl.getUniformLocation(program, 'u_lifespanRef');
+        u_durClampMin = gl.getUniformLocation(program, 'u_durClampMin');
+        u_durClampMax = gl.getUniformLocation(program, 'u_durClampMax');
+        u_camPos = gl.getUniformLocation(program, 'u_camPos');
+        u_renderSHDeg = gl.getUniformLocation(program, 'u_renderSHDeg');
+        u_maxScale = gl.getUniformLocation(program, 'u_maxScale');
+        u_minOpacity = gl.getUniformLocation(program, 'u_minOpacity');
+        u_visualMode = gl.getUniformLocation(program, 'u_visualMode');
+        u_pointSize = gl.getUniformLocation(program, 'u_pointSize');
+        u_ringSize = gl.getUniformLocation(program, 'u_ringSize');
+        u_gammaCorrect = gl.getUniformLocation(program, 'u_gammaCorrect');
+        u_sceneExtent = gl.getUniformLocation(program, 'u_sceneExtent');
+
+        // Create static data texture
+        dataTexture = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        // Create VAO
+        vao = gl.createVertexArray();
+        gl.bindVertexArray(vao);
+
+        // Quad vertices
+        const quadData = new Float32Array([-1,-1, 1,-1, -1,1, 1,1]);
+        const quadBuf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
+        gl.bufferData(gl.ARRAY_BUFFER, quadData, gl.STATIC_DRAW);
+        const a_quad = gl.getAttribLocation(program, 'a_quad');
+        gl.enableVertexAttribArray(a_quad);
+        gl.vertexAttribPointer(a_quad, 2, gl.FLOAT, false, 0, 0);
+
+        // Index buffer for sorted Gaussian IDs (per-instance)
+        indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, indexBuffer);
+        const a_splatIdx = gl.getAttribLocation(program, 'a_splatIdx');
+        gl.enableVertexAttribArray(a_splatIdx);
+        gl.vertexAttribIPointer(a_splatIdx, 1, gl.UNSIGNED_INT, 0, 0);
+        gl.vertexAttribDivisor(a_splatIdx, 1);
+
+        gl.bindVertexArray(null);
+
+        // Back-to-front premultiplied alpha blending (matches SuperSplat/PlayCanvas).
+        // Sorted farthest-first: each new fragment composites ON TOP of existing buffer.
+        // More robust to global sorting errors: foreground draws last and correctly
+        // covers background, even if some background Gaussians were mis-sorted.
+        gl.enable(gl.BLEND);
+        gl.blendFuncSeparate(
+            gl.ONE, gl.ONE_MINUS_SRC_ALPHA,
+            gl.ONE, gl.ONE_MINUS_SRC_ALPHA
+        );
+        gl.disable(gl.DEPTH_TEST);
+
+        // ---- Float FBO setup ----
+        // Enable float color buffer rendering (RGBA32F)
+        const extCBF = gl.getExtension('EXT_color_buffer_float');
+        const extFB = gl.getExtension('EXT_float_blend');
+        if (!extCBF) {
+            console.warn('[FBO] EXT_color_buffer_float not available, falling back to uint8 canvas');
+        } else if (!extFB) {
+            console.warn('[FBO] EXT_float_blend not available, float blending disabled — falling back to uint8 canvas');
+        } else {
+            // Compile blit shader
+            const blitVS = compileShader(gl.VERTEX_SHADER, BLIT_VERT);
+            const blitFS = compileShader(gl.FRAGMENT_SHADER, BLIT_FRAG);
+            blitProgram = gl.createProgram();
+            gl.attachShader(blitProgram, blitVS);
+            gl.attachShader(blitProgram, blitFS);
+            gl.linkProgram(blitProgram);
+            if (!gl.getProgramParameter(blitProgram, gl.LINK_STATUS)) {
+                console.error('[FBO] Blit program link error:', gl.getProgramInfoLog(blitProgram));
+                blitProgram = null;
+            } else {
+                u_blit_tex = gl.getUniformLocation(blitProgram, 'u_tex');
+                u_blit_saturation = gl.getUniformLocation(blitProgram, 'u_saturation');
+                u_blit_contrast = gl.getUniformLocation(blitProgram, 'u_contrast');
+
+                // Create blit VAO (fullscreen quad)
+                blitVAO = gl.createVertexArray();
+                gl.bindVertexArray(blitVAO);
+                const blitQuad = new Float32Array([-1,-1, 1,-1, -1,1, 1,1]);
+                const blitBuf = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, blitBuf);
+                gl.bufferData(gl.ARRAY_BUFFER, blitQuad, gl.STATIC_DRAW);
+                const a_blit_pos = gl.getAttribLocation(blitProgram, 'a_pos');
+                gl.enableVertexAttribArray(a_blit_pos);
+                gl.vertexAttribPointer(a_blit_pos, 2, gl.FLOAT, false, 0, 0);
+                gl.bindVertexArray(null);
+
+                console.log('[FBO] Float FBO initialized (RGBA32F + gamma-correct blending, EXT_float_blend: OK)');
+            }
+        }
+    }
+
+    function compileShader(type, src) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, src);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error('Shader error:', gl.getShaderInfoLog(shader));
+            console.error('Source:', src);
+        }
+        return shader;
+    }
+
+    let pendingResort = false;
+
+    function onSortResult(msg) {
+        sortPending = false;
+        if (msg.sortedTime !== undefined) lastSortedTime = msg.sortedTime;
+        let sortedIdx = new Uint32Array(msg.sortedIdx);
+        visibleCount = msg.visCount;
+
+        // Save unmodified copy for eraser hit testing
+        lastSortedIndices = new Uint32Array(sortedIdx);
+
+        // Filter out deleted Gaussians (into a separate array to avoid corrupting lastSortedIndices)
+        if (deletedSet.size > 0) {
+            const filtered = new Uint32Array(sortedIdx.length);
+            let writeIdx = 0;
+            for (let i = 0; i < sortedIdx.length; i++) {
+                if (!deletedSet.has(sortedIdx[i])) {
+                    filtered[writeIdx++] = sortedIdx[i];
+                }
+            }
+            sortedIdx = filtered.subarray(0, writeIdx);
+            visibleCount = writeIdx;
+        }
+
+        document.getElementById('visibleVal').textContent =
+            `${visibleCount.toLocaleString()} / ${msg.totalCount.toLocaleString()}`;
+        document.getElementById('sortTime').textContent = msg.sortMs.toFixed(1);
+
+        if (visibleCount === 0) return;
+
+        // Upload the sorted index buffer (~2.5MB for 627k Gaussians)
+        gl.bindBuffer(gl.ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, sortedIdx, gl.DYNAMIC_DRAW);
+
+        vertexCount = visibleCount;
+
+        // Show UI on first result
+        if (loading && !loading.classList.contains('hidden')) {
+            loading.classList.add('hidden');
+            topbar.style.display = 'flex';
+            bottombar.classList.remove('hidden');
+            loadFill.style.width = '100%';
+        }
+
+        // If camera moved while sorting, re-sort immediately
+        if (pendingResort) {
+            pendingResort = false;
+            requestSort();
+        }
+    }
+
+    function requestSort() {
+        if (sortPending) {
+            pendingResort = true;
+            return;
+        }
+        sortPending = true;
+
+        // Pass current time for velocity-adjusted sort depth + temporal culling
+        const t = (header && header.total_frames > 1)
+            ? currentFrame / (header.total_frames - 1) : 0.0;
+        const viewMat = getViewMatrix();
+        worker.postMessage({
+            type: 'sort',
+            viewMat: Array.from(viewMat),
+            time: t,
+            sharpnessK: header ? (header.sharpness_k || 50.0) : 50.0,
+            lifespanVelocity: header && header.lifespan_velocity ? 1.0 : 0.0,
+            lifespanRef: header ? (header.lifespan_ref || 1.0) : 1.0,
+            durClampMin: header ? (header.duration_clamp_min || 0.0) : 0.0,
+            durClampMax: header ? (header.duration_clamp_max || 1.0) : 1.0,
+            temporalProfile: header ? (header.temporal_profile || 0) : 0,
+        });
+    }
+
+    // ---- Matrix math ----
+
+    // Scene correction rotation from Pitch/Roll/Yaw sliders (degrees).
+    // Returns a 4x4 column-major rotation matrix (rotates scene around origin).
+    function getSceneCorrectionMatrix() {
+        const pitch = parseFloat(document.getElementById('scenePitch').value) || 0;
+        const roll  = parseFloat(document.getElementById('sceneRoll').value)  || 0;
+        const yaw   = parseFloat(document.getElementById('sceneYaw').value)   || 0;
+        if (pitch === 0 && roll === 0 && yaw === 0) return null; // identity, skip
+        const d2r = Math.PI / 180;
+        const p = pitch * d2r, r = roll * d2r, y = yaw * d2r;
+        const cp = Math.cos(p), sp = Math.sin(p);
+        const cr = Math.cos(r), sr = Math.sin(r);
+        const cy = Math.cos(y), sy = Math.sin(y);
+        // Rz(yaw) * Rx(pitch) * Ry(roll)  — standard Euler, column-major
+        return new Float32Array([
+            cy*cr + sy*sp*sr,   cp*sr,  -sy*cr + cy*sp*sr,  0,
+            -cy*sr + sy*sp*cr,  cp*cr,  sy*sr + cy*sp*cr,   0,
+            sy*cp,              -sp,    cy*cp,               0,
+            0,                  0,      0,                   1,
+        ]);
+    }
+
+    // Multiply two 4x4 column-major matrices: result = A * B
+    function mat4Mul(A, B) {
+        const o = new Float32Array(16);
+        for (let c = 0; c < 4; c++)
+            for (let r = 0; r < 4; r++)
+                o[c*4+r] = A[r]*B[c*4] + A[4+r]*B[c*4+1] + A[8+r]*B[c*4+2] + A[12+r]*B[c*4+3];
+        return o;
+    }
+
+    // Multiply 4x4 column-major matrix by vec4, returns vec4
+    function mat4MulVec4(M, v) {
+        return [
+            M[0]*v[0] + M[4]*v[1] + M[8]*v[2]  + M[12]*v[3],
+            M[1]*v[0] + M[5]*v[1] + M[9]*v[2]  + M[13]*v[3],
+            M[2]*v[0] + M[6]*v[1] + M[10]*v[2] + M[14]*v[3],
+            M[3]*v[0] + M[7]*v[1] + M[11]*v[2] + M[15]*v[3],
+        ];
+    }
+
+    // Invert a 4x4 column-major matrix (returns null if singular)
+    function mat4Inverse(m) {
+        const inv = new Float32Array(16);
+        inv[0]  =  m[5]*m[10]*m[15] - m[5]*m[11]*m[14] - m[9]*m[6]*m[15] + m[9]*m[7]*m[14] + m[13]*m[6]*m[11] - m[13]*m[7]*m[10];
+        inv[4]  = -m[4]*m[10]*m[15] + m[4]*m[11]*m[14] + m[8]*m[6]*m[15] - m[8]*m[7]*m[14] - m[12]*m[6]*m[11] + m[12]*m[7]*m[10];
+        inv[8]  =  m[4]*m[9]*m[15]  - m[4]*m[11]*m[13] - m[8]*m[5]*m[15] + m[8]*m[7]*m[13] + m[12]*m[5]*m[11] - m[12]*m[7]*m[9];
+        inv[12] = -m[4]*m[9]*m[14]  + m[4]*m[10]*m[13] + m[8]*m[5]*m[14] - m[8]*m[6]*m[13] - m[12]*m[5]*m[10] + m[12]*m[6]*m[9];
+        inv[1]  = -m[1]*m[10]*m[15] + m[1]*m[11]*m[14] + m[9]*m[2]*m[15] - m[9]*m[3]*m[14] - m[13]*m[2]*m[11] + m[13]*m[3]*m[10];
+        inv[5]  =  m[0]*m[10]*m[15] - m[0]*m[11]*m[14] - m[8]*m[2]*m[15] + m[8]*m[3]*m[14] + m[12]*m[2]*m[11] - m[12]*m[3]*m[10];
+        inv[9]  = -m[0]*m[9]*m[15]  + m[0]*m[11]*m[13] + m[8]*m[1]*m[15] - m[8]*m[3]*m[13] - m[12]*m[1]*m[11] + m[12]*m[3]*m[9];
+        inv[13] =  m[0]*m[9]*m[14]  - m[0]*m[10]*m[13] - m[8]*m[1]*m[14] + m[8]*m[2]*m[13] + m[12]*m[1]*m[10] - m[12]*m[2]*m[9];
+        inv[2]  =  m[1]*m[6]*m[15]  - m[1]*m[7]*m[14]  - m[5]*m[2]*m[15] + m[5]*m[3]*m[14] + m[13]*m[2]*m[7]  - m[13]*m[3]*m[6];
+        inv[6]  = -m[0]*m[6]*m[15]  + m[0]*m[7]*m[14]  + m[4]*m[2]*m[15] - m[4]*m[3]*m[14] - m[12]*m[2]*m[7]  + m[12]*m[3]*m[6];
+        inv[10] =  m[0]*m[5]*m[15]  - m[0]*m[7]*m[13]  - m[4]*m[1]*m[15] + m[4]*m[3]*m[13] + m[12]*m[1]*m[7]  - m[12]*m[3]*m[5];
+        inv[14] = -m[0]*m[5]*m[14]  + m[0]*m[6]*m[13]  + m[4]*m[1]*m[14] - m[4]*m[2]*m[13] - m[12]*m[1]*m[6]  + m[12]*m[2]*m[5];
+        inv[3]  = -m[1]*m[6]*m[11]  + m[1]*m[7]*m[10]  + m[5]*m[2]*m[11] - m[5]*m[3]*m[10] - m[9]*m[2]*m[7]   + m[9]*m[3]*m[6];
+        inv[7]  =  m[0]*m[6]*m[11]  - m[0]*m[7]*m[10]  - m[4]*m[2]*m[11] + m[4]*m[3]*m[10] + m[8]*m[2]*m[7]   - m[8]*m[3]*m[6];
+        inv[11] = -m[0]*m[5]*m[11]  + m[0]*m[7]*m[9]   + m[4]*m[1]*m[11] - m[4]*m[3]*m[9]  - m[8]*m[1]*m[7]   + m[8]*m[3]*m[5];
+        inv[15] =  m[0]*m[5]*m[10]  - m[0]*m[6]*m[9]   - m[4]*m[1]*m[10] + m[4]*m[2]*m[9]  + m[8]*m[1]*m[6]   - m[8]*m[2]*m[5];
+        const det = m[0]*inv[0] + m[1]*inv[4] + m[2]*inv[8] + m[3]*inv[12];
+        if (Math.abs(det) < 1e-10) return null;
+        const invDet = 1 / det;
+        for (let i = 0; i < 16; i++) inv[i] *= invDet;
+        return inv;
+    }
+
+    // Build a perspective projection matrix (column-major) from camera.fov
+    function getProjectionMatrix(aspect) {
+        const near = 0.1, far = 1000;
+        const fov = camera.fov || (45 * Math.PI / 180);
+        const top = near * Math.tan(fov / 2);
+        const right = top * aspect;
+        const P = new Float32Array(16);
+        P[0]  = near / right;
+        P[5]  = near / top;
+        P[10] = -(far + near) / (far - near);
+        P[11] = -1;
+        P[14] = -2*far*near / (far - near);
+        return P;
+    }
+
+    function getViewMatrix() {
+        let V;
+        // When locked to a training camera, compute view matrix directly from c2w
+        // to avoid any numerical issues with lookAt reconstruction
+        if (activeTrainingCam >= 0 && header && header.trainingCameras) {
+            const c = header.trainingCameras[activeTrainingCam].c2w;
+            const r00=c[0], r01=c[1], r02=c[2], tx=c[3];
+            const r10=c[4], r11=c[5], r12=c[6], ty=c[7];
+            const r20=c[8], r21=c[9], r22=c[10], tz=c[11];
+            const vtx = -(r00*tx + r10*ty + r20*tz);
+            const vty = -(r01*tx + r11*ty + r21*tz);
+            const vtz = -(r02*tx + r12*ty + r22*tz);
+            V = new Float32Array([
+                r00, r01, r02, 0,
+                r10, r11, r12, 0,
+                r20, r21, r22, 0,
+                vtx, vty, vtz, 1,
+            ]);
+        } else {
+            V = lookAt(camera.position, camera.target, camera.up);
+        }
+        // Apply scene correction: V' = V * R_correction
+        // This rotates the scene (all Gaussian positions) by R before the camera sees them
+        // Skip scene correction when locked to a training camera — must match exact training view
+        if (activeTrainingCam >= 0) return V;
+        const R = getSceneCorrectionMatrix();
+        return R ? mat4Mul(V, R) : V;
+    }
+
+    function lookAt(eye, center, upDir) {
+        // Produce a view matrix matching gsplat's inv(c2w) convention:
+        //   row 0 = right   = cross(forward, up)       [X-axis]
+        //   row 1 = down    = cross(forward, right)     [Y-axis, points down in image]
+        //   row 2 = forward = normalize(center - eye)   [Z-axis, into scene]
+        // upDir should be the actual "world up" direction.
+        // In COLMAP/gsplat CV convention: camera looks along +Z, Y points down.
+        // Stored column-major for WebGL.
+        const forward = normalize(sub(center, eye));
+        let right = cross(forward, upDir);
+        const rightLen = Math.sqrt(right[0]*right[0] + right[1]*right[1] + right[2]*right[2]);
+        if (rightLen < 1e-4) {
+            // Forward is nearly parallel to up — pick a fallback up direction.
+            // Use the axis least aligned with forward to build a stable frame.
+            const ax = Math.abs(forward[0]), ay = Math.abs(forward[1]), az = Math.abs(forward[2]);
+            const fallback = ax < ay ? (ax < az ? [1,0,0] : [0,0,1])
+                                     : (ay < az ? [0,1,0] : [0,0,1]);
+            right = cross(forward, fallback);
+        }
+        right = normalize(right);
+        const down = cross(forward, right);  // = -up orthogonalized
+        return new Float32Array([
+            right[0],   down[0],   forward[0],   0,
+            right[1],   down[1],   forward[1],   0,
+            right[2],   down[2],   forward[2],   0,
+            -dot3(right, eye), -dot3(down, eye), -dot3(forward, eye), 1,
+        ]);
+    }
+
+    function sub(a, b) { return [a[0]-b[0], a[1]-b[1], a[2]-b[2]]; }
+    function dot3(a, b) { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; }
+    function cross(a, b) {
+        return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]];
+    }
+    function normalize(v) {
+        const len = Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]) + 1e-10;
+        return [v[0]/len, v[1]/len, v[2]/len];
+    }
+    function length3(v) { return Math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]); }
+
+    // ---- Camera controls (SuperSplat-style azim/elev + damped tweens) ----
+
+    // Damped tween helper — smoothly interpolates values with configurable damping
+    // Supports velocity tracking for momentum on release
+    function createTween(initial) {
+        const state = {
+            value: { ...initial }, target: { ...initial }, damping: 0,
+            velocity: {},  // per-key velocity for momentum
+            momentum: false,
+        };
+        for (const k in initial) state.velocity[k] = 0;
+        return {
+            get value() { return state.value; },
+            get target() { return state.target; },
+            // Instant move (during drag) — value snaps directly, tracks velocity
+            move(delta) {
+                for (const k in delta) {
+                    state.value[k] += delta[k];
+                    state.target[k] = state.value[k];
+                    state.velocity[k] = delta[k]; // raw per-frame velocity
+                }
+                state.momentum = false;
+            },
+            // Start coasting with current velocity (on mouse release)
+            coast(friction) {
+                state.momentum = true;
+                state.damping = friction;
+            },
+            goto(target, damping) {
+                for (const k in target) state.target[k] = target[k];
+                state.damping = Math.max(0, damping);
+                state.momentum = false;
+            },
+            snap(target) {
+                for (const k in target) {
+                    state.value[k] = target[k]; state.target[k] = target[k];
+                    state.velocity[k] = 0;
+                }
+                state.damping = 0;
+                state.momentum = false;
+            },
+            update(dt) {
+                if (state.momentum) {
+                    // Decay velocity and apply
+                    const decay = Math.exp(-dt / state.damping);
+                    let moving = false;
+                    for (const k in state.velocity) {
+                        state.velocity[k] *= decay;
+                        if (Math.abs(state.velocity[k]) > 1e-6) {
+                            state.value[k] += state.velocity[k];
+                            state.target[k] = state.value[k];
+                            moving = true;
+                        } else {
+                            state.velocity[k] = 0;
+                        }
+                    }
+                    if (!moving) state.momentum = false;
+                    return moving;
+                }
+                if (state.damping <= 0) {
+                    for (const k in state.target) state.value[k] = state.target[k];
+                    return false;
+                }
+                // Exponential damping toward target
+                const factor = 1 - Math.exp(-dt / state.damping);
+                let moving = false;
+                for (const k in state.target) {
+                    const diff = state.target[k] - state.value[k];
+                    if (Math.abs(diff) > 1e-6) moving = true;
+                    state.value[k] += diff * factor;
+                }
+                return moving;
+            },
+        };
+    }
+
+    // Compute azim/elev from current camera position relative to target
+    function calcAzimElev(pos, target, upVec) {
+        const offset = sub(pos, target);
+        const dist = length3(offset);
+        if (dist < 1e-8) return { azim: 0, elev: 0, dist };
+        const dir = normalize(offset);
+        // Elevation: angle from horizontal plane (defined by upVec)
+        const dotUp = dot3(dir, upVec);
+        const elev = Math.asin(Math.max(-1, Math.min(1, dotUp))) * (180 / Math.PI);
+        // Azimuth: angle in horizontal plane
+        // Project dir onto plane perpendicular to up
+        const horiz = [dir[0] - upVec[0]*dotUp, dir[1] - upVec[1]*dotUp, dir[2] - upVec[2]*dotUp];
+        const hLen = length3(horiz);
+        let azim = 0;
+        if (hLen > 1e-6) {
+            const hn = normalize(horiz);
+            // Build a reference frame in the horizontal plane
+            // Use scene's "forward" as reference: pick an arbitrary horizontal axis
+            // We'll use atan2 with the two horizontal components relative to sceneUp
+            // For a generic up vector, compute two orthogonal horizontal axes
+            let refRight, refFwd;
+            const absUp = [Math.abs(upVec[0]), Math.abs(upVec[1]), Math.abs(upVec[2])];
+            // Pick axis least aligned with up
+            const hint = absUp[0] < absUp[1] ? (absUp[0] < absUp[2] ? [1,0,0] : [0,0,1])
+                                               : (absUp[1] < absUp[2] ? [0,1,0] : [0,0,1]);
+            refRight = normalize(cross(upVec, hint));
+            refFwd = cross(refRight, upVec);
+            azim = Math.atan2(dot3(hn, refRight), dot3(hn, refFwd)) * (180 / Math.PI);
+        }
+        return { azim, elev, dist };
+    }
+
+    // Compute camera position from azim/elev/dist relative to focalPoint
+    function calcPosFromAzimElev(azim, elev, dist, focalPt, upVec) {
+        const elevRad = elev * (Math.PI / 180);
+        const azimRad = azim * (Math.PI / 180);
+        // Same reference frame as calcAzimElev
+        const absUp = [Math.abs(upVec[0]), Math.abs(upVec[1]), Math.abs(upVec[2])];
+        const hint = absUp[0] < absUp[1] ? (absUp[0] < absUp[2] ? [1,0,0] : [0,0,1])
+                                           : (absUp[1] < absUp[2] ? [0,1,0] : [0,0,1]);
+        const refRight = normalize(cross(upVec, hint));
+        const refFwd = cross(refRight, upVec);
+        // Direction in horizontal plane
+        const cosElev = Math.cos(elevRad);
+        const sinElev = Math.sin(elevRad);
+        const sinAzim = Math.sin(azimRad);
+        const cosAzim = Math.cos(azimRad);
+        // offset = (cosAzim*refFwd + sinAzim*refRight) * cosElev + upVec * sinElev
+        const dir = [
+            (cosAzim*refFwd[0] + sinAzim*refRight[0])*cosElev + upVec[0]*sinElev,
+            (cosAzim*refFwd[1] + sinAzim*refRight[1])*cosElev + upVec[1]*sinElev,
+            (cosAzim*refFwd[2] + sinAzim*refRight[2])*cosElev + upVec[2]*sinElev,
+        ];
+        return [focalPt[0] + dir[0]*dist, focalPt[1] + dir[1]*dist, focalPt[2] + dir[2]*dist];
+    }
+
+    // Initialize tweens (will be set properly when scene loads / camera snaps)
+    const orbitTween = createTween({ azim: 0, elev: 0 });
+    const distTween = createTween({ dist: 1 });
+    const focalTween = createTween({ x: 0, y: 0, z: 0 });
+    const coastFriction = 0.08; // seconds — momentum decay after release
+    const smoothDamping = 0.15; // seconds — for animated transitions (double-click, zoom)
+    let orbitInitialized = false;
+
+    // Sync tweens from camera.position/target (called after camera snap)
+    function syncTweensFromCamera() {
+        const ae = calcAzimElev(camera.position, camera.target, sceneUp);
+        orbitTween.snap({ azim: ae.azim, elev: ae.elev });
+        distTween.snap({ dist: ae.dist });
+        focalTween.snap({ x: camera.target[0], y: camera.target[1], z: camera.target[2] });
+        orbitInitialized = true;
+        // Start in look mode by default
+        cameraMode = 'look';
+        lookCameraPos = [...camera.position];
+    }
+
+    // Camera mode: 'look' (default) = camera stays in place, scene rotates
+    //              'orbit' = camera orbits around focal point (after double-click)
+    let cameraMode = 'look';
+    let lookCameraPos = null; // fixed camera position during look mode
+
+    // Apply tweens back to camera.position/target
+    function applyTweensToCamera() {
+        if (!orbitInitialized) return;
+        const fp = focalTween.value;
+        camera.target = [fp.x, fp.y, fp.z];
+
+        if (lookCameraPos) {
+            // Look mode: camera stays fixed, target moves
+            camera.position = [...lookCameraPos];
+        } else {
+            // Orbit mode: camera moves on sphere around focal point
+            camera.position = calcPosFromAzimElev(
+                orbitTween.value.azim, orbitTween.value.elev,
+                distTween.value.dist, camera.target, sceneUp
+            );
+        }
+        camera.up = [...sceneUp];
+    }
+
+    // Look: rotate view in place (SuperSplat-style).
+    // Camera stays fixed, focal point moves to match new azim/elev.
+    function applyLook(dAzim, dElev) {
+        const dist = distTween.value.dist;
+
+        // Current camera position (from focal + offset)
+        const fp = focalTween.value;
+        const curFocal = [fp.x, fp.y, fp.z];
+        const camPos = lookCameraPos || calcPosFromAzimElev(
+            orbitTween.value.azim, orbitTween.value.elev,
+            dist, curFocal, sceneUp
+        );
+
+        // Update azim/elev
+        const cur = orbitTween.value;
+        const newAzim = cur.azim + dAzim;
+        const newElev = Math.max(-89, Math.min(89, cur.elev + dElev));
+        orbitTween.snap({ azim: newAzim, elev: newElev });
+
+        // Compute new focal point so camera stays at camPos
+        // camPos = newFocal + direction(newAzim, newElev) * dist
+        // => newFocal = camPos - direction(newAzim, newElev) * dist
+        const dirFromFocal = calcPosFromAzimElev(newAzim, newElev, dist, [0,0,0], sceneUp);
+        const newFocal = [
+            camPos[0] - dirFromFocal[0],
+            camPos[1] - dirFromFocal[1],
+            camPos[2] - dirFromFocal[2],
+        ];
+
+        focalTween.snap({ x: newFocal[0], y: newFocal[1], z: newFocal[2] });
+        lookCameraPos = [...camPos];
+    }
+
+    canvas.style.userSelect = 'none';
+    canvas.style.webkitUserSelect = 'none';
+
+    canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        dragButton = e.button;
+        lastMouse = [e.clientX, e.clientY];
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (isDragging && orbitInitialized) {
+            if (dragButton === 0) {
+                orbitTween.coast(coastFriction);
+                // In look mode, also coast the focal point to match
+                if (cameraMode === 'look') focalTween.coast(coastFriction);
+            } else {
+                focalTween.coast(coastFriction);
+            }
+        }
+        isDragging = false;
+    });
+
+    const orbitSensitivity = 0.3;  // degrees per pixel
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (!isDragging || !header) return;
+        const dx = e.clientX - lastMouse[0];
+        const dy = e.clientY - lastMouse[1];
+        lastMouse = [e.clientX, e.clientY];
+
+        // Only exit training cam on first interaction, not every frame
+        if (activeTrainingCam >= 0) exitTrainingCameraMode();
+        if (!orbitInitialized) syncTweensFromCamera();
+
+        if (dragButton === 0 && !e.ctrlKey) {
+            if (cameraMode === 'look') {
+                // Look mode: camera stays in place, scene rotates
+                applyLook(-dx * orbitSensitivity, dy * orbitSensitivity);
+            } else {
+                // Orbit mode: camera circles around focal point
+                const dAzim = -dx * orbitSensitivity;
+                const cur = orbitTween.value;
+                const rawElev = cur.elev + dy * orbitSensitivity;
+                const dElev = Math.max(-89, Math.min(89, rawElev)) - cur.elev;
+                orbitTween.move({ azim: dAzim, elev: dElev });
+            }
+        } else {
+            // Pan: move focal point in screen space (both modes)
+            const offset = sub(camera.position, camera.target);
+            const dist = length3(offset);
+            const vm = getViewMatrix();
+            const right = [vm[0], vm[4], vm[8]];
+            const down = [vm[1], vm[5], vm[9]];
+            const scale = dist * 0.001;
+            const moveX = -dx * scale;
+            const moveY = -dy * scale;
+            focalTween.move({
+                x: right[0]*moveX + down[0]*moveY,
+                y: right[1]*moveX + down[1]*moveY,
+                z: right[2]*moveX + down[2]*moveY,
+            });
+            // In look mode, also move camera position to match
+            if (lookCameraPos) {
+                lookCameraPos[0] += right[0]*moveX + down[0]*moveY;
+                lookCameraPos[1] += right[1]*moveX + down[1]*moveY;
+                lookCameraPos[2] += right[2]*moveX + down[2]*moveY;
+            }
+        }
+    });
+
+    canvas.addEventListener('wheel', (e) => {
+        if (!header) return;
+        e.preventDefault();
+        if (activeTrainingCam >= 0) exitTrainingCameraMode();
+        if (!orbitInitialized) syncTweensFromCamera();
+
+        const cur = distTween.value.dist;
+        const amount = -e.deltaY * 0.001;
+        const dollyDist = (cur * 0.999 + 0.001) * amount;
+        const fwd = normalize(sub(camera.target, camera.position));
+
+        if (cameraMode === 'look' && lookCameraPos) {
+            // Look mode: move camera position forward/backward (dolly)
+            lookCameraPos[0] += fwd[0] * dollyDist;
+            lookCameraPos[1] += fwd[1] * dollyDist;
+            lookCameraPos[2] += fwd[2] * dollyDist;
+            // Also move focal point to keep same distance
+            const fp = focalTween.value;
+            focalTween.snap({
+                x: fp.x + fwd[0] * dollyDist,
+                y: fp.y + fwd[1] * dollyDist,
+                z: fp.z + fwd[2] * dollyDist,
+            });
+        } else {
+            // Orbit mode: shrink orbit radius (standard zoom)
+            const newDist = cur - dollyDist;
+            distTween.goto({ dist: Math.max(0.005, newDist) }, smoothDamping);
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Double-click: switch to orbit mode (like SuperSplat's pickFocalPoint).
+    // Places orbit center at the point under cursor, switches from look→orbit mode.
+    // In orbit mode, left-click orbits around that point.
+    // Double-click again on empty space → back to look mode.
+    canvas.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        if (!orbitInitialized || !header) return;
+
+        if (cameraMode === 'orbit') {
+            // Already in orbit mode — switch back to look mode
+            cameraMode = 'look';
+            lookCameraPos = [...camera.position];
+            console.log('[Camera] Switched to LOOK mode');
+            return;
+        }
+
+        // Switch from look → orbit mode
+        // Shoot ray through clicked pixel, place focal point at orbit distance along ray
+        const rect = canvas.getBoundingClientRect();
+        const ndcX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        const ndcY = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+
+        const vm = getViewMatrix();
+        const camRight = [vm[0], vm[4], vm[8]];
+        const camUp    = [-vm[1], -vm[5], -vm[9]];
+        const camFwd   = [vm[2], vm[6], vm[10]];
+
+        const aspect = canvas.width / canvas.height;
+        const halfFovY = (camera.fov || (45 * Math.PI/180)) / 2;
+        const halfH = Math.tan(halfFovY);
+        const halfW = halfH * aspect;
+
+        const rayDir = normalize([
+            camFwd[0] + ndcX * halfW * camRight[0] + ndcY * halfH * camUp[0],
+            camFwd[1] + ndcX * halfW * camRight[1] + ndcY * halfH * camUp[1],
+            camFwd[2] + ndcX * halfW * camRight[2] + ndcY * halfH * camUp[2],
+        ]);
+
+        const orbitDist = distTween.value.dist;
+        const newFocal = [
+            camera.position[0] + rayDir[0] * orbitDist,
+            camera.position[1] + rayDir[1] * orbitDist,
+            camera.position[2] + rayDir[2] * orbitDist,
+        ];
+
+        // Keep camera position fixed — recalculate azim/elev/dist to new focal
+        const savedPos = [...camera.position];
+        const ae = calcAzimElev(savedPos, newFocal, sceneUp);
+
+        focalTween.snap({ x: newFocal[0], y: newFocal[1], z: newFocal[2] });
+        orbitTween.snap({ azim: ae.azim, elev: ae.elev });
+        distTween.snap({ dist: ae.dist });
+
+        // Switch to orbit mode — clear lookCameraPos so applyTweens uses orbit math
+        lookCameraPos = null;
+        cameraMode = 'orbit';
+        console.log('[Camera] Switched to ORBIT mode, focal=', newFocal.map(v=>v.toFixed(3)));
+        applyTweensToCamera();
+        requestSort();
+    });
+
+    // ---- Playback controls ----
+    btnPlay.addEventListener('click', togglePlay);
+    speedSelect.addEventListener('change', () => {
+        playSpeed = parseFloat(speedSelect.value);
+    });
+    timeSlider.addEventListener('input', () => {
+        currentFrame = parseInt(timeSlider.value);
+        frameLabel.textContent = `${currentFrame} / ${header.total_frames - 1}`;
+        // Re-sort on manual time change (sort uses velocity-adjusted depth)
+        if (worker && vertexCount > 0) requestSort();
+    });
+
+    // SH degree slider
+    document.getElementById('shDegSlider').addEventListener('input', (e) => {
+        document.getElementById('shDegVal').textContent = e.target.value;
+    });
+
+    function togglePlay() {
+        playing = !playing;
+        btnPlay.innerHTML = playing ? '&#9646;&#9646;' : '&#9654;';
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (!header) return;
+        switch(e.code) {
+            case 'Space':
+                e.preventDefault();
+                togglePlay();
+                break;
+            case 'ArrowRight':
+                e.preventDefault();
+                currentFrame = Math.min(header.total_frames - 1, currentFrame + 1);
+                timeSlider.value = currentFrame;
+                frameLabel.textContent = `${currentFrame} / ${header.total_frames - 1}`;
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                currentFrame = Math.max(0, currentFrame - 1);
+                timeSlider.value = currentFrame;
+                frameLabel.textContent = `${currentFrame} / ${header.total_frames - 1}`;
+                break;
+            case 'Home':
+                currentFrame = 0;
+                timeSlider.value = 0;
+                frameLabel.textContent = `0 / ${header.total_frames - 1}`;
+                break;
+            case 'End':
+                currentFrame = header.total_frames - 1;
+                timeSlider.value = currentFrame;
+                frameLabel.textContent = `${currentFrame} / ${header.total_frames - 1}`;
+                break;
+            case 'Escape':
+                // Return to orbit camera
+                exitTrainingCameraMode();
+                break;
+        }
+        // Debug toggles
+        if (e.code === 'KeyK') {
+            debugForcePrebakedCov = !debugForcePrebakedCov;
+            console.log('[Debug] Force pre-baked covariance:', debugForcePrebakedCov);
+            document.title = debugForcePrebakedCov ? '4DGS Viewer [PREBAKED COV]' : '4DGS Viewer';
+        }
+        if (e.code === 'KeyF' && !e.ctrlKey) {
+            debugDisableFBO = !debugDisableFBO;
+            console.log('[Debug] FBO disabled:', debugDisableFBO);
+            document.title = debugDisableFBO ? '4DGS Viewer [NO FBO]' : '4DGS Viewer';
+        }
+
+        // Number keys 0-9: snap to training cameras
+        if (e.code >= 'Digit0' && e.code <= 'Digit9' && !e.ctrlKey && !e.altKey) {
+            const camIdx = parseInt(e.code.charAt(5));
+            if (header.trainingCameras && camIdx < header.trainingCameras.length) {
+                e.preventDefault();
+                snapToTrainingCamera(camIdx);
+            }
+        }
+    });
+
+    // ---- Eraser mode ----
+    const eraserBar = document.getElementById('eraserBar');
+    const eraserCursor = document.getElementById('eraserCursor');
+    const eraserRadiusSlider = document.getElementById('eraserRadius');
+    const eraserRadiusVal = document.getElementById('eraserRadiusVal');
+    const eraserCountEl = document.getElementById('eraserCount');
+    let eraserPixelRadius = 20;
+
+    function toggleEraser() {
+        eraserMode = !eraserMode;
+        eraserBar.classList.toggle('active', eraserMode);
+        canvas.classList.toggle('eraser-mode', eraserMode);
+        eraserCursor.style.display = eraserMode ? 'block' : 'none';
+        updateEraserCursorSize();
+    }
+
+    function updateEraserCursorSize() {
+        const d = eraserPixelRadius * 2;
+        eraserCursor.style.width = d + 'px';
+        eraserCursor.style.height = d + 'px';
+    }
+
+    function updateEraserCount() {
+        eraserCountEl.textContent = `${deletedSet.size} deleted`;
+    }
+
+    eraserRadiusSlider.addEventListener('input', () => {
+        eraserPixelRadius = parseInt(eraserRadiusSlider.value);
+        eraserRadiusVal.textContent = eraserPixelRadius;
+        updateEraserCursorSize();
+    });
+
+    // Track mouse for eraser cursor
+    canvas.addEventListener('mousemove', (e) => {
+        if (!eraserMode) return;
+        eraserCursor.style.left = (e.clientX - eraserPixelRadius) + 'px';
+        eraserCursor.style.top = (e.clientY - eraserPixelRadius) + 'px';
+    });
+
+    // Eraser click — project visible Gaussians to screen, delete those within radius
+    canvas.addEventListener('click', (e) => {
+        if (!eraserMode || !header || !mainPositions || !lastSortedIndices) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+        const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+        const r2 = eraserPixelRadius * eraserPixelRadius * (canvas.width / rect.width) * (canvas.width / rect.width);
+
+        const viewMat = getViewMatrix();
+
+        // Compute focal length (same letterbox logic as render loop)
+        let fx, fy;
+        let eVpX = 0, eVpY = 0, eVpW = canvas.width, eVpH = canvas.height;
+        if (trainingFocal && activeTrainingCam >= 0 && header.trainingCameras) {
+            const cam = header.trainingCameras[activeTrainingCam];
+            const uniformScale = Math.min(canvas.width / cam.width, canvas.height / cam.height);
+            fx = trainingFocal.fx * uniformScale;
+            fy = trainingFocal.fy * uniformScale;
+            eVpW = Math.round(cam.width * uniformScale);
+            eVpH = Math.round(cam.height * uniformScale);
+            eVpX = Math.round((canvas.width - eVpW) / 2);
+            eVpY = Math.round((canvas.height - eVpH) / 2);
+        } else {
+            fy = canvas.height / (2 * Math.tan(camera.fov / 2));
+            fx = fy;
+        }
+
+        const halfW = eVpW * 0.5;
+        const halfH = eVpH * 0.5;
+
+        const toDelete = [];
+        for (let i = 0; i < lastSortedIndices.length; i++) {
+            const gi = lastSortedIndices[i];
+            if (deletedSet.has(gi)) continue;
+
+            const px = mainPositions[gi * 3];
+            const py = mainPositions[gi * 3 + 1];
+            const pz = mainPositions[gi * 3 + 2];
+
+            // Transform to camera space (column-major view matrix)
+            const cx = viewMat[0]*px + viewMat[4]*py + viewMat[8]*pz + viewMat[12];
+            const cy = viewMat[1]*px + viewMat[5]*py + viewMat[9]*pz + viewMat[13];
+            const cz = viewMat[2]*px + viewMat[6]*py + viewMat[10]*pz + viewMat[14];
+            if (cz <= 0.01) continue; // behind camera (shader uses tz > 0.01)
+
+            // Project to screen (matches vertex shader, offset by letterbox)
+            const invZ = 1.0 / cz;
+            const sx = fx * cx * invZ + halfW + eVpX;
+            const sy = fy * cy * invZ + halfH + eVpY;
+
+            const dx = sx - mx;
+            const dy = sy - my;
+            if (dx * dx + dy * dy < r2) {
+                toDelete.push(gi);
+            }
+        }
+
+        if (toDelete.length > 0) {
+            deletedHistory.push(toDelete);
+            for (const gi of toDelete) deletedSet.add(gi);
+            updateEraserCount();
+            // Re-filter current sorted indices immediately (no need for full re-sort)
+            if (lastSortedIndices) {
+                let writeIdx = 0;
+                const filtered = new Uint32Array(lastSortedIndices.length);
+                for (let i = 0; i < lastSortedIndices.length; i++) {
+                    if (!deletedSet.has(lastSortedIndices[i])) {
+                        filtered[writeIdx++] = lastSortedIndices[i];
+                    }
+                }
+                gl.bindBuffer(gl.ARRAY_BUFFER, indexBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, filtered.subarray(0, writeIdx), gl.DYNAMIC_DRAW);
+                vertexCount = writeIdx;
+                visibleCount = writeIdx;
+                document.getElementById('visibleVal').textContent =
+                    `${visibleCount.toLocaleString()} / ${header.n_gaussians.toLocaleString()}`;
+            }
+            console.log(`[Eraser] Deleted ${toDelete.length} Gaussians (total: ${deletedSet.size})`);
+        }
+    });
+
+    // Prevent eraser clicks from triggering camera drag
+    const origMouseDown = canvas.onmousedown;
+    canvas.addEventListener('mousedown', (e) => {
+        if (eraserMode && e.button === 0) {
+            e.stopImmediatePropagation();
+        }
+    }, true); // capture phase to intercept before orbit handler
+
+    // Undo
+    document.getElementById('eraserUndo').addEventListener('click', () => {
+        if (deletedHistory.length === 0) return;
+        const last = deletedHistory.pop();
+        for (const gi of last) deletedSet.delete(gi);
+        updateEraserCount();
+        requestSort();
+    });
+
+    // Clear all
+    document.getElementById('eraserClear').addEventListener('click', () => {
+        if (deletedSet.size === 0) return;
+        deletedSet.clear();
+        deletedHistory = [];
+        updateEraserCount();
+        requestSort();
+    });
+
+    // 'E' key toggle + Ctrl+Z undo
+    window.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyE' && !e.ctrlKey && !e.altKey && !e.shiftKey) {
+            toggleEraser();
+        }
+        if (e.code === 'KeyZ' && e.ctrlKey && eraserMode) {
+            e.preventDefault();
+            document.getElementById('eraserUndo').click();
+        }
+    });
+
+    // Export cleaned .4dgs file
+    document.getElementById('eraserExport').addEventListener('click', async () => {
+        if (!loadedFileRef || !header || deletedSet.size === 0) {
+            alert('Nothing to export (no deletions made).');
+            return;
+        }
+
+        const N = header.n_gaussians;
+        const keepCount = N - deletedSet.size;
+        const nShRest = header.n_sh_coeffs - 1;
+        const fpg = 3 + 3 + 4 + 1 + 3 + (nShRest * 3) + 1 + 1 + 3;
+        const HEADER_SIZE = 256;
+
+        // Build keep mask
+        const keepMask = new Uint8Array(N);
+        for (let i = 0; i < N; i++) {
+            keepMask[i] = deletedSet.has(i) ? 0 : 1;
+        }
+
+        // Read header bytes
+        const headerBuf = await loadedFileRef.slice(0, HEADER_SIZE).arrayBuffer();
+        const headerOut = new Uint8Array(headerBuf.slice(0));
+
+        // Update n_gaussians in header
+        const hv = new DataView(headerOut.buffer);
+        hv.setUint32(8, keepCount, true);
+
+        // Read all Gaussian data
+        const gaussByteLen = N * fpg * 4;
+        const gaussBuf = await loadedFileRef.slice(header.data_offset, header.data_offset + gaussByteLen).arrayBuffer();
+        const gaussF32 = new Float32Array(gaussBuf);
+
+        // Copy kept Gaussians
+        const outGaussF32 = new Float32Array(keepCount * fpg);
+        let outIdx = 0;
+        for (let i = 0; i < N; i++) {
+            if (!keepMask[i]) continue;
+            const srcOff = i * fpg;
+            const dstOff = outIdx * fpg;
+            for (let j = 0; j < fpg; j++) {
+                outGaussF32[dstOff + j] = gaussF32[srcOff + j];
+            }
+            outIdx++;
+        }
+
+        // Handle keyframes if present
+        let kfBlob = null;
+        if (header.n_keyframes > 0 && header.keyframe_offset > 0) {
+            const K = header.n_keyframes;
+            const hasRotScale = !!(header.keyframeRotations && header.keyframeScales);
+            const kfFloatsPerGauss = K * 3 + (hasRotScale ? K * 4 + K * 3 : 0);
+            const kfByteLen = N * kfFloatsPerGauss * 4;
+            const kfBuf = await loadedFileRef.slice(header.keyframe_offset, header.keyframe_offset + kfByteLen).arrayBuffer();
+            const kfF32 = new Float32Array(kfBuf);
+            const outKfF32 = new Float32Array(keepCount * kfFloatsPerGauss);
+            let kfOut = 0;
+            for (let i = 0; i < N; i++) {
+                if (!keepMask[i]) continue;
+                const srcOff = i * kfFloatsPerGauss;
+                const dstOff = kfOut * kfFloatsPerGauss;
+                for (let j = 0; j < kfFloatsPerGauss; j++) {
+                    outKfF32[dstOff + j] = kfF32[srcOff + j];
+                }
+                kfOut++;
+            }
+            kfBlob = new Uint8Array(outKfF32.buffer);
+        }
+
+        // Read camera data (copy as-is between header and gaussian data)
+        let camBytes = null;
+        if (header.camera_table_offset > 0 && header.camera_table_offset < header.data_offset) {
+            const camBuf = await loadedFileRef.slice(header.camera_table_offset, header.data_offset).arrayBuffer();
+            camBytes = new Uint8Array(camBuf);
+        }
+
+        // Rebuild file: header + cameras + gaussians + keyframes
+        // Update offsets in header
+        let offset = HEADER_SIZE;
+        if (camBytes) {
+            hv.setUint32(104, offset, true); // camera_table_offset
+            offset += camBytes.byteLength;
+        }
+        hv.setUint32(88, offset, true); // data_offset
+        offset += outGaussF32.byteLength;
+        if (kfBlob) {
+            hv.setUint32(112, offset, true); // keyframe_offset (byte 112 in header)
+            // Note: keyframe_offset is at byte 112 per header parsing
+        }
+
+        // Assemble
+        const parts = [headerOut];
+        if (camBytes) parts.push(camBytes);
+        parts.push(new Uint8Array(outGaussF32.buffer));
+        if (kfBlob) parts.push(kfBlob);
+
+        const blob = new Blob(parts, { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cleaned_${deletedSet.size}removed.4dgs`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        console.log(`[Export] Saved ${keepCount.toLocaleString()} Gaussians (removed ${deletedSet.size.toLocaleString()})`);
+    });
+
+    // ---- Float FBO management ----
+    function ensureFBO(w, h) {
+        if (!blitProgram) return; // no float FBO support
+        if (fbo && fboW === w && fboH === h) return; // already correct size
+
+        // Delete old FBO resources
+        if (fbo) { gl.deleteFramebuffer(fbo); fbo = null; }
+        if (fboTexture) { gl.deleteTexture(fboTexture); fboTexture = null; }
+
+        // Create RGBA32F texture — full float32 precision to match gsplat's
+        // internal accumulation. RGBA16F caused visible dark patches from
+        // precision loss when many overlapping Gaussians accumulate.
+        fboTexture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, fboTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, w, h, 0, gl.RGBA, gl.FLOAT, null);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        // Create framebuffer
+        fbo = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fboTexture, 0);
+
+        const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+        if (status !== gl.FRAMEBUFFER_COMPLETE) {
+            console.error('[FBO] Framebuffer incomplete:', status);
+            gl.deleteFramebuffer(fbo);
+            gl.deleteTexture(fboTexture);
+            fbo = null;
+            fboTexture = null;
+            blitProgram = null; // disable FBO path
+        } else {
+            fboW = w;
+            fboH = h;
+        }
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    // ---- Render loop ----
+    function resize() {
+        const dpr = window.devicePixelRatio || 1;
+        const w = Math.round(canvas.clientWidth * dpr);
+        const h = Math.round(canvas.clientHeight * dpr);
+        if (canvas.width !== w || canvas.height !== h) {
+            canvas.width = w;
+            canvas.height = h;
+        }
+    }
+
+    function render(timestamp) {
+        requestAnimationFrame(render);
+
+        resize();
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // FPS counter
+        fpsFrames++;
+        if (timestamp - fpsTick > 500) {
+            currentFps = (fpsFrames / ((timestamp - fpsTick) / 1000)).toFixed(0);
+            document.getElementById('fpsVal').textContent = currentFps;
+            fpsFrames = 0;
+            fpsTick = timestamp;
+        }
+
+        // Update damped camera tweens
+        if (orbitInitialized) {
+            const dt = lastFrameTime ? Math.min((timestamp - lastFrameTime) / 1000, 0.05) : 1/60;
+            const m1 = orbitTween.update(dt);
+            const m2 = distTween.update(dt);
+            const m3 = focalTween.update(dt);
+            applyTweensToCamera();
+            if (m1 || m2 || m3 || isDragging) requestSort();
+        }
+
+        // Playback
+        if (playing && header) {
+            const dt = lastFrameTime ? (timestamp - lastFrameTime) / 1000 : 0;
+            frameAccum += dt * header.fps * playSpeed;
+            while (frameAccum >= 1) {
+                frameAccum -= 1;
+                currentFrame++;
+                if (currentFrame >= header.total_frames) currentFrame = 0;
+            }
+            timeSlider.value = currentFrame;
+            frameLabel.textContent = `${currentFrame} / ${header.total_frames - 1}`;
+        }
+        lastFrameTime = timestamp;
+
+        // Re-sort when time changes (sort uses velocity-adjusted positions + temporal culling)
+        if (worker && vertexCount > 0 && currentFrame !== render._lastSortedFrame) {
+            render._lastSortedFrame = currentFrame;
+            requestSort();
+        }
+
+        // Determine render resolution: use training camera resolution when snapped
+        // (requires FBO for upscaling to viewport), otherwise use viewport resolution.
+        const canUseFBO = !!(blitProgram) && !debugDisableFBO;
+        let renderW = w, renderH = h;
+        let fx, fy;
+        // Letterbox viewport: centered sub-region matching training aspect ratio
+        let vpX = 0, vpY = 0, vpW = w, vpH = h;
+        if (trainingFocal && activeTrainingCam >= 0 && header && header.trainingCameras) {
+            const cam = header.trainingCameras[activeTrainingCam];
+            const uniformScale = Math.min(w / cam.width, h / cam.height);
+            fx = trainingFocal.fx * uniformScale;
+            fy = trainingFocal.fy * uniformScale;
+            vpW = Math.round(cam.width * uniformScale);
+            vpH = Math.round(cam.height * uniformScale);
+            vpX = Math.round((w - vpW) / 2);
+            vpY = Math.round((h - vpH) / 2);
+        } else {
+            fy = h / (2 * Math.tan(camera.fov / 2));
+            fx = fy;
+        }
+
+        // Ensure float FBO matches render resolution
+        ensureFBO(renderW, renderH);
+
+        // Bind FBO for float-precision blending (or default canvas if FBO unavailable)
+        const useFBO = !!(fbo && blitProgram) && !debugDisableFBO;
+        if (useFBO) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+            if (!render._fboLogged || render._fboLastRes !== `${renderW}x${renderH}`) {
+                console.log(`[FBO] Rendering to RGBA16F FBO ${renderW}x${renderH} (gamma-correct)`);
+                render._fboLogged = true;
+                render._fboLastRes = `${renderW}x${renderH}`;
+            }
+        }
+
+        // Clear full canvas/FBO black, then set viewport to letterbox sub-region
+        gl.viewport(0, 0, w, h);
+        gl.clearColor(0, 0, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.viewport(vpX, vpY, vpW, vpH);
+
+        if (!program || vertexCount === 0 || !header) {
+            if (useFBO) gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            return;
+        }
+        const viewMat = getViewMatrix();
+        const t = currentFrame / Math.max(1, header.total_frames - 1);
+
+        // Skip drawing when the current time diverges too far from the last
+        // sorted time (e.g. at the loop-wrap point). The stale sort indices
+        // would reference Gaussians from the wrong part of the sequence,
+        // causing a black flash. Hold the previous canvas contents instead.
+        if (lastSortedTime >= 0 && Math.abs(t - lastSortedTime) > 0.15) {
+            if (useFBO) gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            return;
+        }
+
+        gl.useProgram(program);
+
+        gl.uniformMatrix4fv(u_view, false, viewMat);
+        gl.uniform2f(u_viewport, vpW, vpH);
+        gl.uniform2f(u_focal, fx, fy);
+        gl.uniform1f(u_time, t);
+        gl.uniform1f(u_sharpnessK, header.sharpness_k || 50.0);
+        gl.uniform1i(u_temporalProfile, header.temporal_profile || 0);
+        gl.uniform1f(u_lifespanVelocity, header.lifespan_velocity ? 1.0 : 0.0);
+        gl.uniform1f(u_lifespanRef, header.lifespan_ref);
+        gl.uniform1f(u_durClampMin, header.duration_clamp_min);
+        gl.uniform1f(u_durClampMax, header.duration_clamp_max);
+        gl.uniform1f(u_sceneExtent, header.scene_extent || 1.0);
+        gl.uniform1i(u_dataTexW, dataTexW);
+        // Always compute stride from actual texture layout (cannot change at runtime)
+        // Use stored flag if available (set during texture build, survives streaming cleanup)
+        const _dataHasRSKF = header._hasRotScaleKFBuilt !== undefined
+            ? header._hasRotScaleKFBuilt
+            : !!(header.keyframeRotations && header.keyframeScales);
+        const _posKFTex = nKeyframes > 0 ? Math.ceil(nKeyframes * 3 / 4) : 0;
+        const _rotKFTex = _dataHasRSKF ? nKeyframes : 0;
+        const _scaleKFTex = _dataHasRSKF ? Math.ceil(nKeyframes * 3 / 4) : 0;
+        gl.uniform1i(u_texelsPerGauss, 16 + _posKFTex + _rotKFTex + _scaleKFTex);
+        gl.uniform1i(u_nKeyframes, nKeyframes);
+        // Debug: force pre-baked covariance by telling shader keyframes don't exist
+        gl.uniform1i(u_hasRotScaleKF, (_dataHasRSKF && !debugForcePrebakedCov) ? 1 : 0);
+        gl.uniform3f(u_camPos, camera.position[0], camera.position[1], camera.position[2]);
+        gl.uniform1i(u_renderSHDeg, parseInt(document.getElementById('shDegSlider').value));
+        gl.uniform1f(u_maxScale, parseFloat(document.getElementById('maxScaleSlider').value));
+        gl.uniform1f(u_minOpacity, parseFloat(document.getElementById('minOpaInput').value));
+        gl.uniform1i(u_visualMode, parseInt(document.getElementById('visualMode').value) || 0);
+        const ptChecked = document.getElementById('pointMode').checked;
+        gl.uniform1f(u_pointSize, ptChecked ? parseFloat(document.getElementById('pointSize').value) : 0.0);
+        const ringChecked = document.getElementById('ringMode').checked;
+        gl.uniform1f(u_ringSize, ringChecked ? 0.03 : 0.0);
+        gl.uniform1i(u_gammaCorrect, useFBO ? 1 : 0);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+        gl.uniform1i(u_dataTexture, 0);
+
+        gl.bindVertexArray(vao);
+        gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, vertexCount);
+        gl.bindVertexArray(null);
+
+        // Blit FBO to canvas (tonemap float → uint8)
+        if (useFBO) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.viewport(0, 0, w, h);
+            gl.clearColor(0, 0, 0, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.disable(gl.BLEND);
+
+            gl.useProgram(blitProgram);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, fboTexture);
+            gl.uniform1i(u_blit_tex, 0);
+            const satVal = document.getElementById('saturationSlider');
+            gl.uniform1f(u_blit_saturation, satVal ? parseFloat(satVal.value) : 1.0);
+            const conVal = document.getElementById('contrastSlider');
+            gl.uniform1f(u_blit_contrast, conVal ? parseFloat(conVal.value) : 1.0);
+
+            gl.bindVertexArray(blitVAO);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            gl.bindVertexArray(null);
+
+            gl.enable(gl.BLEND);
+        }
+    }
+
+    requestAnimationFrame(render);
+
+})();
+</script>
+</body>
+</html>
