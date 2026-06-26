@@ -1282,6 +1282,29 @@ void main() {
         if (e.dataTransfer.files.length > 0) loadFile(e.dataTransfer.files[0]);
     });
 
+    // ---- URL auto-load: ?file=<url> streams a sample directly (e.g. from Supabase) ----
+    // A fetched Blob has .size and .slice(), so loadFile()/loadFileChunked() work on it
+    // exactly like a picked File — no file.name needed.
+    const urlFileParam = new URLSearchParams(location.search).get('file');
+    if (urlFileParam) {
+        dropzone.classList.add('hidden');
+        loading.classList.remove('hidden');
+        loadStatus.textContent = 'Downloading sample…';
+        (async () => {
+            try {
+                const res = await fetch(urlFileParam);
+                if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+                const blob = await res.blob();
+                await loadFile(blob);
+            } catch (err) {
+                console.error('[4DGS] URL load error:', err);
+                loadStatus.textContent = 'Error: ' + err.message;
+                dropzone.classList.remove('hidden');
+                loading.classList.add('hidden');
+            }
+        })();
+    }
+
     // Stored for building GPU texture
     let _gaussianData = null;       // Float32Array when small enough; null when streamed
     let _floatsPerGaussian = 0;
