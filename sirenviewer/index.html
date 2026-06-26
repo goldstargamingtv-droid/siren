@@ -136,6 +136,30 @@ canvas.eraser-mode { cursor: none !important; }
 #topbar label {
     display: inline-flex; align-items: center; gap: 3px;
 }
+
+/* ---- Mobile (narrow / touch) overrides. Desktop is untouched. ---- */
+@media (max-width: 768px), (pointer: coarse) {
+    /* The top bar holds many controls; on a phone they overflowed and were
+       clipped after the camera selector. Make the whole bar scroll horizontally
+       (height stays 36px so it never overlaps #sirenLogo at top:40px) so every
+       setting is reachable by swiping. */
+    #topbar {
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 0 8px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;            /* Firefox: hide the scroll track */
+    }
+    #topbar::-webkit-scrollbar { display: none; }   /* WebKit: hide the scroll track */
+    #topbar .left, #topbar .right { flex: 0 0 auto; flex-wrap: nowrap; }
+    #topbar .left > *, #topbar .right > * { flex: 0 0 auto; }
+
+    /* Let the touch handlers own canvas gestures (orbit / pan / pinch) instead of
+       the browser hijacking them for scroll/zoom. */
+    canvas { touch-action: none; }
+}
 </style>
 </head>
 <body>
@@ -1196,6 +1220,14 @@ void main() {
     // Debug toggles
     let debugForcePrebakedCov = false; // 'K' key: force pre-baked covariance (disable keyframe rot/scale)
     let debugDisableFBO = false;       // 'F' key: disable float FBO (revert to uint8 canvas)
+
+    // ---- Mobile detection (gates all mobile-only behavior; desktop unchanged) ----
+    const IS_MOBILE = (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches)
+                      || ('ontouchstart' in window)
+                      || window.innerWidth <= 768;
+    // Cap the drawing-buffer pixel ratio on mobile: the splat shader is fragment-bound,
+    // so an uncapped DPR (~3 on phones) renders ~9x the pixels and tanks performance.
+    const MOBILE_DPR_CAP = 1.25;
 
     // Camera
     const camera = {
@@ -2714,14 +2746,16 @@ void main() {
         distTween.snap({ dist: ae.dist });
         focalTween.snap({ x: camera.target[0], y: camera.target[1], z: camera.target[2] });
         orbitInitialized = true;
-        // Start in look mode by default
-        cameraMode = 'look';
-        lookCameraPos = [...camera.position];
+        // Start in orbit mode by default — left-drag spins the scene around the
+        // focal point (camera.target, reset to scene center), as if the user had
+        // double-clicked. Double-click toggles to look mode.
+        cameraMode = 'orbit';
+        lookCameraPos = null;
     }
 
-    // Camera mode: 'look' (default) = camera stays in place, scene rotates
-    //              'orbit' = camera orbits around focal point (after double-click)
-    let cameraMode = 'look';
+    // Camera mode: 'orbit' (default) = camera orbits around focal point (scene spins)
+    //              'look' = camera stays in place, view rotates (toggle via double-click)
+    let cameraMode = 'orbit';
     let lookCameraPos = null; // fixed camera position during look mode
 
     // Apply tweens back to camera.position/target
@@ -2878,10 +2912,10 @@ void main() {
 
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    // Double-click: switch to orbit mode (like SuperSplat's pickFocalPoint).
-    // Places orbit center at the point under cursor, switches from look→orbit mode.
-    // In orbit mode, left-click orbits around that point.
-    // Double-click again on empty space → back to look mode.
+    // Double-click: toggle between orbit and look mode.
+    // Orbit is the default. Double-click in orbit mode → look mode (camera fixed,
+    // view rotates). Double-click in look mode → orbit mode, placing the orbit
+    // center at the point under the cursor (like SuperSplat's pickFocalPoint).
     canvas.addEventListener('dblclick', (e) => {
         e.preventDefault();
         if (!orbitInitialized || !header) return;
@@ -2938,6 +2972,150 @@ void main() {
         applyTweensToCamera();
         requestSort();
     });
+
+    // ---- Touch camera controls (mobile only; desktop registers nothing) ----
+    // Mirrors the mouse handlers exactly: 1 finger = left-drag (orbit/look),
+    // 2 fingers = pinch-dolly (like wheel) + pan (like the pan branch of mousemove),
+    // release coasts like mouseup, double-tap toggles orbit/look like dblclick.
+    if (IS_MOBILE) {
+        let touchMode = 0;           // 0 = none, 1 = one-finger drag, 2 = two-finger
+        let touchLast = [0, 0];      // last centroid (screen px)
+        let pinchLastDist = 0;       // last two-finger distance (screen px)
+        let lastTapTime = 0, lastTapPos = [0, 0];
+
+        function touchCentroid(touches) {
+            let x = 0, y = 0;
+            for (let i = 0; i < touches.length; i++) { x += touches[i].clientX; y += touches[i].clientY; }
+            return [x / touches.length, y / touches.length];
+        }
+        function touchDist(touches) {
+            return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+        }
+
+        // One-finger orbit/look (mirrors the dragButton===0 branch of mousemove)
+        function touchRotate(dx, dy) {
+            if (cameraMode === 'look') {
+                applyLook(-dx * orbitSensitivity, dy * orbitSensitivity);
+            } else {
+                const dAzim = -dx * orbitSensitivity;
+                const cur = orbitTween.value;
+                const rawElev = cur.elev + dy * orbitSensitivity;
+                const dElev = Math.max(-89, Math.min(89, rawElev)) - cur.elev;
+                orbitTween.move({ azim: dAzim, elev: dElev });
+            }
+        }
+
+        // Two-finger pan (mirrors the pan branch of mousemove)
+        function touchPan(dx, dy) {
+            const offset = sub(camera.position, camera.target);
+            const dist = length3(offset);
+            const vm = getViewMatrix();
+            const right = [vm[0], vm[4], vm[8]];
+            const down = [vm[1], vm[5], vm[9]];
+            const scale = dist * 0.001;
+            const moveX = -dx * scale;
+            const moveY = -dy * scale;
+            focalTween.move({
+                x: right[0]*moveX + down[0]*moveY,
+                y: right[1]*moveX + down[1]*moveY,
+                z: right[2]*moveX + down[2]*moveY,
+            });
+            if (lookCameraPos) {
+                lookCameraPos[0] += right[0]*moveX + down[0]*moveY;
+                lookCameraPos[1] += right[1]*moveX + down[1]*moveY;
+                lookCameraPos[2] += right[2]*moveX + down[2]*moveY;
+            }
+        }
+
+        // Two-finger pinch dolly (mirrors the wheel handler). delta = change in finger
+        // separation (px); spreading fingers (delta>0) zooms in, like wheel up.
+        function touchPinch(delta) {
+            const cur = distTween.value.dist;
+            const amount = delta * 0.005;
+            const dollyDist = (cur * 0.999 + 0.001) * amount;
+            const fwd = normalize(sub(camera.target, camera.position));
+            if (cameraMode === 'look' && lookCameraPos) {
+                lookCameraPos[0] += fwd[0] * dollyDist;
+                lookCameraPos[1] += fwd[1] * dollyDist;
+                lookCameraPos[2] += fwd[2] * dollyDist;
+                const fp = focalTween.value;
+                focalTween.snap({ x: fp.x + fwd[0]*dollyDist, y: fp.y + fwd[1]*dollyDist, z: fp.z + fwd[2]*dollyDist });
+            } else {
+                distTween.goto({ dist: Math.max(0.005, cur - dollyDist) }, smoothDamping);
+            }
+        }
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (eraserMode) return;   // leave eraser interactions to the existing handlers
+            e.preventDefault();
+            const t = e.touches;
+            if (t.length === 1) {
+                const now = Date.now();
+                const tp = [t[0].clientX, t[0].clientY];
+                if (now - lastTapTime < 300 && Math.abs(tp[0]-lastTapPos[0]) < 30 && Math.abs(tp[1]-lastTapPos[1]) < 30) {
+                    canvas.dispatchEvent(new MouseEvent('dblclick', { clientX: tp[0], clientY: tp[1], bubbles: true, cancelable: true }));
+                    lastTapTime = 0; touchMode = 0; isDragging = false;
+                    return;
+                }
+                lastTapTime = now; lastTapPos = tp;
+                touchMode = 1; isDragging = true; dragButton = 0;
+                touchLast = tp; lastMouse = tp;
+            } else if (t.length >= 2) {
+                touchMode = 2; isDragging = true; dragButton = 0;
+                touchLast = touchCentroid(t); lastMouse = touchLast;
+                pinchLastDist = touchDist(t);
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (eraserMode || !isDragging || !header) return;
+            e.preventDefault();
+            const t = e.touches;
+            if (activeTrainingCam >= 0) exitTrainingCameraMode();
+            if (!orbitInitialized) syncTweensFromCamera();
+            if (touchMode === 1 && t.length === 1) {
+                const x = t[0].clientX, y = t[0].clientY;
+                const dx = x - touchLast[0], dy = y - touchLast[1];
+                touchLast = [x, y]; lastMouse = [x, y];
+                touchRotate(dx, dy);
+            } else if (touchMode === 2 && t.length >= 2) {
+                const c = touchCentroid(t);
+                const dx = c[0] - touchLast[0], dy = c[1] - touchLast[1];
+                touchLast = c; lastMouse = c;
+                touchPan(dx, dy);
+                const d = touchDist(t);
+                touchPinch(d - pinchLastDist);
+                pinchLastDist = d;
+            }
+        }, { passive: false });
+
+        function endTouch(e) {
+            if (eraserMode) return;
+            const remaining = e.touches ? e.touches.length : 0;
+            if (remaining >= 1) {
+                // Finger count changed (e.g. 2->1): re-seat the baseline, keep dragging.
+                if (remaining === 1) {
+                    touchMode = 1;
+                    touchLast = [e.touches[0].clientX, e.touches[0].clientY];
+                    lastMouse = [...touchLast];
+                } else {
+                    touchMode = 2;
+                    touchLast = touchCentroid(e.touches);
+                    lastMouse = [...touchLast];
+                    pinchLastDist = touchDist(e.touches);
+                }
+                return;
+            }
+            // No fingers left — coast like mouseup.
+            if (isDragging && orbitInitialized) {
+                orbitTween.coast(coastFriction);
+                if (cameraMode === 'look') focalTween.coast(coastFriction);
+            }
+            isDragging = false; touchMode = 0;
+        }
+        canvas.addEventListener('touchend', endTouch, { passive: false });
+        canvas.addEventListener('touchcancel', endTouch, { passive: false });
+    }
 
     // ---- Playback controls ----
     btnPlay.addEventListener('click', togglePlay);
@@ -3325,7 +3503,8 @@ void main() {
 
     // ---- Render loop ----
     function resize() {
-        const dpr = window.devicePixelRatio || 1;
+        let dpr = window.devicePixelRatio || 1;
+        if (IS_MOBILE) dpr = Math.min(dpr, MOBILE_DPR_CAP);
         const w = Math.round(canvas.clientWidth * dpr);
         const h = Math.round(canvas.clientHeight * dpr);
         if (canvas.width !== w || canvas.height !== h) {
@@ -3374,10 +3553,34 @@ void main() {
         }
         lastFrameTime = timestamp;
 
-        // Re-sort when time changes (sort uses velocity-adjusted positions + temporal culling)
+        // Re-sort when time changes (sort uses velocity-adjusted positions + temporal culling).
+        // On mobile during playback, throttle the full N-Gaussian re-sort to every 4th played
+        // frame so the sort can't fall hopelessly behind playback (the cause of play lag /
+        // skipped frames). Desktop, scrubbing, and camera moves keep the per-change re-sort.
         if (worker && vertexCount > 0 && currentFrame !== render._lastSortedFrame) {
-            render._lastSortedFrame = currentFrame;
-            requestSort();
+            if (IS_MOBILE && playing) {
+                render._sortCadence = (render._sortCadence || 0) + 1;
+                if (render._sortCadence >= 4) {
+                    render._sortCadence = 0;
+                    render._lastSortedFrame = currentFrame;
+                    requestSort();
+                }
+            } else {
+                render._lastSortedFrame = currentFrame;
+                requestSort();
+            }
+        }
+
+        // Skip the draw entirely — BEFORE any clear / FBO bind — when the current playback
+        // time has diverged too far from the time the live sort was computed for (e.g. the
+        // loop-wrap point, or on mobile when the throttled re-sort lags). Returning here holds
+        // the previous canvas contents; the old guard ran AFTER gl.clear, which on devices
+        // without a float FBO painted the canvas black first => the mobile "blink". Threshold
+        // is relaxed on mobile so throttled-sort frames still display.
+        if (program && vertexCount > 0 && header && lastSortedTime >= 0) {
+            const tNow = currentFrame / Math.max(1, header.total_frames - 1);
+            const skipThreshold = IS_MOBILE ? 0.30 : 0.15;
+            if (Math.abs(tNow - lastSortedTime) > skipThreshold) return;
         }
 
         // Determine render resolution: use training camera resolution when snapped
@@ -3427,15 +3630,7 @@ void main() {
         }
         const viewMat = getViewMatrix();
         const t = currentFrame / Math.max(1, header.total_frames - 1);
-
-        // Skip drawing when the current time diverges too far from the last
-        // sorted time (e.g. at the loop-wrap point). The stale sort indices
-        // would reference Gaussians from the wrong part of the sequence,
-        // causing a black flash. Hold the previous canvas contents instead.
-        if (lastSortedTime >= 0 && Math.abs(t - lastSortedTime) > 0.15) {
-            if (useFBO) gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-            return;
-        }
+        // (Frame-divergence skip now happens earlier, before the clear/FBO bind.)
 
         gl.useProgram(program);
 
