@@ -6569,7 +6569,16 @@
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // Global mobile check - disable heavy animations
         const IS_MOBILE = window.innerWidth <= 768;
-        
+
+        // ---- SIREN 4DGS samples (Continue Watching tiles -> sirenviewer) ----
+        // Each opens ../sirenviewer/?file=<url>, which streams the .4dgs from Supabase.
+        const sirenSamples = [
+            { title: 'Corgi', file: 'https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/content/corgi.4dgs' },
+            { title: 'Dani', file: 'https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/content/dani.4dgs' },
+            { title: 'Kailee', file: 'https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/content/kailee.4dgs' },
+            { title: 'Martini', file: 'https://tzxbhrrhgahvcfkokdti.supabase.co/storage/v1/object/public/content/martini.4dgs' }
+        ];
+
         // Mock data
         const sceneNames = [
             "Velvet Dreams", "Golden Hour", "After Dark", "Private Suite", 
@@ -6810,6 +6819,8 @@
                         window.location.href = '../watch/?type=3d';
                     } else if (card.dataset.multiangle === 'true') {
                         window.location.href = '../multiangle/';
+                    } else if (card.dataset.sirenviewer === 'true') {
+                        window.location.href = '../sirenviewer/?file=' + encodeURIComponent(card.dataset.file);
                     } else {
                         window.location.href = '../watch/';
                     }
@@ -6841,11 +6852,42 @@
                     window.location.href = '../watch/?type=3d';
                 } else if (card.dataset.multiangle === 'true') {
                     window.location.href = '../multiangle/';
+                } else if (card.dataset.sirenviewer === 'true') {
+                    window.location.href = '../sirenviewer/?file=' + encodeURIComponent(card.dataset.file);
                 } else {
                     window.location.href = '../watch/';
                 }
             });
             
+            return card;
+        }
+
+        // Build a dedicated Continue Watching tile that opens the 4DGS viewer.
+        // Uses a neutral gradient placeholder (NOT <img src="">, which would fire a
+        // broken-image re-request) and carries routing via data-sirenviewer/data-file.
+        function createSirenCard(sample) {
+            const card = document.createElement('div');
+            card.className = 'content-card';
+            card.dataset.sirenviewer = 'true';
+            card.dataset.file = sample.file;
+            card.dataset.title = sample.title;
+            card.style.cursor = 'pointer';
+            card.innerHTML = `
+                <div class="card-thumbnail">
+                    <div class="card-thumbnail-inner">
+                        <div class="card-thumb-img" style="background: linear-gradient(135deg, #1a1033 0%, #16213e 45%, #0f3460 100%);"></div>
+                        <div class="card-gradient"></div>
+                        <div class="card-3d-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <span>4D</span>
+                        </div>
+                        <div class="card-title-logo" style="font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.05em; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.9);">${sample.title}</div>
+                    </div>
+                </div>
+            `;
             return card;
         }
 
@@ -6867,6 +6909,10 @@
                 const container = document.getElementById(row.id);
                 if (container) {
                     container.innerHTML = '';
+                    // Prepend the 4DGS sample tiles to Continue Watching (most visible first).
+                    if (row.id === 'continueRow') {
+                        sirenSamples.forEach(sample => container.appendChild(createSirenCard(sample)));
+                    }
                     for (let i = 0; i < row.count; i++) {
                         if (row.type === 'top10') {
                             container.appendChild(createContentCard(i + Math.floor(Math.random() * 10), row.type, i + 1, i));
@@ -7691,7 +7737,7 @@
             // Content data for grid
             const mobileContent = {
                 all: [
-                    { section: 'Continue Watching', items: generateItems(3, 'continue') },
+                    { section: 'Continue Watching', items: [...sirenSamples.map(s => ({ isSiren: true, file: s.file, title: s.title, img: '', badge: '4D' })), ...generateItems(3, 'continue')] },
                     { section: 'Top Performers', items: generatePerformers(6), isPerformerSection: true },
                     { section: 'Trending Now', items: generateItems(6, 'trending') },
                     { section: 'New Releases', items: generateItems(6, 'new') },
@@ -7792,19 +7838,26 @@
                             card.href = '../watch/index.html?type=splat';
                         } else if (item.isMultiAngle) {
                             card.href = '../multiangle/';
+                        } else if (item.isSiren) {
+                            card.href = '../sirenviewer/?file=' + encodeURIComponent(item.file);
+                            card.dataset.sirenviewer = 'true';
                         } else {
                             card.href = '../watch/index.html';
                         }
                         card.className = 'mobile-grid-card';
                         if (item.is3D) card.dataset.is3d = 'true';
                         if (item.isMultiAngle) card.dataset.multiangle = 'true';
+                        // Empty img -> neutral gradient block (avoids a broken-image re-request).
+                        const thumb = item.img
+                            ? `<img src="${item.img}" alt="${item.title}" loading="lazy">`
+                            : `<div class="mobile-grid-card-img-placeholder" style="width:100%;height:100%;background:linear-gradient(135deg,#1a1033 0%,#16213e 45%,#0f3460 100%);"></div>`;
                         card.innerHTML = `
-                            <img src="${item.img}" alt="${item.title}" loading="lazy">
+                            ${thumb}
                             ${item.badge ? `<div class="mobile-grid-card-badge${item.is3D ? ' badge-3d' : ''}${item.isMultiAngle ? ' badge-3d' : ''}">${item.badge}</div>` : ''}
-                            <div class="mobile-grid-card-duration">${item.duration}</div>
+                            ${item.duration ? `<div class="mobile-grid-card-duration">${item.duration}</div>` : ''}
                             <div class="mobile-grid-card-overlay">
                                 <div class="mobile-grid-card-title">${item.title}</div>
-                                <div class="mobile-grid-card-meta">${item.performer}</div>
+                                <div class="mobile-grid-card-meta">${item.performer || ''}</div>
                             </div>
                         `;
                         grid.appendChild(card);
@@ -8648,6 +8701,8 @@
                     window.location.href = '../watch/?type=3d';
                 } else if (card && card.dataset.multiangle === 'true') {
                     window.location.href = '../multiangle/';
+                } else if (card && card.dataset.sirenviewer === 'true') {
+                    window.location.href = '../sirenviewer/?file=' + encodeURIComponent(card.dataset.file);
                 } else {
                     window.location.href = '../watch/';
                 }
@@ -8661,6 +8716,8 @@
                     window.location.href = '../watch/?type=3d';
                 } else if (card && card.dataset.multiangle === 'true') {
                     window.location.href = '../multiangle/';
+                } else if (card && card.dataset.sirenviewer === 'true') {
+                    window.location.href = '../sirenviewer/?file=' + encodeURIComponent(card.dataset.file);
                 } else {
                     window.location.href = '../watch/';
                 }
@@ -8699,6 +8756,8 @@
                         window.location.href = '../watch/?type=3d';
                     } else if (card.dataset.multiangle === 'true') {
                         window.location.href = '../multiangle/';
+                    } else if (card.dataset.sirenviewer === 'true') {
+                        window.location.href = '../sirenviewer/?file=' + encodeURIComponent(card.dataset.file);
                     } else {
                         window.location.href = '../watch/';
                     }
@@ -8736,6 +8795,8 @@
                     window.location.href = '../watch/?type=3d';
                 } else if (card.dataset.multiangle === 'true') {
                     window.location.href = '../multiangle/';
+                } else if (card.dataset.sirenviewer === 'true') {
+                    window.location.href = '../sirenviewer/?file=' + encodeURIComponent(card.dataset.file);
                 } else {
                     window.location.href = '../watch/';
                 }
