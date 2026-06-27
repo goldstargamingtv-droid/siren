@@ -172,6 +172,7 @@ canvas.eraser-mode { cursor: none !important; }
         <h1>Drop .4dgs file here</h1>
         <p>or click to browse</p>
         <input type="file" id="fileInput" accept=".4dgs" style="display:none">
+        <p id="dropError" style="color:#e74c3c;font-size:12px;margin-top:14px;max-width:80vw;word-break:break-word"></p>
     </div>
 </div>
 
@@ -1330,7 +1331,10 @@ void main() {
                 await loadFile(blob);
             } catch (err) {
                 console.error('[4DGS] URL load error:', err);
-                loadStatus.textContent = 'Error: ' + err.message;
+                const msg = `${err.name || 'Error'}: ${err.message}`;
+                loadStatus.textContent = 'Error: ' + msg;
+                const de = document.getElementById('dropError');
+                if (de) de.textContent = 'Download/load failed — ' + msg;
                 dropzone.classList.remove('hidden');
                 loading.classList.add('hidden');
             }
@@ -1374,8 +1378,12 @@ void main() {
             await loadFileChunked(file);
         } catch (err) {
             console.error('[4DGS] Load error:', err);
-            loadStatus.textContent = 'Error: ' + err.message;
-            alert('Failed to load file: ' + err.message + '\nFile size: ' + sizeMB + ' MB');
+            const msg = `${err.name || 'Error'}: ${err.message} (file ${sizeMB} MB)`;
+            loadStatus.textContent = 'Error: ' + msg;
+            const de = document.getElementById('dropError');
+            if (de) de.textContent = 'Load failed — ' + msg;
+            // Modal alert is intrusive on phones; the dropzone message is enough there.
+            if (!IS_MOBILE) alert('Failed to load file: ' + err.message + '\nFile size: ' + sizeMB + ' MB');
             dropzone.classList.remove('hidden');
             loading.classList.add('hidden');
         }
@@ -1504,8 +1512,11 @@ void main() {
             ];
         }
 
-        // Process in batches of 500K Gaussians (~128 MB per batch for fpg=64)
-        const GAUSS_BATCH = 500000;
+        // Process in batches of 500K Gaussians (~128 MB per batch for fpg=64).
+        // On mobile use a much smaller batch: that per-batch `batchBuf` ArrayBuffer is an
+        // awaited contiguous allocation, and ~128 MB is exactly the kind of allocation a phone
+        // throws on ("Array buffer allocation failed") — which aborts the load to the dropzone.
+        const GAUSS_BATCH = IS_MOBILE ? 100000 : 500000;
         const nBatches = Math.ceil(N / GAUSS_BATCH);
         // Store file ref for texture packing (gaussian data streaming)
         _gaussStreamFile = file;
@@ -1598,49 +1609,65 @@ void main() {
             const rotStart = posStart + posByteLen;
             const scaleStart = rotStart + rotByteLen;
             const totalKFBytes = posByteLen + (hasV3 ? rotByteLen + scaleByteLen : 0);
-            const KF_STREAM_THRESHOLD = 1.0 * 1024 * 1024 * 1024; // 1 GB
+            // Stream keyframe data (read in batches during texture packing) when it would be too
+            // large to allocate as single contiguous Float32Arrays. On mobile the limit is far
+            // lower: phones OOM (RangeError: Array buffer allocation failed) on a few-hundred-MB
+            // contiguous allocation, which is what made the large animated samples throw and fall
+            // back to the dropzone. The samples are ~149k Gaussians, so this KF data IS the bulk
+            // of the file (227-538 MB) and must stream on mobile.
+            const KF_STREAM_THRESHOLD = (IS_MOBILE ? 96 : 1024) * 1024 * 1024;
 
-            if (totalKFBytes > KF_STREAM_THRESHOLD) {
-                // Streaming mode: KF data too large to fit in memory at once.
-                // Store file reference and byte offsets; read in batches during texture packing.
-                console.log(`[4DGS] KF data ${(totalKFBytes / 1024 / 1024 / 1024).toFixed(1)} GB — streaming mode`);
+            // Switch to streaming mode: keep the file + offsets, read KF data in batches later.
+            const useKFStreaming = () => {
                 _kfStreamFile = file;
                 _kfStreamOffsets = { posStart, rotStart, scaleStart, fileK: K, hasV3 };
-                // Set sentinel so onCovReady knows to stream
                 keyframePositions = 'stream';
                 keyframeRotations = hasV3 ? 'stream' : null;
                 keyframeScales = hasV3 ? 'stream' : null;
                 loadFill.style.width = '44%';
+            };
+
+            if (totalKFBytes > KF_STREAM_THRESHOLD) {
+                console.log(`[4DGS] KF data ${(totalKFBytes / 1024 / 1024).toFixed(0)} MB — streaming mode`);
+                useKFStreaming();
             } else {
-                // Normal mode: read all KF data into memory
-                loadFill.style.width = '30%';
-                loadStatus.textContent = `Reading position keyframes (${(posByteLen / 1024 / 1024).toFixed(0)} MB)...`;
-                const posBuf = await file.slice(posStart, posStart + posByteLen).arrayBuffer();
-                keyframePositions = new Float32Array(posBuf);
+                // Normal mode: read all KF data into memory. If a (mobile) allocation fails for a
+                // file just under the threshold, fall back to streaming rather than aborting.
+                try {
+                    loadFill.style.width = '30%';
+                    loadStatus.textContent = `Reading position keyframes (${(posByteLen / 1024 / 1024).toFixed(0)} MB)...`;
+                    const posBuf = await file.slice(posStart, posStart + posByteLen).arrayBuffer();
+                    keyframePositions = new Float32Array(posBuf);
 
-                // Debug: print first Gaussian's keyframe positions
-                console.log('[4DGS] Gaussian 0 keyframe positions:');
-                for (let k = 0; k < Math.min(5, K); k++) {
-                    const idx = k * 3;
-                    console.log(`  kf[${k}] t=${keyframeTimes[k].toFixed(2)}: (${keyframePositions[idx].toFixed(4)}, ${keyframePositions[idx+1].toFixed(4)}, ${keyframePositions[idx+2].toFixed(4)})`);
-                }
+                    // Debug: print first Gaussian's keyframe positions
+                    console.log('[4DGS] Gaussian 0 keyframe positions:');
+                    for (let k = 0; k < Math.min(5, K); k++) {
+                        const idx = k * 3;
+                        console.log(`  kf[${k}] t=${keyframeTimes[k].toFixed(2)}: (${keyframePositions[idx].toFixed(4)}, ${keyframePositions[idx+1].toFixed(4)}, ${keyframePositions[idx+2].toFixed(4)})`);
+                    }
 
-                if (hasV3) {
-                    loadFill.style.width = '38%';
-                    loadStatus.textContent = `Reading rotation keyframes (${(rotByteLen / 1024 / 1024).toFixed(0)} MB)...`;
-                    const rotBuf = await file.slice(rotStart, rotStart + rotByteLen).arrayBuffer();
-                    keyframeRotations = new Float32Array(rotBuf);
+                    if (hasV3) {
+                        loadFill.style.width = '38%';
+                        loadStatus.textContent = `Reading rotation keyframes (${(rotByteLen / 1024 / 1024).toFixed(0)} MB)...`;
+                        const rotBuf = await file.slice(rotStart, rotStart + rotByteLen).arrayBuffer();
+                        keyframeRotations = new Float32Array(rotBuf);
 
-                    loadFill.style.width = '44%';
-                    loadStatus.textContent = `Reading scale keyframes (${(scaleByteLen / 1024 / 1024).toFixed(0)} MB)...`;
-                    const scaleBuf = await file.slice(scaleStart, scaleStart + scaleByteLen).arrayBuffer();
-                    keyframeScales = new Float32Array(scaleBuf);
+                        loadFill.style.width = '44%';
+                        loadStatus.textContent = `Reading scale keyframes (${(scaleByteLen / 1024 / 1024).toFixed(0)} MB)...`;
+                        const scaleBuf = await file.slice(scaleStart, scaleStart + scaleByteLen).arrayBuffer();
+                        keyframeScales = new Float32Array(scaleBuf);
 
-                    console.log(`[4DGS] v3 keyframes: ${K} rotation [${N}x${K}x4] + scale [${N}x${K}x3]`);
-                    const midK = Math.floor(K / 2);
-                    console.log(`  G0 rot kf[0]: (${keyframeRotations[0].toFixed(4)}, ${keyframeRotations[1].toFixed(4)}, ${keyframeRotations[2].toFixed(4)}, ${keyframeRotations[3].toFixed(4)})`);
-                    console.log(`  G0 rot kf[${midK}]: (${keyframeRotations[midK*4].toFixed(4)}, ${keyframeRotations[midK*4+1].toFixed(4)}, ${keyframeRotations[midK*4+2].toFixed(4)}, ${keyframeRotations[midK*4+3].toFixed(4)})`);
-                    console.log(`  G0 scale kf[0]: (${keyframeScales[0].toFixed(4)}, ${keyframeScales[1].toFixed(4)}, ${keyframeScales[2].toFixed(4)})`);
+                        console.log(`[4DGS] v3 keyframes: ${K} rotation [${N}x${K}x4] + scale [${N}x${K}x3]`);
+                        const midK = Math.floor(K / 2);
+                        console.log(`  G0 rot kf[0]: (${keyframeRotations[0].toFixed(4)}, ${keyframeRotations[1].toFixed(4)}, ${keyframeRotations[2].toFixed(4)}, ${keyframeRotations[3].toFixed(4)})`);
+                        console.log(`  G0 rot kf[${midK}]: (${keyframeRotations[midK*4].toFixed(4)}, ${keyframeRotations[midK*4+1].toFixed(4)}, ${keyframeRotations[midK*4+2].toFixed(4)}, ${keyframeRotations[midK*4+3].toFixed(4)})`);
+                        console.log(`  G0 scale kf[0]: (${keyframeScales[0].toFixed(4)}, ${keyframeScales[1].toFixed(4)}, ${keyframeScales[2].toFixed(4)})`);
+                    }
+                } catch (kfErr) {
+                    console.warn('[4DGS] In-memory keyframe load failed (' + (kfErr && kfErr.message) + ') — switching to streaming');
+                    keyframeRotations = null;
+                    keyframeScales = null;
+                    useKFStreaming();
                 }
             }
         }
@@ -2053,8 +2080,10 @@ void main() {
 
             const YIELD_EVERY = 100000;
             // Streaming: batch-load gaussian/KF data from file in chunks
-            const GAUSS_STREAM_BATCH = 100000;
-            const KF_GAUSS_BATCH = 100000;
+            // Smaller batches on mobile keep each per-batch Float32Array allocation small
+            // (a phone can't spare a 100k-Gaussian * K-keyframe contiguous buffer).
+            const GAUSS_STREAM_BATCH = IS_MOBILE ? 25000 : 100000;
+            const KF_GAUSS_BATCH = IS_MOBILE ? 25000 : 100000;
             let gaussBatchEnd = isGaussStreaming ? 0 : N;
             let kfBatchEnd = isStreaming ? 0 : N;
 
